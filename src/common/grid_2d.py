@@ -2,6 +2,12 @@
 
 from collections import namedtuple
 
+directions = {
+    "^": (-1, 0),
+    "v": (1, 0),
+    "<": (0, -1),
+    ">": (0, 1),
+}
 
 XY = namedtuple(
     "XY",
