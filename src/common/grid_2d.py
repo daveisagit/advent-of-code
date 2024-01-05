@@ -9,6 +9,10 @@ directions = {
     ">": (0, 1),
 }
 
+diagonal_directions = ((1, 1), (1, -1), (-1, 1), (-1, -1))
+orthogonal_directions = directions.values()
+all_directions = list(orthogonal_directions) + list(diagonal_directions)
+
 XY = namedtuple(
     "XY",
     [
