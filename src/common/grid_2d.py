@@ -41,6 +41,8 @@ RC = namedtuple(
 
 def get_grid_limits(point_tuples):
     """Return the limits of the data"""
+    if not point_tuples:
+        return 0, 0, 0, 0
     min_x = min(point[0] for point in point_tuples)
     max_x = max(point[0] for point in point_tuples)
     min_y = min(point[1] for point in point_tuples)

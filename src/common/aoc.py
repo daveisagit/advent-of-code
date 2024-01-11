@@ -24,6 +24,15 @@ def get_filename(fn, input_type):
     return fn
 
 
+def dump_path(fn):
+    """The get a filepath for dumping output"""
+    aoc_data_path = environ.get("AOC_DATA_PATH")
+    day = str(path.basename(fn))[4:6]
+    year = path.basename(path.dirname(fn))
+    dump_path = f"{aoc_data_path}/{year}/day_{day}/dump.txt"
+    return dump_path
+
+
 def file_to_list(filename: str):
     """Read text file to list of strings"""
     with open(filename, encoding=ENCODING) as f:
