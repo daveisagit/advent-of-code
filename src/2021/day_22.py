@@ -145,10 +145,11 @@ def get_block(box, trim=0):
 
 
 def solve(data, trim=0) -> int:
-    """Solve: When processing a block means, check for overlapping existing blocks
+    """Solve: Processing a block means:
+    Check for overlapping existing blocks
     For each one with an intersection remove it and replace with the difference.
-    This will have the effect of re-constructing a new workspace for the existing
-    block whilst leaving a gap for the new addition."""
+    This will have the effect of re-constructing a new granular workspace
+    for the existing block whilst leaving a gap for the new addition."""
 
     # Find the first valid "On" block as initial offs can be ignored
     start_with = 0

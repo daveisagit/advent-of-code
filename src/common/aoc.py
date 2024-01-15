@@ -40,6 +40,13 @@ def file_to_list(filename: str):
     return [line.strip() for line in lines]
 
 
+def file_to_list_rstrip(filename: str):
+    """Read text file to list of strings"""
+    with open(filename, encoding=ENCODING) as f:
+        lines = f.readlines()
+    return [line.rstrip() for line in lines]
+
+
 def file_to_string(filename: str):
     """Read whole file as string"""
     with open(filename, encoding=ENCODING) as f:
