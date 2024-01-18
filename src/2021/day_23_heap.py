@@ -5,10 +5,12 @@ Part B
 add lines to data in between 1st & last
   #D#C#B#A#
   #D#B#A#C#
+
+Using a binary heap it runs in under 1.5s instead of around 5s (using bfs)
 """
 
-from collections import deque
 from common.aoc import file_to_list_rstrip, aoc_part, get_filename
+from common.heap import BinaryHeap
 
 AMPHIPODS = "ABCD"
 amphipod_energy = {a: 10**i for i, a in enumerate(AMPHIPODS)}
@@ -38,16 +40,14 @@ def solve_part_a(data) -> int:
     corridor = [" "] * 11
     room_size = len(data[0])
 
-    initial_state = (0, tuple(corridor), tuple(tuple(r) for r in rooms))
-    lowest_energy_solution = None
-
-    bfs = deque()
+    initial_state = (tuple(corridor), tuple(tuple(r) for r in rooms))
     seen = set()
-    bfs.append(initial_state)
+    bh = BinaryHeap()
+    bh.upsert(initial_state, 0)
 
-    while bfs:
-        state = bfs.popleft()
-        energy, corridor, rooms = state
+    while True:
+        state, energy = bh.pop()
+        corridor, rooms = state
         if state in seen:
             continue
         seen.add(state)
@@ -72,9 +72,7 @@ def solve_part_a(data) -> int:
         }
 
         if len(done_rooms) == 4:
-            if lowest_energy_solution is None or lowest_energy_solution > energy:
-                lowest_energy_solution = energy
-            continue
+            return energy
 
         for r in ready_rooms:
             rp = (r * 2) + 2
@@ -101,8 +99,8 @@ def solve_part_a(data) -> int:
                     + 1
                 )
                 energy_rqd = amphipod_energy[a] * dist
-                bfs.append(
-                    (energy + energy_rqd, corridor, tuple(tuple(r) for r in new_rooms))
+                bh.upsert(
+                    (corridor, tuple(tuple(r) for r in new_rooms)), energy + energy_rqd
                 )
 
             # corridor to room
@@ -120,12 +118,9 @@ def solve_part_a(data) -> int:
                 new_corridor[sp] = " "
                 dist = abs(rp - sp) + room_size - len(new_rooms[r]) + 1
                 energy_rqd = amphipod_energy[a] * dist
-                bfs.append(
-                    (
-                        energy + energy_rqd,
-                        tuple(new_corridor),
-                        tuple(tuple(r) for r in new_rooms),
-                    )
+                bh.upsert(
+                    (tuple(new_corridor), tuple(tuple(r) for r in new_rooms)),
+                    energy + energy_rqd,
                 )
 
         # room to corridor
@@ -152,15 +147,10 @@ def solve_part_a(data) -> int:
                 new_corridor[tp] = a
                 dist = abs(rp - tp) + room_size - len(new_rooms[r])
                 energy_rqd = amphipod_energy[a] * dist
-                bfs.append(
-                    (
-                        energy + energy_rqd,
-                        tuple(new_corridor),
-                        tuple(tuple(r) for r in new_rooms),
-                    )
+                bh.upsert(
+                    (tuple(new_corridor), tuple(tuple(r) for r in new_rooms)),
+                    energy + energy_rqd,
                 )
-
-    return lowest_energy_solution
 
 
 @aoc_part
