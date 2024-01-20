@@ -3,11 +3,21 @@
 from collections import namedtuple
 
 directions = {
-    "^": (-1, 0),
-    "v": (1, 0),
-    "<": (0, -1),
     ">": (0, 1),
+    "^": (-1, 0),
+    "<": (0, -1),
+    "v": (1, 0),
 }
+
+rotations = [(0, 1), (-1, 0), (0, -1), (1, 0)]
+
+
+def rotate90(v, about=(0, 0)):
+    """Rotate anticlockwise 90"""
+    return (-v[1], v[0])
+
+
+compass = {cp: v for cp, v in zip(list("ENWS"), rotations)}
 
 diagonal_directions = ((1, 1), (1, -1), (-1, 1), (-1, -1))
 orthogonal_directions = directions.values()
