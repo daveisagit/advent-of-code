@@ -3,7 +3,6 @@
 """
 
 from itertools import product
-import queue
 from common.aoc import file_to_list, aoc_part, get_filename
 from common.general import tok
 
@@ -82,40 +81,43 @@ def solve_part_a(data) -> int:
     return len(valid_messages)
 
 
-def match_to_rules(rules, message, memo):
-    """Does the message match the rules"""
+def matches_rule_0(msg, memo):
+    """Does the message match the new rules"""
+    og_msg = msg
 
-    valid = False
+    # rule 0 = 8 11 so we remove an equal number
+    # of 42s and 31s from the head and tail.
+    while msg:
+        match = False
+        for ml in memo[42]:
+            if match:
+                break
+            if msg.startswith(ml):
+                for mr in memo[31]:
+                    if msg.endswith(mr):
+                        msg = msg[len(ml) : -len(mr)]
+                        match = True
+                        break
 
-    def check(msg, rule_id):
-        nonlocal valid
+        if not match:
+            break
 
-        if isinstance(rule_id, str):
-            return msg
+    # if we removed all or nothing then it fails
+    if not msg or og_msg == msg:
+        return False
 
-        rule = rules[rule_id]
-        if rule_id in memo:
-            if msg in memo[rule_id]:
-                return ""
-            for match in memo[rule_id]:
-                if msg.startswith(match):
-                    return msg[len(match) :]
-            return msg
+    # all that remains is a repeat of 42
+    while msg:
+        match = False
+        for m in memo[42]:
+            if msg.startswith(m):
+                msg = msg[len(m) :]
+                match = True
+                break
+        if not match:
+            break
 
-        for seq in rule:
-            failed = False
-            msg2 = msg
-            for sub_rule_id in seq:
-                if not msg2:
-                    failed = True
-                    break
-                msg2 = check(msg2, sub_rule_id)
-            if msg2 == "" and not failed:
-                valid = True
-                return ""
-
-    check(message, 0)
-    return valid
+    return not msg
 
 
 @aoc_part
@@ -126,23 +128,13 @@ def solve_part_b(data) -> int:
     del memo[0]
     del memo[8]
     del memo[11]
-    # for rule_id, vml in memo.items():
-    #     print(rule_id, vml)
 
-    rules[8] = ((42,), (42, 8))
-    rules[11] = (
-        (
-            42,
-            31,
-        ),
-        (42, 11, 31),
-    )
-
+    cnt = 0
     for msg in messages:
-        if match_to_rules(rules, msg, memo):
-            print(msg)
+        if matches_rule_0(msg, memo):
+            cnt += 1
 
-    return 0
+    return cnt
 
 
 EX_RAW_DATA = file_to_list(get_filename(__file__, "ex"))
@@ -151,8 +143,8 @@ EX_DATA = parse_data(EX_RAW_DATA)
 MY_RAW_DATA = file_to_list(get_filename(__file__, "my"))
 MY_DATA = parse_data(MY_RAW_DATA)
 
-# solve_part_a(EX_DATA)
-# solve_part_a(MY_DATA)
+solve_part_a(EX_DATA)
+solve_part_a(MY_DATA)
 
 solve_part_b(EX_DATA)
-# solve_part_b(MY_DATA)
+solve_part_b(MY_DATA)
