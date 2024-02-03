@@ -58,3 +58,41 @@ def get_grid_limits(point_tuples):
     min_y = min(point[1] for point in point_tuples)
     max_y = max(point[1] for point in point_tuples)
     return min_x, min_y, max_x, max_y
+
+
+def rotate_grid(sg):
+    """Rotate a square grid 90 ACW"""
+    rows = len(sg)
+    cols = len(sg[0])
+    og = []
+    for _ in range(cols):
+        l = [None] * rows
+        og.append(l)
+    for ri, row in enumerate(sg):
+        for ci, c in enumerate(row):
+            og[cols - ci - 1][ri] = c
+    return og
+
+
+def flip_h_grid(sg):
+    """Flip horizontally across a vertical axis"""
+    og = []
+    for row in sg:
+        r = list(reversed(row))
+        og.append(r)
+    return og
+
+
+def dihedral_arrangements(sg):
+    """Generator for the 8 arrangements of a square grid
+    returns a triple a,b,grid where a is the number of rotations and b reflections"""
+    # Rotate 4 times
+    # Reflect and rotate 4 times again
+    for a in range(4):
+        yield a, 0, sg
+        sg = rotate_grid(sg)
+
+    sg = flip_h_grid(sg)
+    for a in range(4):
+        yield a, 1, sg
+        sg = rotate_grid(sg)
