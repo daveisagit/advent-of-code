@@ -1,6 +1,5 @@
 """Number theory stuff"""
 
-
 from itertools import combinations
 import math
 
@@ -74,3 +73,11 @@ def solve_congruences(congruences: list) -> int:
         total_cc += cc
 
     return total_cc % lcm
+
+
+def mod_exp(b, e, m):
+    """Return base^exp mod m"""
+    res = 1
+    for _ in range(e):
+        res = (res * b) % m
+    return res
