@@ -9,6 +9,13 @@ directions = {
     "v": (1, 0),
 }
 
+directions_UDLR = {
+    "R": (0, 1),
+    "U": (-1, 0),
+    "L": (0, -1),
+    "D": (1, 0),
+}
+
 rotations = [(0, 1), (-1, 0), (0, -1), (1, 0)]
 
 
@@ -96,3 +103,8 @@ def dihedral_arrangements(sg):
     for a in range(4):
         yield a, 1, sg
         sg = rotate_grid(sg)
+
+
+def manhattan(p):
+    """Return the manhattan distance"""
+    return abs(p[0]) + abs(p[1])
