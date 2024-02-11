@@ -112,7 +112,8 @@ class IntCode:  # pylint: disable=R0902
 
             if self.trace:
                 print(
-                    f"{self._cnt:#5d} {self._p:#5d} {self._desc:30s} {self._op:#3d} {self._args} {self._modes}"  # pylint: disable=C0301
+                    f"{self._cnt:#5d} {self._p:#5d} {self._desc:30s}"
+                    f"{self._op:#3d} {self._args} {self._modes}"
                 )
 
             if pause:
