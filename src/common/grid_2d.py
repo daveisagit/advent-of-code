@@ -16,6 +16,9 @@ directions_UDLR = {
     "D": (1, 0),
 }
 
+# Index changes 
+# +1 ACW - left
+# -1  CW - right
 rotations = [(0, 1), (-1, 0), (0, -1), (1, 0)]
 
 

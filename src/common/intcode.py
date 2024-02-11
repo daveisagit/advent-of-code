@@ -39,7 +39,7 @@ class IntCode:  # pylint: disable=R0902
         self._relative_base = 0
         self.input = []
         self.output = []
-        self._running = False
+        self._running = True
         for a, v in enumerate(self.code):
             self.memory[a] = v
 
