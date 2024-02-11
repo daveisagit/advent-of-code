@@ -17,14 +17,18 @@ class IntCode:  # pylint: disable=R0902
 
         self.input = []
         self.output = []
+        self.trace = False
+        self.watch = []
 
+        self._cnt = 0
         self._p = 0
         self._arg_types = None
         self._modes = None
         self._jump = None
         self._running = False
         self._op = None
-        self.debug = False
+        self._desc = ""
+        self._args = []
 
         self.reset()
 
@@ -36,6 +40,7 @@ class IntCode:  # pylint: disable=R0902
     def reset(self):
         """Reset all inputs, outputs, pointers and memory"""
         self._p = 0
+        self._cnt = 0
         self._relative_base = 0
         self.input = []
         self.output = []
@@ -67,9 +72,7 @@ class IntCode:  # pylint: disable=R0902
 
             args.append(v)
 
-        if self.debug:
-            print(f"{self._op} {args} {self._modes}")
-
+        self._args = tuple(args)
         return tuple(args)
 
     def run(self, input_values: list | None = None) -> list:
@@ -91,15 +94,27 @@ class IntCode:  # pylint: disable=R0902
             self._modes = None
             self._jump = None
             self._op = None
+            self._cnt += 1
 
             # get op and modes
             op = self.memory[self._p]
             self._modes = op // 100
             op = op % 100
             self._op = op
+            self._desc = ""
+            self._args = None
+
+            if self.watch:
+                print({w: self.memory[w] for w in self.watch})
 
             # do the operation and break if pausing for input
             pause = self._do_op(op)
+
+            if self.trace:
+                print(
+                    f"{self._cnt:#5d} {self._p:#5d} {self._desc:30s} {self._op:#3d} {self._args} {self._modes}"  # pylint: disable=C0301
+                )
+
             if pause:
                 break
 
@@ -116,6 +131,7 @@ class IntCode:  # pylint: disable=R0902
     def _do_op(self, op) -> bool:
 
         if op == 99:
+            self._desc = "HALT"
             self._running = False
 
         if op == 1:
@@ -156,6 +172,7 @@ class IntCode:  # pylint: disable=R0902
         a, b, s = args  # pylint: disable=W0632
         r = a + b
         self.memory[s] = r
+        self._desc = f"add {a} + {b} = {r} -> {s}"
 
     def _mlt(self):
         """02"""
@@ -164,16 +181,19 @@ class IntCode:  # pylint: disable=R0902
         a, b, s = args  # pylint: disable=W0632
         r = a * b
         self.memory[s] = r
+        self._desc = f"mlt {a} x {b} = {r} -> {s}"
 
     def _input(self):
         """03"""
         self._arg_types = "O"
         if not self.input:
+            self._desc = "inp pausing ..."
             return False
         args = self._get_args()
         a = args[0]
         v = self.input.pop(0)
         self.memory[a] = v
+        self._desc = f"inp {v} -> {a}"
         return True
 
     def _output(self):
@@ -182,6 +202,7 @@ class IntCode:  # pylint: disable=R0902
         args = self._get_args()
         v = args[0]
         self.output.append(v)
+        self._desc = f"out -> {v}"
 
     def _jump_if_true(self):
         """05"""
@@ -190,6 +211,7 @@ class IntCode:  # pylint: disable=R0902
         cmp, jmp = args  # pylint: disable=W0632
         if cmp != 0:
             self._jump = jmp
+        self._desc = f"jit {cmp} != 0: {self._jump}"
 
     def _jump_if_false(self):
         """06"""
@@ -198,26 +220,29 @@ class IntCode:  # pylint: disable=R0902
         cmp, jmp = args  # pylint: disable=W0632
         if cmp == 0:
             self._jump = jmp
+        self._desc = f"jif {cmp} == 0: {self._jump}"
 
     def _less_than(self):
         """07"""
         self._arg_types = "IIO"
         args = self._get_args()
         a, b, s = args  # pylint: disable=W0632
+        r = 0
         if a < b:
-            self.memory[s] = 1
-        else:
-            self.memory[s] = 0
+            r = 1
+        self.memory[s] = r
+        self._desc = f"cmp {a}<{b}: {r} -> {s}"
 
     def _equal(self):
         """08"""
         self._arg_types = "IIO"
         args = self._get_args()
         a, b, s = args  # pylint: disable=W0632
+        r = 0
         if a == b:
-            self.memory[s] = 1
-        else:
-            self.memory[s] = 0
+            r = 1
+        self.memory[s] = r
+        self._desc = f"cmp {a}=={b}: {r} -> {s}"
 
     def _rel_offset(self):
         """09"""
@@ -225,6 +250,7 @@ class IntCode:  # pylint: disable=R0902
         args = self._get_args()
         v = args[0]
         self._relative_base += v
+        self._desc = f"off {v}: {self._relative_base}"
 
 
 def test_day_02_add():
