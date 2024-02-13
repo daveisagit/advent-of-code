@@ -93,7 +93,6 @@ class IntCode:  # pylint: disable=R0902
             self._arg_types = ""
             self._modes = None
             self._jump = None
-            self._op = None
             self._cnt += 1
 
             # get op and modes
