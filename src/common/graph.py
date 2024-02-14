@@ -34,3 +34,23 @@ def dijkstra(gph, source, target):
     if target:
         return dist[target]
     return dist
+
+
+def simplify(gph):
+    """Remove nodes and merge edges for nodes with 2 edges"""
+    candidates = [u for u, oe in gph.items() if len(oe) == 2]
+    while candidates:
+        n = list(candidates)[0]
+        e_sum = sum(gph[n].values())
+        neighbours = list(gph[n].keys())
+        if len(neighbours) != 2:
+            raise RuntimeError("WHAT")
+        u = neighbours[0]
+        v = neighbours[1]
+        del gph[n][u]
+        del gph[n][v]
+        del gph[u][n]
+        del gph[v][n]
+        gph[u][v] = e_sum
+        gph[v][u] = e_sum
+        candidates = [u for u, oe in gph.items() if len(oe) == 2]

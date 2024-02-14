@@ -22,10 +22,12 @@ class IntCode:  # pylint: disable=R0902
 
         self._cnt = 0
         self._p = 0
+        self._relative_base = 0
+        self._running = False
+
         self._arg_types = None
         self._modes = None
         self._jump = None
-        self._running = False
         self._op = None
         self._desc = ""
         self._args = []
