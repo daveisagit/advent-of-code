@@ -1,7 +1,8 @@
 """String and list tools"""
 
-
+import hashlib
 from itertools import chain, combinations
+import json
 
 
 def get_column(data, col: int) -> list:
@@ -57,3 +58,13 @@ def powerset(iterable):
     for example powerset([1,2,3]) --> () (1,) (2,) (3,) (1,2) (1,3) (2,3) (1,2,3)"""
     s = list(iterable)
     return chain.from_iterable(combinations(s, r) for r in range(len(s) + 1))
+
+
+def dict_hash(d) -> str:
+    """MD5 hash of a dictionary."""
+    dh = hashlib.md5()
+    # We need to sort arguments so {'a': 1, 'b': 2} is
+    # the same as {'b': 2, 'a': 1}
+    encoded = json.dumps(d, sort_keys=True).encode()
+    dh.update(encoded)
+    return dh.hexdigest()

@@ -24,7 +24,7 @@ def solve_part_a(data) -> int:
 
 
 @aoc_part
-def solve_part_b(data) -> int:
+def solve_part_b(data, animate=False) -> int:
     """Solve part B"""
 
     def draw_output(o):
@@ -35,12 +35,16 @@ def solve_part_b(data) -> int:
             if x == -1 and y == 0:
                 txt = str(t)
                 score = t
+                if not animate:
+                    break
             else:
                 txt = char_map[t]
-            print_at(txt, x + x_margin, y)
+            if animate:
+                print_at(txt, x + x_margin, y)
 
-    for _ in range(60):
-        print()
+    if animate:
+        for _ in range(60):
+            print()
 
     ic = IntCode(data)
     ic.memory[0] = 2
@@ -60,7 +64,7 @@ def solve_part_b(data) -> int:
             ball = ball[0][0]
 
         # in case you like to chill out and watch
-        if score < 5000:
+        if animate and score < 3000:
             sleep(0.005)
 
         draw_output(ic.output)
@@ -81,4 +85,4 @@ def solve_part_b(data) -> int:
 MY_RAW_DATA = file_to_string(get_filename(__file__, "my"))
 
 solve_part_a(MY_RAW_DATA)
-solve_part_b(MY_RAW_DATA)
+solve_part_b(MY_RAW_DATA, animate=False)
