@@ -32,6 +32,7 @@ def draw_map(seen, oxygen):
             if (r, c) == (0, 0):
                 row[ic] = "S"
         print("".join(row))
+    print()
 
 
 def create_map(data):
@@ -75,7 +76,7 @@ def create_map(data):
 @aoc_part
 def solve_part_a(data) -> int:
     """Solve part A"""
-    seen, m, oxygen = create_map(data)
+    seen, m, oxygen = data
     draw_map(seen, oxygen)
     simplify(m)
     r = dijkstra(m, (0, 0), oxygen)
@@ -85,13 +86,14 @@ def solve_part_a(data) -> int:
 @aoc_part
 def solve_part_b(data) -> int:
     """Solve part B"""
-    _, m, oxygen = create_map(data)
+    _, m, oxygen = data
     simplify(m)
     r = dijkstra(m, oxygen, None)
     return max(r.values())
 
 
 MY_RAW_DATA = file_to_string(get_filename(__file__, "my"))
+MY_DATA = create_map(MY_RAW_DATA)
 
-solve_part_a(MY_RAW_DATA)
-solve_part_b(MY_RAW_DATA)
+solve_part_a(MY_DATA)
+solve_part_b(MY_DATA)
