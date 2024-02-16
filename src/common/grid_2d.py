@@ -69,6 +69,8 @@ def get_grid_limits(point_tuples):
     min_y = min(point[1] for point in point_tuples)
     max_y = max(point[1] for point in point_tuples)
     return min_x, min_y, max_x, max_y
+    # for clients using (r,c)
+    # min_r, min_c, max_r, max_c
 
 
 def rotate_grid(sg):
