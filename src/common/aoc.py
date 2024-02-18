@@ -15,7 +15,7 @@ def get_filename(fn, input_type):
     {AOC_DATA_PATH}/year/day_nn/my.txt
     We keep the data in a separate repository (private) as it is under copyright
     """
-    if input_type[:2] in ("ex", "my"):
+    if len(input_type) == 2:
         aoc_data_path = environ.get("AOC_DATA_PATH")
         day = str(path.basename(fn))[4:6]
         year = path.basename(path.dirname(fn))

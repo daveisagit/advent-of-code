@@ -1,5 +1,6 @@
 """String and list tools"""
 
+from collections import deque
 import hashlib
 from itertools import chain, combinations
 import json
@@ -68,3 +69,57 @@ def dict_hash(d) -> str:
     encoded = json.dumps(d, sort_keys=True).encode()
     dh.update(encoded)
     return dh.hexdigest()
+
+
+def find_sublists(lst, max_occur=None, min_size=1, max_size=None):
+    """Return a list of list that would cover the whole list for any
+    arrangement and re-se of the sublists"""
+
+    def remove_state():
+        wl = lst.copy()
+        for sl in state:
+            # remove all occurrences of sl from wl
+            removing = True
+            while removing:
+                removing = False
+                for p, w in enumerate(window_over(wl, len(sl))):
+                    if w == sl:
+                        wl = wl[:p] + wl[p + len(sl) :]
+                        removing = True
+                        break
+        return wl
+
+    if max_occur is None:
+        max_occur = len(lst)
+    if max_size is None:
+        max_size = len(lst)
+
+    dfs = deque()
+    dfs.append([])
+    while dfs:
+        state = dfs.pop()
+        wl = remove_state()
+        if not wl:
+            if len(state) <= max_occur:
+                return state
+
+        for s in range(min_size, min(max_size, len(wl))):
+            t = wl[:s]
+            ns = state.copy()
+            ns.append(t)
+            dfs.append(ns)
+
+    return None
+
+
+def test_sublists():
+    """From 2019 Day 17"""
+    l = (
+        "L,6,R,12,R,8,R,8,R,12,L,12,R,8,R,12,"
+        "L,12,L,6,R,12,R,8,R,12,L,12,L,4,L,4,L,6,"
+        "R,12,R,8,R,12,L,12,L,4,L,4,L,6,R,12,R,8,"
+        "R,12,L,12,L,4,L,4,R,8,R,12,L,12"
+    )
+    l = l.split(",")
+    sl = find_sublists(l, 3, min_size=4, max_size=10)
+    print(sl)

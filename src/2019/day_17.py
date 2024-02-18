@@ -4,6 +4,7 @@
 
 from operator import add
 from common.aoc import aoc_part, file_to_string, get_filename
+from common.general import find_sublists
 from common.intcode import IntCode
 from common.grid_2d import directions, rotations
 
@@ -117,6 +118,24 @@ def get_functions_from_manual_inspection():
     return m, {"A": a, "B": b, "C": c}
 
 
+def get_functions(route_log):
+    """Find the functions and main"""
+    f_names = "ABC"
+    tl = route_log.copy()
+    sl = find_sublists(route_log, 3, min_size=4, max_size=10)
+    m = []
+    while tl:
+        for i, l in enumerate(sl):
+            if tl[: len(l)] == l:
+                fn = f_names[i]
+                m.append(fn)
+                tl = tl[len(l) :]
+                break
+    m = ",".join(m)
+    fns = {f_names[i]: ",".join(str(c) for c in l) for i, l in enumerate(sl)}
+    return m, fns
+
+
 @aoc_part
 def solve_part_b(data) -> int:
     """Solve part B"""
@@ -124,7 +143,8 @@ def solve_part_b(data) -> int:
     route_log = get_route_log(data)
     pgm_2 = ",".join([str(c) for c in route_log])
 
-    m, fn = get_functions_from_manual_inspection()
+    # m, fn = get_functions_from_manual_inspection()
+    m, fn = get_functions(route_log)
     mr = m.split(",")
     pgm_1 = []
     for f in mr:
