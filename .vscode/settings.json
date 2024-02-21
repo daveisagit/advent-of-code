@@ -3,6 +3,7 @@
         "PYTHONPATH": "${workspaceFolder}/src",
     },
     "cSpell.words": [
+        "Donut",
         "intcode"
     ]
 }

@@ -32,7 +32,9 @@ def dijkstra(gph, source, target):
                 push(fringe, (vu_dist, next(c), u))
 
     if target:
-        return dist[target]
+        if target in dist:
+            return dist[target]
+        return None
     return dist
 
 
