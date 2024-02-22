@@ -86,6 +86,30 @@ class IntCode:  # pylint: disable=R0902
         self.go()
         return self.output
 
+    def run_ascii(self, script_lines: list):
+        """For Day 21 handle ascii input and output"""
+        input_values = []
+        for line in script_lines:
+            input_values.extend([ord(c) for c in line])
+            input_values.append(10)
+
+        out = self.run(input_values)
+
+        output_lines = []
+        line = ""
+        for c in out:
+            try:
+                if c == 10:
+                    output_lines.append(line)
+                    line = ""
+                    continue
+                line += chr(c)
+            except ValueError:
+                output_lines.append(line)
+                line = ""
+                output_lines.append(c)
+        return output_lines
+
     def go(self):
         """Run the processor"""
         self._running = True
