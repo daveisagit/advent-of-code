@@ -4,6 +4,31 @@ from itertools import combinations
 import math
 
 
+def prime_list(n):
+    """Return all the primes up to n"""
+    if n <= 2:
+        return []
+    sieve = [True] * (n + 1)
+    for x in range(3, int(n**0.5) + 1, 2):
+        for y in range(3, (n // x) + 1, 2):
+            sieve[(x * y)] = False
+
+    return [2] + [i for i in range(3, n, 2) if sieve[i]]
+
+
+def prime_factors(n):
+    """Return all the prime factors of n"""
+    primes = prime_list(int(math.sqrt(n)))
+    factors = []
+    for p in primes:
+        while n % p == 0:
+            factors.append(p)
+            n = n // p
+    if n > 1:
+        factors.append(n)
+    return factors
+
+
 def extended_euclid(a: int, b: int):
     """Returns the Bézout coefficients s,t where
     as+bt=GCD"""
@@ -43,6 +68,7 @@ def mod_inv(m, n):
     nt ≡ 1    (mod m)
     so t ≡ n' (mod m)
     """
+    n %= m
     _, t = extended_euclid(m, n)
     return t % m
 
@@ -76,8 +102,12 @@ def solve_congruences(congruences: list) -> int:
 
 
 def mod_exp(b, e, m):
-    """Return base^exp mod m"""
+    """Return base^exp mod m using a binary method"""
     res = 1
-    for _ in range(e):
-        res = (res * b) % m
+    b %= m
+    while e > 0:
+        if e % 2 == 1:
+            res = (res * b) % m
+        e = e >> 1
+        b = (b * b) % m
     return res
