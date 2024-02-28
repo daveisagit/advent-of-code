@@ -134,7 +134,7 @@ def get_bad_items(data, gph, start, rooms_with_items):
 def collect_items(ic, cur, route, rooms_with_items, gph, bad_items):
     """Collect all the things"""
     take_out = []
-    collect_items = set()
+    collected_items = set()
     for r in route:
         go_to(ic, cur, r, gph)
         cur = r
@@ -144,8 +144,8 @@ def collect_items(ic, cur, route, rooms_with_items, gph, bad_items):
                 continue
             out = ic.go_ascii([f"take {item}"])
             take_out.extend(out)
-            collect_items.add(item)
-    return take_out, cur, collect_items
+            collected_items.add(item)
+    return take_out, cur, collected_items
 
 
 def try_item_combos(ic, items):
