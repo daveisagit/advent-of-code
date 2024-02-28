@@ -10,14 +10,6 @@ from common.general import powerset_swap, tok
 from common.intcode import IntCode
 from common.graph import dijkstra_paths, optimal_route
 
-bad_items = {
-    "escape pod",
-    "giant electromagnet",
-    "infinite loop",
-    "photons",
-    "molten lava",
-}
-
 
 def parse_output(out):
     """Return the room, description, doors and items"""
@@ -78,8 +70,6 @@ def auto_explore(data):
             end = room
         rooms[room] = (desc, items)
         for itm in items:
-            if itm in bad_items:
-                continue
             all_items[room].add(itm)
 
         for door in doors:
@@ -104,23 +94,58 @@ def go_to(ic, cur, room, gph):
     _, route = dijkstra_paths(gph, cur, room, weight_attr="d")
     inputs = []
     for u, v in pairwise(route):
-        d = gph[u][v]["nav"]
-        inputs.append(d)
+        door = gph[u][v]["nav"]
+        inputs.append(door)
     out = ic.go_ascii(inputs)
     return out
 
 
-def collect_items(ic, cur, route, items, gph):
+def get_bad_items(data, gph, start, rooms_with_items):
+    """Don't touch!"""
+    bad_items = {
+        "infinite loop": "Very funny!",
+        "giant electromagnet": "The giant electromagnet is stuck to you.  You can't move!!",
+    }
+    item_room_map = {}
+    for room, items in rooms_with_items.items():
+        for i in items:
+            item_room_map[i] = room
+
+    for item, room in item_room_map.items():
+        if item in bad_items:
+            continue
+        ic = IntCode(data)
+        go_to(ic, start, room, gph)
+        out = ic.go_ascii([f"take {item}"])
+
+        if out[-1] == "Command?":
+            continue
+
+        for l in reversed(out):
+            if not l:
+                continue
+            symptom = l
+            break
+        bad_items[item] = symptom
+
+    return bad_items
+
+
+def collect_items(ic, cur, route, rooms_with_items, gph, bad_items):
     """Collect all the things"""
     take_out = []
+    collect_items = set()
     for r in route:
         go_to(ic, cur, r, gph)
         cur = r
-        if r in items:
-            itm = list(items[r])[0]
-            out = ic.go_ascii([f"take {itm}"])
+        items = rooms_with_items[r]
+        for item in items:
+            if item in bad_items:
+                continue
+            out = ic.go_ascii([f"take {item}"])
             take_out.extend(out)
-    return take_out, cur
+            collect_items.add(item)
+    return take_out, cur, collect_items
 
 
 def try_item_combos(ic, items):
@@ -133,12 +158,7 @@ def try_item_combos(ic, items):
                 return False
         return room
 
-    s = set()
-    for i_set in items.values():
-        s.update(i_set)
-    items = s
-
-    items_idx = list(reversed(list(items)))
+    items_idx = list(items)
     i_cnt = len(items)
     for idx in powerset_swap(i_cnt):
         c = items_idx[idx]
@@ -160,13 +180,18 @@ def try_item_combos(ic, items):
                     pwd = int(t)
             break
 
-    return out, pwd
+    return out, pwd, items
 
 
 def manual_explorer(data):
     """Play the game"""
 
     rooms, gph, rooms_with_items, start, end = auto_explore(data)
+    bad_items = get_bad_items(data, gph, start, rooms_with_items)
+    print("Don't take these !")
+    for k, v in bad_items.items():
+        print(f"- {k:20}", v)
+
     route = plan_route(gph, rooms_with_items, start, end)
     cur = start
 
@@ -184,17 +209,21 @@ def manual_explorer(data):
             break
 
         if i == "collect":
-            out, cur = collect_items(ic, cur, route, rooms_with_items, gph)
+            out, cur, collected_items = collect_items(
+                ic, cur, route, rooms_with_items, gph, bad_items
+            )
             continue
 
         if i == "combos":
-            out, pwd = try_item_combos(ic, rooms_with_items)
+            out, pwd, _ = try_item_combos(ic, collected_items)
             out.append(f"Password {pwd}")
             continue
 
         if i == "solve":
-            out, cur = collect_items(ic, cur, route, rooms_with_items, gph)
-            out, pwd = try_item_combos(ic, rooms_with_items)
+            out, cur, collected_items = collect_items(
+                ic, cur, route, rooms_with_items, gph, bad_items
+            )
+            out, pwd, _ = try_item_combos(ic, collected_items)
             out.append(f"Password {pwd}")
             continue
 
@@ -210,18 +239,21 @@ def manual_explorer(data):
 def solve_part_a(data) -> int:
     """Solve part A"""
     _, gph, rooms_with_items, start, end = auto_explore(data)
+    bad_items = get_bad_items(data, gph, start, rooms_with_items)
+    for k, v in bad_items.items():
+        print(f"- {k:20}", v)
     route = plan_route(gph, rooms_with_items, start, end)
-    cur = start
+    print()
+    print(f"Shortest route: {route}")
     ic = IntCode(data)
-    collect_items(ic, cur, route, rooms_with_items, gph)
-    _, pwd = try_item_combos(ic, rooms_with_items)
+    _, _, collected_items = collect_items(
+        ic, start, route, rooms_with_items, gph, bad_items
+    )
+    _, pwd, cmb = try_item_combos(ic, collected_items)
+    print()
+    print(f"Inventory to match weight: {cmb}")
+    print()
     return pwd
-
-
-@aoc_part
-def solve_part_b(data) -> int:
-    """Solve part B"""
-    return len(data)
 
 
 MY_RAW_DATA = file_to_string(get_filename(__file__, "my"))
