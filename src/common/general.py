@@ -123,3 +123,36 @@ def test_sublists():
     l = l.split(",")
     sl = find_sublists(l, 3, min_size=4, max_size=10)
     print(sl)
+
+
+def powerset_swap(set_size):
+    """Generator for an index to add/remove that will take you through
+    all the powerset combinations from any state"""
+    for x in range(1, 2**set_size):
+        t = x
+        b = 0
+        while t % 2 == 0:
+            b += 1
+            t = t >> 1
+        yield b
+
+
+def test_powerset_swap():
+    """Test powerset_swap"""
+
+    def run_swap():
+        for idx in powerset_swap(len(l)):
+            c = l[idx]
+            if c in s:
+                s.remove(c)
+            else:
+                s.add(c)
+            print(s)
+
+    l = list("ABCD")
+    s = set(l)
+    print(f"Start full {s}")
+    run_swap()
+    s = set(["A", "C"])
+    print(f"Start {s}")
+    run_swap()

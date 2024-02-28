@@ -103,15 +103,27 @@ class IntCode:  # pylint: disable=R0902
                 output_lines.append(c)
         return output_lines
 
-    def run_ascii(self, script_lines: list):
-        """For Day 21 handle ascii input and output"""
+    def terminal_in(self, data):
+        """Input as ascii as if on a terminal"""
         input_values = []
-        for line in script_lines:
+        for line in data:
             input_values.extend([ord(c) for c in line])
             input_values.append(10)
+        return input_values
 
+    def run_ascii(self, script_lines: list):
+        """For Day 21 handle ascii input and output"""
+        input_values = self.terminal_in(script_lines)
         out = self.run(input_values)
         return self.terminal_output(out)
+
+    def go_ascii(self, script_lines: list):
+        """For Day 25 handle ascii input and output"""
+        self.input = self.terminal_in(script_lines)
+        self.go()
+        out = self.terminal_output(self.output)
+        self.output.clear()
+        return out
 
     def go(self):
         """Run the processor"""
