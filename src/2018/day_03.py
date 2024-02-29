@@ -42,12 +42,12 @@ def solve_part_b(data) -> int:
         for x in range(p[0][0], p[0][1]):
             for y in range(p[1][0], p[1][1]):
                 patches[(x, y)] += 1
-    singles = [p for p, c in patches.items() if c == 1]
+
     for idx, p in enumerate(data):
         single = True
         for x in range(p[0][0], p[0][1]):
             for y in range(p[1][0], p[1][1]):
-                if (x, y) not in singles:
+                if patches[(x, y)] > 1:
                     single = False
                     break
             if not single:
