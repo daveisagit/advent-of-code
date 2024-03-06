@@ -4,18 +4,14 @@
 
 from common.aoc import aoc_part
 
-
-def parse_data(raw_data):
-    """Parse the input"""
-    data = raw_data
-    return data
+SIZE = 300
 
 
-def create_grid(sn, sz=300):
+def create_grid(sn):
     """Create a grid for a given serial number"""
     g = {}
-    for x in range(1, sz + 1):
-        for y in range(1, sz + 1):
+    for x in range(1, SIZE + 1):
+        for y in range(1, SIZE + 1):
             rid = x + 10
             pl = rid * y
             pl += sn
@@ -28,16 +24,29 @@ def create_grid(sn, sz=300):
     return g
 
 
-def create_sums(g, sz=300, sq=3):
+def create_cumulative_grid(g):
+    """Cumulative from origin"""
+    cg = {}
+    for x in range(1, SIZE + 1):
+        for y in range(1, SIZE + 1):
+            a = cg.get((x - 1, y - 1), 0)
+            b = cg.get((x - 1, y), 0)
+            c = cg.get((x, y - 1), 0)
+            cg[(x, y)] = b + c - a + g[(x, y)]
+    return cg
+
+
+def create_sums(g):
     """Sums for part A"""
+    cg = create_cumulative_grid(g)
     sums = {}
-    for x in range(1, sz - sq + 2):
-        for y in range(1, sz - sq + 2):
-            s = 0
-            for xd in range(sq):
-                for yd in range(sq):
-                    s += g[(x + xd, y + yd)]
-            sums[(x, y)] = s
+    for x in range(1, SIZE - 1):
+        for y in range(1, SIZE - 1):
+            a = cg.get((x - 1, y - 1), 0)
+            b = cg.get((x + 2, y - 1), 0)
+            c = cg.get((x - 1, y + 2), 0)
+            d = cg.get((x + 2, y + 2), 0)
+            sums[(x, y)] = d - b - c + a
     return sums
 
 
@@ -59,9 +68,9 @@ def run_tests():
     assert s[(21, 61)] == 30
     assert max(s.values()) == 30
 
-    # g = create_grid(18)
-    # s = create_sums_b(g)
-    # assert s[(90, 269, 16)] == max(s.values())
+    g = create_grid(18)
+    s = create_sums_b(g)
+    assert s[(90, 269, 16)] == max(s.values())
 
 
 @aoc_part
@@ -74,26 +83,18 @@ def solve_part_a(data) -> int:
     return ",".join(ans)
 
 
-def create_sums_b(g, sz=300):
+def create_sums_b(g):
     """Sums for part A"""
-
-    def get_size(sx, sy, ss):
-        if ss == 1:
-            s = g[(sx, sy)]
-        else:
-            s = sums[(sx, sy, ss - 1)]
-            for b in range(ss - 1):
-                s += g[(sx + ss - 1, sy + b)]
-                s += g[(sx + b, sy + ss - 1)]
-            s += g[(sx + ss - 1, sy + ss - 1)]
-        sums[(sx, sy, ss)] = s
-        return s
-
+    cg = create_cumulative_grid(g)
     sums = {}
-    for sq in range(1, sz + 1):
-        for x in range(1, sz - sq + 2):
-            for y in range(1, sz - sq + 2):
-                get_size(x, y, sq)
+    for sq in range(1, SIZE + 1):
+        for x in range(1, SIZE - sq + 2):
+            for y in range(1, SIZE - sq + 2):
+                a = cg.get((x - 1, y - 1), 0)
+                b = cg.get((x + sq - 1, y - 1), 0)
+                c = cg.get((x - 1, y + sq - 1), 0)
+                d = cg.get((x + sq - 1, y + sq - 1), 0)
+                sums[(x, y, sq)] = d - b - c + a
     return sums
 
 
