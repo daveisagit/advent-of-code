@@ -160,10 +160,10 @@ def solve_part_b(data) -> int:
     shortest_md = inf
     interval_0, interval_1, interval_2, interval_3 = sweet_spot
     possible_points = set()
-    for i0 in range(interval_0[0], interval_0[1] + 1):
-        for i1 in range(interval_1[0], interval_1[1] + 1):
-            for i2 in range(interval_2[0], interval_2[1] + 1):
-                for i3 in range(interval_3[0], interval_3[1] + 1):
+    for i0 in range(interval_0[0], interval_0[1]):
+        for i1 in range(interval_1[0], interval_1[1]):
+            for i2 in range(interval_2[0], interval_2[1]):
+                for i3 in range(interval_3[0], interval_3[1]):
                     x = i0 - i2
                     y = i0 - i1
                     z = i0 + i3
