@@ -3,7 +3,7 @@
 """
 
 from collections import defaultdict
-from itertools import combinations, pairwise
+from itertools import pairwise
 from math import inf
 from operator import sub
 import re
@@ -37,47 +37,53 @@ def solve_part_a(data) -> int:
 
 def get_parallel_planes(data):
     """Return the list of nanobots defined by the 4x2
-    parallel planes"""
+    parallel planes. Each entry is a 4-tuple of the manhattan ranges.
+    Use the pythonic standard on expressing the upper limit as exclusive"""
     pp = []
     for nb in data:
         x, y, z, d = nb
         pd = [x + y, x - y, y - x, -x - y]
         pd = [p + z for p in pd]
-        pd = [(p - d, p + d) for p in pd]
+        pd = [(p - d, p + d + 1) for p in pd]
         pp.append(tuple(pd))
     return pp
 
 
-def get_intersections(spaces):
-    """Return a set of the intersections of all the spaces"""
+# Naive attempt to compute the cartesian product of the intervals
 
-    def intersect(spa, spb):
-        spc = []
-        for i in range(4):
-            a_from, a_to = spa[i]
-            b_from, b_to = spb[i]
-            c_from = max(a_from, b_from)
-            c_to = min(a_to, b_to)
-            d = c_to - c_from
-            if d >= 0:
-                spc.append((c_from, c_to))
-            else:
-                spc.append(None)
-        return spc
+# def get_intersections(spaces):
+#     """Return a set of the intersections of all the spaces"""
 
-    result = set()
-    for cnt, (spa, spb) in enumerate(combinations(spaces, 2)):
-        # if cnt % 10000 == 0:
-        #     print(cnt, len(result))
-        spc = intersect(spa, spb)
-        if not all(spc):
-            continue
-        result.add(tuple(spc))
-    return result
+#     def intersect(spa, spb):
+#         spc = []
+#         for i in range(4):
+#             a_from, a_to = spa[i]
+#             b_from, b_to = spb[i]
+#             c_from = max(a_from, b_from)
+#             c_to = min(a_to, b_to)
+#             d = c_to - c_from
+#             if d > 0:
+#                 spc.append((c_from, c_to))
+#             else:
+#                 spc.append(None)
+#         return spc
+
+#     result = set()
+#     for cnt, (spa, spb) in enumerate(combinations(spaces, 2)):
+#         # if cnt % 10000 == 0:
+#         #     print(cnt, len(result))
+#         spc = intersect(spa, spb)
+#         if not all(spc):
+#             continue
+#         result.add(tuple(spc))
+#     return result
 
 
 def get_range_memberships(spaces):
-    """Return membership of indexes to ranges"""
+    """Return membership of indexes to ranges
+    A list of dimensions, in each dimension a dictionary of
+    range (manhattan) : set of nanobots
+    """
 
     def for_dimension(dim):
         range_membership_for_dim = defaultdict(set)
@@ -86,10 +92,9 @@ def get_range_memberships(spaces):
             list({sp[0] for sp in spaces_for_dim} | {sp[1] for sp in spaces_for_dim})
         )
         for a, b in pairwise(values):
-            b -= 1
             for idx, dim_space in enumerate(spaces_for_dim):
                 p, q = dim_space
-                if max(a, p) <= min(b, q):
+                if max(a, p) < min(b, q):
                     range_membership_for_dim[(a, b)].add(idx)
         return range_membership_for_dim
 
@@ -107,16 +112,17 @@ def solve_part_b(data) -> int:
     # get the octahedrons expressed in an 8=4x2 ordinate format
     # each octahedron is bounded by parallel plane pairs
     # the length of the norm is the manhattan distance
+    # a space is a set of 4 manhattan ranges
     spaces = get_parallel_planes(data)
 
-    # on each of the 4 dimensions split into linear intervals
-    # and find out which nanobots occupy it
+    # split the 4 "diagonal vectors" into intervals
+    # and find out which nanobots occupy each interval
     range_memberships = get_range_memberships(spaces)
 
     # checking the cartesian product for every possible sub-space
     # is too long about 2000^4
-    # read the each dimension by popularity, i.e. focus on the central
-    # cluster
+    # So instead read the each dimension by popularity, i.e. focus on the central
+    # cluster where most of the nanobots are
     rms = []
     for range_membership in range_memberships:
         rm = sorted(range_membership.items(), key=lambda x: len(x[1]), reverse=True)
@@ -149,21 +155,21 @@ def solve_part_b(data) -> int:
                         most_found = len(indexes)
                         sweet_spot = interval_0, interval_1, interval_2, interval_3
                         print(
-                            f"# bots = {len(indexes)} within all these 4 plane limits {sweet_spot}"
+                            f"# bots = {len(indexes)} within ALL 4 manhattan plane ranges {sweet_spot}"
                         )
 
-    # now we know the manhattan values for the 8 planes
-    # which is is closest to the origin
+    # now that we know the manhattan ranges for the 4 directions (8 bounding planes)
+    # which is is closest to the origin?
     # check all the possible points inside the sweet spot area
     # reverse calc to get limits for x,y,z
 
     shortest_md = inf
     interval_0, interval_1, interval_2, interval_3 = sweet_spot
     possible_points = set()
-    for i0 in range(interval_0[0], interval_0[1] + 1):
-        for i1 in range(interval_1[0], interval_1[1] + 1):
-            for i2 in range(interval_2[0], interval_2[1] + 1):
-                for i3 in range(interval_3[0], interval_3[1] + 1):
+    for i0 in range(interval_0[0], interval_0[1]):
+        for i1 in range(interval_1[0], interval_1[1]):
+            for i2 in range(interval_2[0], interval_2[1]):
+                for i3 in range(interval_3[0], interval_3[1]):
                     x = i0 - i2
                     y = i0 - i1
                     z = i0 + i3
@@ -178,10 +184,10 @@ def solve_part_b(data) -> int:
                         d2 = y - x + z
                         d3 = z - x - y
                         if (
-                            interval_0[0] <= d0 <= interval_0[1]
-                            and interval_1[0] <= d1 <= interval_1[1]
-                            and interval_2[0] <= d2 <= interval_2[1]
-                            and interval_3[0] <= d3 <= interval_3[1]
+                            interval_0[0] <= d0 < interval_0[1]
+                            and interval_1[0] <= d1 < interval_1[1]
+                            and interval_2[0] <= d2 < interval_2[1]
+                            and interval_3[0] <= d3 < interval_3[1]
                         ):
                             # x,y,z are legitimate
                             possible_points.add((x, y, z))
