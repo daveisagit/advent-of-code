@@ -3,7 +3,6 @@
 """
 
 from itertools import pairwise
-import json
 from common.aoc import aoc_part, file_to_string, get_filename
 
 
@@ -41,13 +40,9 @@ def solve_part_b(data) -> int:
 
 EX_RAW_DATA = file_to_string(get_filename(__file__, "ex"))
 EX_DATA = parse_data(EX_RAW_DATA)
-# print("Parsed data:")
-# print(json.dumps(EX_DATA, indent=4))
 
 MY_RAW_DATA = file_to_string(get_filename(__file__, "my"))
 MY_DATA = parse_data(MY_RAW_DATA)
-# print("Parsed data:")
-# print(json.dumps(MY_DATA, indent=4))
 
 solve_part_a(EX_DATA)
 solve_part_a(MY_DATA)
