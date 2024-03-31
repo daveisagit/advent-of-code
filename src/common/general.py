@@ -54,6 +54,15 @@ def reverse_string(in_str: str) -> str:
     return in_str[::-1]
 
 
+def hex_pad(dec: int, length: int) -> str:
+    """Convert dec to hex padded with zero"""
+    s = hex(dec)[2:]
+    p = length - len(s)
+    p = ["0"] * p
+    p = "".join(p)
+    return p + s
+
+
 def powerset(iterable):
     """Return the powerset of an iterable
     for example powerset([1,2,3]) --> () (1,) (2,) (3,) (1,2) (1,3) (2,3) (1,2,3)"""
