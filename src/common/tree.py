@@ -22,7 +22,7 @@ class Node:
         self.parent = p
         p.children.append(self)
 
-    def dump(self, indent=0):
+    def dump(self, indent=0, attrs=None):
         """Quick visual"""
         mrg = 2
         pad = ""
@@ -30,9 +30,17 @@ class Node:
         if indent > 0:
             pad = " " * (indent - 1) * mrg
             pic = "+" + ("-" * (mrg - 1))
-        print(pad + pic + str(self.data))
+        render = self.data
+        if attrs:
+            if isinstance(attrs, str):
+                render = str(getattr(self, attrs))
+            if isinstance(attrs, (list, set, tuple)):
+                render = [str(getattr(self, a)) for a in attrs]
+                render = " ".join(render)
+
+        print(pad + pic + render)
         for ch in self.children:
-            ch.dump(indent + 1)
+            ch.dump(indent + 1, attrs=attrs)
 
     def leaf_nodes(self):
         """Generator for leaf nodes"""
