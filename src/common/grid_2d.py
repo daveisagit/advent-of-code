@@ -114,3 +114,13 @@ def dihedral_arrangements(sg):
 def manhattan(p):
     """Return the manhattan distance"""
     return abs(p[0]) + abs(p[1])
+
+
+def grid_lists_to_dict(grid):
+    """Given list of list, return dict of coord tuple"""
+    new_grid = {}
+    for ri, row in enumerate(grid):
+        for ci, content in enumerate(row):
+            p = (ri, ci)
+            new_grid[p] = content
+    return new_grid

@@ -1,5 +1,6 @@
 """Graphing tools"""
 
+from collections import deque
 from heapq import heappop, heappush
 from itertools import count
 from math import inf
@@ -192,3 +193,30 @@ def optimal_route(gph, visit, start=None, end=None, ignore_node=None, weight_att
             if dst < best_dst:
                 best = (dst, pth)
         return best
+
+
+def reachable(gph, u):
+    """Return a set of reachable nodes"""
+    bfs = deque()
+    bfs.append(u)
+    seen = set()
+    while bfs:
+        u = bfs.popleft()
+        if u in seen:
+            continue
+        seen.add(u)
+        for v in gph[u]:
+            bfs.append(v)
+    return seen
+
+
+def subgraph_nodes(gph) -> int:
+    """Return a list of sets of subgraph nodes"""
+    all_nodes = set(gph)
+    subgraphs = []
+    while all_nodes:
+        a = list(all_nodes)[0]
+        sg = reachable(gph, a)
+        all_nodes.difference_update(sg)
+        subgraphs.append(sg)
+    return subgraphs
