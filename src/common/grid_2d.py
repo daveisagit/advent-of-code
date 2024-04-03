@@ -73,6 +73,12 @@ def get_grid_limits(point_tuples):
     # min_r, min_c, max_r, max_c
 
 
+def draw_grid(grid):
+    """Visual for list of list single char"""
+    for row in grid:
+        print("".join(row))
+
+
 def rotate_grid(sg):
     """Rotate a square grid 90 ACW"""
     rows = len(sg)
@@ -124,3 +130,16 @@ def grid_lists_to_dict(grid):
             p = (ri, ci)
             new_grid[p] = content
     return new_grid
+
+
+def window_over_grid(grid, window, step):
+    """Generator for a window over a 2D grid"""
+    rows = len(grid)
+    cols = len(grid[0])
+    for row_idx in range(0, rows - window[0] + 1, step[0]):
+        for col_idx in range(0, cols - window[1] + 1, step[1]):
+            window = []
+            row_slice = grid[row_idx : row_idx + window[0]]
+            for row in row_slice:
+                window.append(row[col_idx : col_idx + window[1]])
+            yield window
