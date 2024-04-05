@@ -146,3 +146,8 @@ def window_over_grid(grid, window, step):
             for row in row_slice:
                 window.append(row[col_idx : col_idx + window[1]])
             yield window
+
+
+def transpose(grid):
+    """Transpose [][]"""
+    return list(map(list, zip(*grid)))
