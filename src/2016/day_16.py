@@ -2,7 +2,6 @@
 --- Day 16: Dragon Checksum ---
 """
 
-import json
 from common.aoc import file_to_string, aoc_part, get_filename
 from common.general import window_over
 
