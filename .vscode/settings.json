@@ -8,6 +8,8 @@
         "Donut",
         "intcode",
         "Maneuver",
+        "mergability",
+        "mergable",
         "Spinlock",
         "Sporifica",
         "Springdroid"
