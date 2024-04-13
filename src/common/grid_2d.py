@@ -1,6 +1,7 @@
 """Useful things for 2D grids"""
 
 from collections import namedtuple
+from operator import sub
 
 directions = {
     ">": (0, 1),
@@ -117,8 +118,9 @@ def dihedral_arrangements(sg):
         sg = rotate_grid(sg)
 
 
-def manhattan(p):
+def manhattan(p, rel=(0, 0)):
     """Return the manhattan distance"""
+    p = tuple(map(sub, p, rel))
     return abs(p[0]) + abs(p[1])
 
 
