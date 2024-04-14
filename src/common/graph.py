@@ -81,7 +81,8 @@ def dijkstra_paths(gph, source, target=None, weight_attr=None):
 
 
 def simplify(gph, protected_nodes=None):
-    """Remove nodes and merge edges for nodes with 2 edges
+    """
+    Remove nodes and merge edges for nodes with 2 edges
     assumes single attr of cost"""
     if protected_nodes is None:
         protected_nodes = {}
@@ -99,6 +100,8 @@ def simplify(gph, protected_nodes=None):
         del gph[n][v]
         del gph[u][n]
         del gph[v][n]
+        if u in gph and v in gph[u]:
+            e_sum = min(e_sum, gph[u][v])
         gph[u][v] = e_sum
         gph[v][u] = e_sum
         del gph[n]
@@ -116,6 +119,8 @@ def get_adjacency_matrix(gph, nodes=None, weight_attr=None):
         matrix[u] = {}
         for v, d in distances.items():
             if u == v:
+                continue
+            if v not in nodes:
                 continue
             matrix[u][v] = d
     return matrix
@@ -171,7 +176,7 @@ def optimal_route(gph, visit, start=None, end=None, ignore_node=None, weight_att
     memo = {}
 
     # get the adjacency matrix (shortest paths between every pair of relevant nodes)
-    relevant = visit
+    relevant = visit.copy()
     if start:
         relevant |= {start}
     if end:
@@ -182,17 +187,17 @@ def optimal_route(gph, visit, start=None, end=None, ignore_node=None, weight_att
     if start:
         # we know where to start
         return shortest_path(start, frozenset(visit), [])
-    else:
-        # where's the best place to start
-        best_dst = inf
-        best = None
-        for n in visit:
-            vst = visit.copy()
-            vst.remove(n)
-            dst, pth = shortest_path(n, frozenset(vst), [n])
-            if dst < best_dst:
-                best = (dst, pth)
-        return best
+
+    # where's the best place to start
+    best_dst = inf
+    best = None
+    for n in visit:
+        vst = visit.copy()
+        vst.remove(n)
+        dst, pth = shortest_path(n, frozenset(vst), [n])
+        if dst < best_dst:
+            best = (dst, pth)
+    return best
 
 
 def reachable(gph, u):
