@@ -8,6 +8,7 @@ from itertools import pairwise, permutations
 from math import inf
 import re
 from common.aoc import file_to_list, aoc_part, get_filename
+from common.graph import optimal_route
 
 
 def parse_data(raw_data):
@@ -45,7 +46,6 @@ def solve_part_b(gph) -> int:
         for u, v in pairwise(p):
             total += gph[u][v]
         longest = max(total, longest)
-
     return longest
 
 

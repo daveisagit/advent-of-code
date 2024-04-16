@@ -162,13 +162,11 @@ def optimal_route(gph, visit, start=None, end=None, ignore_node=None, weight_att
                     shortest = sp_d + d
                     best_path = sp_path
 
-        ans = shortest
         if shortest == inf:
-            ans = None
             memo[state] = None
             return None
 
-        ans = (ans, best_path)
+        ans = (shortest, best_path)
         memo[state] = ans
         return ans
 
@@ -196,6 +194,7 @@ def optimal_route(gph, visit, start=None, end=None, ignore_node=None, weight_att
         vst.remove(n)
         dst, pth = shortest_path(n, frozenset(vst), [n])
         if dst < best_dst:
+            best_dst = dst
             best = (dst, pth)
     return best
 
