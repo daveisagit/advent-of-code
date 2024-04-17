@@ -146,6 +146,26 @@ def powerset_swap(set_size):
         yield b
 
 
+def digit_to_char(digit):
+    """0-9 fine, a=10 ... z=35"""
+    if digit < 10:
+        return chr(ord("0") + digit)
+    else:
+        return chr(ord("a") + digit - 10)
+
+
+def str_base(number, base):
+    """Inverse of int(string,base)"""
+    if number < 0:
+        return "-" + str_base(-number, base)
+    else:
+        (d, m) = divmod(number, base)
+        if d:
+            return str_base(d, base) + digit_to_char(m)
+        else:
+            return digit_to_char(m)
+
+
 def test_powerset_swap():
     """Test powerset_swap"""
 
