@@ -8,7 +8,6 @@ from itertools import pairwise, permutations
 from math import inf
 import re
 from common.aoc import file_to_list, aoc_part, get_filename
-from common.graph import optimal_route
 
 
 def parse_data(raw_data):
