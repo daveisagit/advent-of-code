@@ -6,7 +6,7 @@ from collections import Counter, defaultdict
 from math import log2, prod, sqrt
 from common.aoc import file_to_string, aoc_part, get_filename
 from common.general import powerset
-from common.numty import prime_factorized, prime_factors, prime_list
+from common.numty import prime_factors, prime_list
 
 
 def parse_data(raw_data):
@@ -143,7 +143,6 @@ def solve_part_b(data) -> int:
             if fs * 11 >= data:
                 ans.append((n, fs))
 
-    print(len(ans))
     ans = sorted(ans, key=lambda x: x[0])
     return ans[0][0]
 
