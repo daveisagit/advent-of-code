@@ -1,5 +1,6 @@
 """Number theory stuff"""
 
+from collections import Counter
 from itertools import combinations
 import math
 
@@ -18,7 +19,7 @@ def prime_list(n):
 
 def prime_factors(n):
     """Return all the prime factors of n"""
-    primes = prime_list(int(math.sqrt(n)))
+    primes = prime_list(int(math.sqrt(n)) + 1)
     factors = []
     for p in primes:
         while n % p == 0:
@@ -27,6 +28,12 @@ def prime_factors(n):
     if n > 1:
         factors.append(n)
     return factors
+
+
+def prime_factorized(n):
+    """Return all the prime factors of n"""
+    pfs = prime_factors(n)
+    return list((p, a) for p, a in Counter(pfs).items())
 
 
 def extended_euclid(a: int, b: int):
