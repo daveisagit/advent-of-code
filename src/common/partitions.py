@@ -26,3 +26,10 @@ def compositions(n, k):
         for i in range(0, n + 1):
             for comp in compositions(n - i, k - 1):
                 yield [i] + comp
+
+
+def strong_compositions(n, k):
+    """No zeros"""
+    for c in compositions(n, k):
+        if 0 not in c:
+            yield c
