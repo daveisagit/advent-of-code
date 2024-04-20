@@ -148,8 +148,7 @@ EX_DATA = parse_data(EX_RAW_DATA)
 MY_RAW_DATA = file_to_list(get_filename(__file__, "my"))
 MY_DATA = parse_data(MY_RAW_DATA)
 
-# solve_part_a(EX_DATA)
-# solve_part_a(MY_DATA, player=(50, 500))
+solve_part_a(EX_DATA)
+solve_part_a(MY_DATA, player=(50, 500))
 
-# solve_part_b(EX_DATA)
 solve_part_b(MY_DATA)

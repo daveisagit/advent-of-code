@@ -15,13 +15,13 @@ def parse_data(raw_data):
     return data
 
 
-def unique_partitions_of(n):
+def partitions_of(n):
     """Partitions"""
     answer = set()
     answer.add((n,))
     for x in range(1, n):
-        for y in unique_partitions_of(n - x):
-            answer.add(tuple(sorted((x,) + y, reverse=True)))
+        for y in partitions_of(n - x):
+            answer.add(tuple((x,) + y))
     return answer
 
 
@@ -35,18 +35,20 @@ def solve_part_a(data) -> int:
     So we only need to look at certain powers constrained by MP where 2^MP < Target
     We favour higher powers of the lower primes to keep N at a minimum
     """
+    arbitrary_trim_for_performance = 5
 
-    primes = list(prime_list(int(sqrt(data / 10)) + 1))
+    primes = list(prime_list(int(sqrt(data / 11)) + 1))
     max_no_of_prime_factors = int(log2(data / 10))
     ans = []
-
-    for total_powers in range(1, max_no_of_prime_factors + 1):
+    for total_powers in range(
+        1, max_no_of_prime_factors - arbitrary_trim_for_performance
+    ):
 
         # get all unique partitions of total_powers
         # larger partitions to the left
         # we favour high powers of the lower primes
         possible_powers = sorted(
-            unique_partitions_of(total_powers),
+            partitions_of(total_powers),
             key=lambda x: (-len(x), x),
             reverse=True,
         )
@@ -57,8 +59,12 @@ def solve_part_a(data) -> int:
             for i, p in enumerate(powers):
                 n *= primes[i] ** p
                 fs *= (primes[i] ** (p + 1) - 1) // (primes[i] - 1)
+
             if fs * 10 >= data:
                 ans.append((n, fs))
+
+        # if ans:
+        #     print(total_powers, len(ans), min(ans))
 
     ans = sorted(ans, key=lambda x: x[0])
     return ans[0][0]
@@ -112,18 +118,20 @@ def solve_part_b(data) -> int:
     """Solve part B
     Same as part A but we need to adjust the factor sum
     """
-
+    arbitrary_trim_for_performance = 6
     primes = list(prime_list(int(sqrt(data / 11)) + 1))
     max_no_of_prime_factors = int(log2(data / 11))
     ans = []
 
-    for total_powers in range(1, max_no_of_prime_factors + 1):
+    for total_powers in range(
+        1, max_no_of_prime_factors - arbitrary_trim_for_performance
+    ):
 
         # get all unique partitions of total_powers
         # larger partitions to the left
         # we favour high powers of the lower primes
         possible_powers = sorted(
-            unique_partitions_of(total_powers),
+            partitions_of(total_powers),
             key=lambda x: (-len(x), x),
             reverse=True,
         )
@@ -142,6 +150,9 @@ def solve_part_b(data) -> int:
             fs -= part_b_adjustment(n)
             if fs * 11 >= data:
                 ans.append((n, fs))
+
+        # if ans:
+        #     print(total_powers, len(ans), min(ans))
 
     ans = sorted(ans, key=lambda x: x[0])
     return ans[0][0]
