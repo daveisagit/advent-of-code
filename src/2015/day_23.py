@@ -26,26 +26,72 @@ def parse_data(raw_data):
     return data
 
 
+def run_pgm(pgm, registers=None, p=0):
+    """Run the program"""
+    if registers is None:
+        registers = {"a": 0, "b": 0}
+
+    while True:
+
+        try:
+            op, arg, jx = pgm[p]
+        except IndexError:
+            return registers
+
+        # print(p, op, arg, jx, registers)
+
+        if op == "hlf":
+            registers[arg] //= 2
+            p += 1
+            continue
+
+        if op == "tpl":
+            registers[arg] *= 3
+            p += 1
+            continue
+
+        if op == "inc":
+            registers[arg] += 1
+            p += 1
+            continue
+
+        if op == "jmp":
+            p += arg
+            continue
+
+        if op == "jie":
+            if registers[arg] % 2 == 0:
+                p += jx
+            else:
+                p += 1
+            continue
+
+        if op == "jio":
+            if registers[arg] == 1:
+                p += jx
+            else:
+                p += 1
+            continue
+
+
 @aoc_part
 def solve_part_a(data) -> int:
     """Solve part A"""
-    return len(data)
+    reg = run_pgm(data)
+    return reg["b"]
 
 
 @aoc_part
 def solve_part_b(data) -> int:
     """Solve part B"""
-    return len(data)
+    registers = {"a": 1, "b": 0}
+    reg = run_pgm(data, registers=registers)
+    return reg["b"]
 
-
-EX_RAW_DATA = file_to_list(get_filename(__file__, "ex"))
-EX_DATA = parse_data(EX_RAW_DATA)
 
 MY_RAW_DATA = file_to_list(get_filename(__file__, "my"))
 MY_DATA = parse_data(MY_RAW_DATA)
 
-solve_part_a(EX_DATA)
 solve_part_a(MY_DATA)
 
-solve_part_b(EX_DATA)
 solve_part_b(MY_DATA)
