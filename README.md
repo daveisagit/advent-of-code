@@ -1,5 +1,5 @@
 # Advent of Code
-![AOC](aoc.png)
+![AOC](aoc.PNG)
 
 ## All code all years
 Having only discovered AoC in 2022, could not resist doing the back catalog
