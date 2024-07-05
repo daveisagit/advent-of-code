@@ -4,6 +4,7 @@ from collections import deque
 import hashlib
 from itertools import chain, combinations
 import json
+from typing import Iterable
 
 
 def get_column(data, col: int) -> list:
@@ -164,6 +165,11 @@ def str_base(number, base):
             return str_base(d, base) + digit_to_char(m)
         else:
             return digit_to_char(m)
+
+
+def first(iterable, default=None):
+    iterator = iter(iterable)
+    return next(iterator, default)
 
 
 def test_powerset_swap():
