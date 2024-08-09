@@ -52,7 +52,7 @@ def traverse_from_node(start: Node, forward=True):
             break
 
 
-def remove_node(node: Node):
+def remove_node(node: Node, delete=True):
     """Remove this node"""
     prv: Node = node.prev
     nxt: Node = node.next
@@ -60,4 +60,5 @@ def remove_node(node: Node):
         prv.next = nxt
     if nxt:
         nxt.prev = prv
-    del node
+    if delete:
+        del node

@@ -1,5 +1,5 @@
 """Advent of code 2022
---- Day n: ---
+--- Day 19: Not Enough Minerals ---
 """
 
 from collections import deque
