@@ -63,7 +63,11 @@ def solve_part_a(data) -> int:
     """Solve part A"""
     ranked = sorted(
         [
-            (hand_type(hand), second_order_value(hand, ORDER_A), bid)
+            (
+                hand_type(hand),
+                second_order_value(hand, ORDER_A),
+                bid,
+            )
             for hand, bid in data
         ]
     )
