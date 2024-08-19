@@ -1,7 +1,7 @@
 """Number theory stuff"""
 
 from collections import Counter
-from itertools import combinations
+from itertools import combinations, pairwise
 import math
 
 
@@ -118,3 +118,41 @@ def mod_exp(b, e, m):
         e = e >> 1
         b = (b * b) % m
     return res
+
+
+def extend_polynomial_sequence(seq, forward=1, backward=1, degree_limit=50):
+    """Return the sequence extended forward and backwards a number of terms"""
+    differences = [list(seq)]
+    deg = 0
+    while any(x != 0 for x in differences[-1]):
+        deg += 1
+        if deg > degree_limit:
+            raise RuntimeError(f"Exceeded degree limit of {degree_limit}")
+        difference = differences[-1]
+        next_difference = [b - a for a, b in pairwise(difference)]
+        differences.append(next_difference)
+
+    new_differences = []
+    for idx in range(len(differences) - 1, -1, -1):
+
+        difference_to_extend = differences[idx]
+
+        lower_difference = None
+        if new_differences:
+            lower_difference = new_differences[-1]
+
+        for t in range(-forward, 0):
+            d = 0
+            if lower_difference:
+                d = lower_difference[t]
+            difference_to_extend += [difference_to_extend[-1] + d]
+
+        for t in range(backward - 1, -1, -1):
+            d = 0
+            if lower_difference:
+                d = lower_difference[t]
+            difference_to_extend = [difference_to_extend[0] - d] + difference_to_extend
+
+        new_differences.append(difference_to_extend)
+
+    return new_differences[-1]
