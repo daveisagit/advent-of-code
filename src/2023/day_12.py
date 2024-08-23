@@ -20,6 +20,10 @@ def parse_data(raw_data):
 
 @lru_cache(maxsize=None)
 def valid_arrangements(pattern, damaged) -> int:
+    """Return the number of valid arrangements for the damaged springs and given pattern
+    Call recursively for each possible place for the first contiguous clump
+    Memoise using lru_cache
+    """
     arrangements = 0
     min_space_required = sum(damaged) + len(damaged) - 1
     for i in range(0, len(pattern) - min_space_required + 1):
@@ -27,13 +31,17 @@ def valid_arrangements(pattern, damaged) -> int:
         window = pattern[i : i + damaged[0]]
         right = pattern[i + damaged[0] :]
         if "#" in left:
+            # we're done now, remaining placements are not valid
             break
         if "." in window:
+            # the window of contiguous damaged springs must only contain # or ?
             continue
         if right and right[0] == "#":
+            # the first char immediately following the window must be . or ?
             continue
 
         if len(damaged) == 1:
+            # only valid if there are no more damaged springs to account for
             if "#" not in right:
                 arrangements += 1
         else:
