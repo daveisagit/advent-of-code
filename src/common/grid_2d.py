@@ -1,6 +1,7 @@
 """Useful things for 2D grids"""
 
 from collections import namedtuple
+from itertools import pairwise
 from operator import sub
 
 directions = {
@@ -153,3 +154,15 @@ def window_over_grid(grid, window, step):
 def transpose(grid):
     """Transpose [][]"""
     return list(map(list, zip(*grid)))
+
+
+def shoelace_area(outline) -> int:
+    """Return the area of the outlined polygon"""
+    corners = list(outline)
+    if corners[0] != corners[-1]:
+        corners.append(corners[0])
+    areas = [
+        (side[0][0] + side[1][0]) * (side[0][1] - side[1][1])
+        for side in pairwise(corners)
+    ]
+    return abs(sum(areas) // 2)
