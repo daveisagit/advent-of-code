@@ -81,7 +81,7 @@ def mod_inv(m, n):
 
 
 def solve_congruences(congruences: list) -> int:
-    """Given a list of congruence equations expressed as triples.
+    """Given a list of congruence equations expressed as tuples.
     Check the moduli are all pairwise coprime
 
     X ≡ A1 (mod M1)
