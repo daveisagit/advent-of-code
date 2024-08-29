@@ -156,3 +156,30 @@ def extend_polynomial_sequence(seq, forward=1, backward=1, degree_limit=50):
         new_differences.append(difference_to_extend)
 
     return new_differences[-1]
+
+
+def search_for_polynomial_sequence(
+    plots, l_bound, u_bound, deg=1, constants_required=3
+) -> int:
+    """Search for a polynomial sequence over evenly space terms
+    Returns the spacing (modulus) and starting term"""
+    m = l_bound
+    while True:
+        seq = plots[::m]
+        for _ in range(deg):
+            seq = [b - a for a, b in pairwise(seq)]
+        if len(seq) > constants_required and len(set(seq[-constants_required:])) == 1:
+            break
+
+        if m > u_bound:
+            raise RuntimeError("No sequence found")
+
+        m += 1
+
+    # so where does it start?
+    # find the first inconsistent constant term
+    for idx in range(len(seq) - 1, -1, -1):
+        if seq[idx] != seq[-1]:
+            break
+
+    return m, idx + 1
