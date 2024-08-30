@@ -6,6 +6,7 @@ from collections import Counter, deque
 from operator import add
 from common.aoc import file_to_list, aoc_part, get_filename
 from common.grid_2d import directions
+from common.linear_algebra import quadratic_from_3_points
 from common.numty import extend_polynomial_sequence, search_for_polynomial_sequence
 
 
@@ -111,6 +112,35 @@ def solve_part_b(data, steps=5000, sample_size=500) -> int:
     return offset_seq[q]
 
 
+@aoc_part
+def solve_part_cunning(data) -> int:
+    """Another way, clue in the question steps, 26501365 = 65 + 202300 x 131
+    All plots are reachable within their manhattan distance from the start
+    After 65 steps we get the full manhattan diamond inside the single starting grid
+    This repeats after another 131 steps, creating 8 more diamonds (9 in total)
+    After another 131 steps, a further layer giving 25 diamonds
+    If we know the amount of plots after steps 65, 196 and 327
+    We can create a quadratic function from these 3 points
+    """
+    steps = 26501365
+    start, pots, size = data
+
+    n = steps - size // 2
+    assert n % size == 0
+    x = tuple(x * size + size // 2 for x in range(3))
+    plot_distances = get_plots(start, size, pots, step_limit=x[2])
+    y = tuple(
+        len({p for p, d in plot_distances.items() if d <= s and d % 2 == s % 2})
+        for s in x
+    )
+    print(f"x={x} y={y}")
+    d, eq = quadratic_from_3_points(x, y)
+    ans = eq[0] * steps**2 + eq[1] * steps + eq[2]
+    assert ans % d == 0
+    ans //= d
+    return ans
+
+
 EX_RAW_DATA = file_to_list(get_filename(__file__, "ex"))
 EX_DATA = parse_data(EX_RAW_DATA)
 
@@ -122,3 +152,5 @@ solve_part_a(MY_DATA, steps=64)
 
 solve_part_b(EX_DATA)
 solve_part_b(MY_DATA, steps=26501365, sample_size=2000)
+
+solve_part_cunning(MY_DATA)
