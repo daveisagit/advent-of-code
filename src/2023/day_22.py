@@ -161,6 +161,7 @@ def solve_part_b(blocks) -> int:
     blocks_to_remove = set(range(len(blocks))) - safely_remove(
         blocks, support_dependencies
     )
+    print(f"Blocks not safe to remove: {len(blocks_to_remove)}")
 
     return sum(len(blocks) - len(get_remains(i)) for i in blocks_to_remove)
 

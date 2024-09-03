@@ -1,8 +1,8 @@
 """Useful things for 2D grids"""
 
-from collections import namedtuple
+from collections import defaultdict, deque, namedtuple
 from itertools import pairwise
-from operator import sub
+from operator import add, sub
 
 directions = {
     ">": (0, 1),
@@ -166,3 +166,102 @@ def shoelace_area(outline) -> int:
         for side in pairwise(corners)
     ]
     return abs(sum(areas) // 2)
+
+
+def maze_to_graph_v1(start, maze):
+    """Take a maze expressed as a set of path points and return a
+    graph of it"""
+    gph = defaultdict(dict)
+    bfs = deque()
+    # state is from_node, edge_cost, prv, cur
+    state = None, 0, None, start
+    bfs.append(state)
+    while bfs:
+
+        state = bfs.popleft()
+        from_node, edge_cost, prv, cur = state
+
+        # what are the choices
+        choices = set()
+        for dv in directions.values():
+            nxt = tuple(map(add, cur, dv))
+            if nxt not in maze:
+                continue
+            choices.add(nxt)
+
+        if len(choices) == 2:
+            # if choices = 2 we are on an edge
+            # we don't want to turn around
+            choices.discard(prv)
+        else:
+            # otherwise we are on a node
+            # record the completed edge
+            if from_node:
+                gph[from_node][cur] = edge_cost
+
+            # if we've already been here
+            if cur in gph:
+                continue
+
+            # this is new from_node
+            from_node = cur
+            edge_cost = 0
+
+        # put the choices on the queue
+        for nxt in choices:
+            new_state = from_node, edge_cost + 1, cur, nxt
+            bfs.append(new_state)
+
+    return gph
+
+
+def maze_to_graph(start, maze, directed=False, path_char="."):
+    """Take a maze expressed as a dict of path points the value
+    being either a normal path or a specific direction (<>^v)
+    and return a directed graph of it.
+    If directed is false then all edges modelled as 2 directed edges"""
+    gph = defaultdict(dict)
+    bfs = deque()
+    # state is from_node, edge_cost, prv, cur
+    state = None, 0, None, start
+    bfs.append(state)
+    while bfs:
+
+        state = bfs.popleft()
+        from_node, edge_cost, prv, cur = state
+
+        # what are the choices
+        deg = 0
+        choices = set()
+        for d, dv in directions.items():
+            nxt = tuple(map(add, cur, dv))
+            if nxt not in maze:
+                continue
+            deg += 1
+            if not directed or maze[nxt] == path_char or maze[nxt] == d:
+                choices.add(nxt)
+
+        if deg == 2:
+            # if choices = 2 we are on an edge
+            # we don't want to turn around
+            choices.discard(prv)
+        else:
+            # otherwise we are on a node
+            # record the completed edge
+            if from_node:
+                gph[from_node][cur] = edge_cost
+
+            # if we've already been here
+            if cur in gph:
+                continue
+
+            # this is new from_node
+            from_node = cur
+            edge_cost = 0
+
+        # put the choices on the queue
+        for nxt in choices:
+            new_state = from_node, edge_cost + 1, cur, nxt
+            bfs.append(new_state)
+
+    return gph
