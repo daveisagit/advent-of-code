@@ -6,7 +6,7 @@ from collections import Counter, deque
 from operator import add
 from common.aoc import file_to_list, aoc_part, get_filename
 from common.grid_2d import directions
-from common.linear_algebra import quadratic_from_3_points
+from common.linear_algebra import poly_from_points, poly_value, quadratic_from_3_points
 from common.numty import extend_polynomial_sequence, search_for_polynomial_sequence
 
 
@@ -113,7 +113,7 @@ def solve_part_b(data, steps=5000, sample_size=500) -> int:
 
 
 @aoc_part
-def solve_part_cunning(data) -> int:
+def solve_part_b_x(data) -> int:
     """Another way, clue in the question steps, 26501365 = 65 + 202300 x 131
     All plots are reachable within their manhattan distance from the start
     After 65 steps we get the full manhattan diamond inside the single starting grid
@@ -134,11 +134,8 @@ def solve_part_cunning(data) -> int:
         for s in x
     )
     print(f"x={x} y={y}")
-    d, eq = quadratic_from_3_points(x, y)
-    ans = eq[0] * steps**2 + eq[1] * steps + eq[2]
-    assert ans % d == 0
-    ans //= d
-    return ans
+    poly = poly_from_points(x, y)
+    return poly_value(poly, steps)
 
 
 EX_RAW_DATA = file_to_list(get_filename(__file__, "ex"))
@@ -153,4 +150,4 @@ solve_part_a(MY_DATA, steps=64)
 solve_part_b(EX_DATA)
 solve_part_b(MY_DATA, steps=26501365, sample_size=2000)
 
-solve_part_cunning(MY_DATA)
+solve_part_b_x(MY_DATA)

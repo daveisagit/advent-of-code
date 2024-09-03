@@ -90,6 +90,33 @@ def quadratic_from_3_points(x, y):
     return r
 
 
+def poly_from_points(x, y):
+    """Return polynomial coefficients a,b,c for the curve through points
+    using Lagrange polynomial interpolation.
+    Returns a tuple ( y-coefficient, (x-coefficients,))
+    If starting with a points list i.e. points = ((1, 4), (2, 7), (3, 12))
+    Then (x,y) = [t for t in zip(*points)]
+    """
+    mtx = []
+    assert len(x) == len(y)
+    terms = len(x)
+    for i in range(terms):
+        row = [x[i] ** e for e in range(terms)]
+        mtx.append(row)
+    return mtx_solve(mtx, y)
+
+
+def poly_value(poly, x):
+    """Return the value f(x) given f() and x
+    fx expressed as (y,(x,))
+    We assert for an integer answer"""
+    yc, xcs = poly
+    terms = len(xcs)
+    x_sum = sum(xcs[t] * x**t for t in range(terms))
+    assert x_sum % yc == 0
+    return x_sum // yc
+
+
 def test_inv():
     m = [
         [4, 3, 7],
