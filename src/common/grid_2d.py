@@ -265,3 +265,25 @@ def maze_to_graph(start, maze, directed=False, path_char="."):
             bfs.append(new_state)
 
     return gph
+
+
+def generate_N2(limit=None):
+    """Generator for natural lattice"""
+    d = 0
+    while limit is None or d <= limit:
+        for x in range(d + 1):
+            yield x, d - x
+        d += 1
+
+
+def generate_Z2(limit=None, origin=(0, 0)):
+    """Generator for integer lattice"""
+    for p in generate_N2(limit):
+        p = (p[0] + origin[0], p[1] + origin[1])
+        yield p
+        if p[0] != 0:
+            yield -p[0], p[1]
+        if p[1] != 0:
+            yield p[0], -p[1]
+        if p[0] and p[1]:
+            yield -p[0], -p[1]
