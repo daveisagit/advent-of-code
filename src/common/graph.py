@@ -1,9 +1,12 @@
 """Graphing tools"""
 
 from collections import deque
+from copy import deepcopy
 from heapq import heappop, heappush
 from itertools import count
 from math import inf
+
+from common.heap import BinaryHeap
 
 
 def dijkstra(gph, source, target, weight_attr=None):
@@ -224,3 +227,139 @@ def subgraph_nodes(gph) -> int:
         all_nodes.difference_update(sg)
         subgraphs.append(sg)
     return subgraphs
+
+
+def remove_node(g, n):
+    """Remove node n from graph g"""
+    n_neighbours = list(g[n])
+    for nn in n_neighbours:
+        if n in g[nn]:
+            del g[nn][n]
+    del g[n]
+
+
+def get_edge(g, u, v):
+    """Get an edge for undirected graph"""
+    if u in g:
+        if v in g[u]:
+            return g[u][v]
+    if v in g:
+        if u in g[v]:
+            return g[v][u]
+    return None
+
+
+def add_edge(g, u, v, w=1):
+    """Add a directed edge"""
+    n = g.get(u, {})
+    n[v] = w
+    g[u] = n
+
+
+def set_edge(g, u, v, w=1):
+    """Set an edge in our undirected graph"""
+    add_edge(g, u, v, w=w)
+    add_edge(g, v, u, w=w)
+
+
+def merge_nodes_keep_first(g, u, v):
+    """Merge v into u accumulating edges of common neighbours"""
+    for vn, w in g[v].items():
+        if vn != u:
+            if vn not in g[u]:
+                set_edge(g, u, vn, w)
+            else:
+                nw = get_edge(g, u, vn)
+                nw += w
+                set_edge(g, u, vn, nw)
+    remove_node(g, v)
+
+
+def stoer_wagner(g):
+    """Stoer-Wagner using a priority queue
+    To return the minimum cut of edges that will divide the graph into 2.
+    Keep merging nodes until left with 2, return the best cut and resulting partition
+    Using a maximum binary heap we can reduce the time spent finding s,t
+    """
+    g = deepcopy(g)
+    node_set = set(g)
+    contractions = []  # contracted node pairs
+    n = len(g)
+    cut_value = inf
+
+    for i in range(n - 1):
+        # each iteration is a cut of the phase, where we will remove a node
+        # via merging t into s
+
+        any_start = list(g.keys())[0]  # get any element to start with
+        A = {any_start}  # A as used in the original paper
+
+        # create a maximum binary heap of all the nodes connected to
+        # to the start using -ve weights this gives a maximum heap
+        # on a minimum binary heap
+
+        # so the top of heap is the node most connected to the start node
+        h = BinaryHeap()
+        for v, w in g[any_start].items():
+            h.upsert(v, -w)
+
+        # keep adding to A until we are at the last (t-node)
+        for _ in range(n - i - 2):
+            # get the node with the most connectivity to A
+            # we just need to pop the heap
+            u = h.pop()[0]
+            A.add(u)
+
+            # we now need to update the connectivity (the heap value)
+            # of all the nodes connected to it not yet visited
+            # their values now represent how well the node is connected to set A
+            # so next time though this loop we get the next node to add to A
+
+            # using the heap has saved re-evaluating the connectivity
+
+            for v, w in g[u].items():
+                if v not in A:
+                    h.upsert(v, h.get(v, 0) - w)
+
+        # we've now completed the minimum cut phase for the ith phase
+        # the cut of the phase is A|t in that A is one side and t is the other
+        # the top of the heap is t (as s has been popped and added to A)
+
+        # we now have s,t as defined in the paper (the last 2 nodes in the cut phase)
+        s = u
+        t, w = h.min()
+        w = -w  # flip it back to a +ve value
+
+        # keep our best cut of a phase updated, i.e. our best phase
+        if w < cut_value:
+            cut_value = w
+            best_phase = i
+
+        # keep a record of the contractions (merging t into s)
+        contractions.append((s, t))
+        merge_nodes_keep_first(g, s, t)
+
+    # create a graph of all the contractions up to the best phase (not inc)
+    # this will be 2 separate subgraphs and we do not include the contraction
+    # on the best phase since this is where the 2 subgraphs are joined.
+    contractions_graph = {}
+    for c in contractions[:best_phase]:
+        set_edge(contractions_graph, c[0], c[1])
+
+    # our focus is on the t-node of the best phase
+    # since contractions occur on both sides of the cut
+    # we want to only get the ones on the same side
+    t = contractions[best_phase][1]
+
+    # we might need to add the t-node in the "best" contraction
+    # it should be there but dijkstra will definitely need a source
+    # if it is not present then our partition will be the empty set
+    # meaning no cut could found and seems meaningless
+    # if t not in gc:
+    #     gc[t] = {}
+
+    # we use dijkstra to get all the connected nodes to the t-node
+    # of the best cut, giving our final result
+    node_partition_a = set(dijkstra(contractions_graph, t, None))
+    node_partition_b = node_set - node_partition_a
+    return cut_value, (node_partition_a, node_partition_b)
