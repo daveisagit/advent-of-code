@@ -71,8 +71,8 @@ def solve_part_a(data, l_bound=7, u_bound=27) -> int:
         m = [eq_a[:-1], eq_b[:-1]]
         c = eq_a[2], eq_b[2]
         try:
-            det, r = mtx_solve(m, c)
-            r = tuple(x / det for x in r)
+            dn, r = mtx_solve(m, c, expect_integer=False)
+            r = tuple(x / dn for x in r)
         except ValueError:
             # No solution i.e. parallel
             continue
@@ -104,11 +104,7 @@ def determine_z_collision(p, v, r, w):
         [w[1], -w[0]],  # a,b for the rock
     ]
     # find collision point in the XY-plane
-    denominator, collision = mtx_solve(m, c)
-    if all(x % denominator == 0 for x in collision):
-        collision = tuple(x // denominator for x in collision)
-    else:
-        raise RuntimeError("Expected integer solution")
+    collision = mtx_solve(m, c)
 
     # get the time taken for the stone to collide with the rock
     t_x = (collision[0] - p[0]) // v[0]
@@ -201,12 +197,10 @@ def solve_part_b(data) -> int:
         ]
         c_vector1 = (c0, c1)
         try:
-            denominator1, r1 = mtx_solve(m1, c_vector1)
-            if all(x % denominator1 == 0 for x in r1):
-                r1 = tuple(x // denominator1 for x in r1)
-            else:
-                # ignore non integer results
-                continue
+            r1 = mtx_solve(m1, c_vector1)
+        except RuntimeError:
+            # ignore non integer results
+            continue
         except ValueError:
             # No solution i.e. parallel
             continue
@@ -218,12 +212,10 @@ def solve_part_b(data) -> int:
         ]
         c_vector2 = (c0, c2)
         try:
-            denominator2, r2 = mtx_solve(m2, c_vector2)
-            if all(x % denominator2 == 0 for x in r2):
-                r2 = tuple(x // denominator2 for x in r2)
-            else:
-                # ignore non integer results
-                continue
+            r2 = mtx_solve(m2, c_vector2)
+        except RuntimeError:
+            # ignore non integer results
+            continue
         except ValueError:
             # No solution i.e. parallel
             continue

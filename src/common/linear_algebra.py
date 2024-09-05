@@ -65,7 +65,7 @@ def mtx_inverse(m):
     return determinant, cofactors
 
 
-def mtx_solve(m, v):
+def mtx_solve(m, v, expect_integer=True):
     """Given m,v represent a system of linear equations return a solution
     m: [][]
     v: tuple()
@@ -76,6 +76,12 @@ def mtx_solve(m, v):
         raise ValueError("No unique solution, determinant not zero")
     r = mtx_mul(inv, v)
     r = tuple(mtx_transpose(r)[0])
+    if expect_integer:
+        if all(x % det == 0 for x in r):
+            r = tuple(x // det for x in r)
+            return r
+        else:
+            raise RuntimeError("Expected integer result")
     return det, r
 
 
@@ -147,7 +153,7 @@ def test_inv():
     r2 = mtx_mul(a, det)
     assert r == r2
 
-    r, d = mtx_solve(m, (31, 28, 29))
+    d, r = mtx_solve(m, (31, 28, 29), expect_integer=False)
     assert d == 273
     assert r == (273, 546, 819)
 
@@ -157,6 +163,8 @@ def test_quadratic_from_3_points():
     arr = [t for t in zip(*points)]
     x = arr[0]
     y = arr[1]
-    det, cof = quadratic_from_3_points(x, y)
-    r = tuple(x // det for x in cof)
-    assert r == (1, 0, 3)
+    cof = quadratic_from_3_points(x, y)
+    assert cof == (1, 0, 3)
+
+
+test_quadratic_from_3_points()
