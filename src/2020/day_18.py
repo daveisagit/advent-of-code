@@ -4,6 +4,7 @@
 
 from collections import deque
 from common.aoc import file_to_list, aoc_part, get_filename
+from common.parsing import eval_postfix, infix_to_postfix
 
 
 def parse_data(raw_data):
@@ -125,6 +126,20 @@ def solve_part_b(data) -> int:
     return s
 
 
+def get_precedence(op):
+    precedences = {"+": 2, "-": 1, "*": 1, "/": 2, "^": 3}
+    return precedences.get(op, 0)
+
+
+@aoc_part
+def solve_part_c(data) -> int:
+    """Solve part B"""
+    s = 0
+    for expr in data:
+        s += eval_postfix(infix_to_postfix(expr, precedence_callable=get_precedence))
+    return s
+
+
 EX_RAW_DATA = file_to_list(get_filename(__file__, "ex"))
 EX_DATA = parse_data(EX_RAW_DATA)
 
@@ -136,3 +151,5 @@ solve_part_a(MY_DATA)
 
 solve_part_b(EX_DATA)
 solve_part_b(MY_DATA)
+
+solve_part_c(MY_DATA)
