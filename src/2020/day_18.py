@@ -1,5 +1,5 @@
 """Advent of code 2020
---- Day n: ---
+--- Day 18: Operation Order ---
 """
 
 from collections import deque

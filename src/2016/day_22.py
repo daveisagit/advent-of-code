@@ -1,5 +1,5 @@
 """Advent of code 2016
---- Day n: ---
+--- Day 22: Grid Computing ---
 """
 
 from copy import deepcopy

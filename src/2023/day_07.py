@@ -1,5 +1,5 @@
 """Advent of code 2023
---- Day n: ---
+--- Day 7: Camel Cards ---
 """
 
 from collections import Counter
