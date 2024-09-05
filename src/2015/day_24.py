@@ -2,7 +2,6 @@
 --- Day 24: It Hangs in the Balance ---
 """
 
-from heapq import heappop, heappush
 from itertools import combinations
 from math import prod
 from common.aoc import file_to_list, aoc_part, get_filename

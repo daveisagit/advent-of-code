@@ -12,6 +12,9 @@ packages such as numpy and networkx.
 This repository is an attempt to undertake the back catalog by just using python
 3.11 without any extra packages.
 
+The consequence of this is an evolutionary mish-mash of `common` library code
+for thematic AoC structures and algorithms.
+
 ## Coding Template
 
 There is a template `day_.py` which has 3 functions
@@ -19,7 +22,7 @@ There is a template `day_.py` which has 3 functions
 `parse_data`, `solve_part_a`, `solve_part_b`
 
 `parse_data`: is for handling the input and converting it to some
-useful data structure. 
+useful data structure.
 
 `solve_part_`: is wrapped with a decorator `@aoc_part` which
 will output some simple stats like execution time etc. along with the result
@@ -43,3 +46,13 @@ data-root
 │   ├───day_02
 │   ├───day_03
 ```
+
+## Graph Visualisation
+
+To use the `visualize_graph()` etc. in `visuals.py` you will need to install
+pyvis into your virtual environment.
+
+`pip install pyvis`
+
+It is not needed to run the solutions, it's only required if you wish visualise
+some of the lovely graphs AoC offers (i.e. 2023.20)

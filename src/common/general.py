@@ -32,9 +32,25 @@ def sign(n) -> int:
     return -1
 
 
-#
-# not used
-#
+def input_sections(raw_data, delimiter=None):
+    """For when input is in sections"""
+    sections = []
+    section = []
+    for line in raw_data:
+        if (
+            delimiter is None
+            and line == ""
+            or delimiter is not None
+            and delimiter in line
+        ):
+            if section:
+                sections.append(section)
+            section = []
+            continue
+        section.append(line)
+    if section:
+        sections.append(section)
+    return sections
 
 
 def get_alpha_value(item: str):
@@ -44,7 +60,7 @@ def get_alpha_value(item: str):
     return ord(item) - 38
 
 
-def split_into_groups(a_list: list, size: int) -> list:
+def split_into_groups(a_list: list, size: int):
     """Split a list into groups of a fixed size"""
     for idx in range(0, len(a_list), size):
         yield a_list[idx : idx + size]

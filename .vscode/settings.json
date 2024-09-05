@@ -13,6 +13,7 @@
         "mergable",
         "numpy",
         "numty",
+        "pyvis",
         "Spelunking",
         "Spinlock",
         "Sporifica",

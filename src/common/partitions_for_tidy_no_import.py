@@ -1,3 +1,7 @@
+"""A mish-mash of partitioning algorithms best explained as printed examples
+Copied into partitions.py as needed by AoC, such as 2015.15
+"""
+
 from itertools import combinations_with_replacement as cr
 
 
