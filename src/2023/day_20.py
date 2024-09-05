@@ -144,3 +144,35 @@ solve_part_a(EX_DATA)
 solve_part_a(MY_DATA)
 
 solve_part_b(MY_DATA)
+
+
+# Visualisation Code
+
+# from pyvis.network import Network
+
+
+# def visualize_modules(data):
+#     broadcaster, modules = data
+#     net = Network(height="1200px", width="100%", directed=True)
+
+#     flip_flops, conjunctions = initialise(modules)
+
+#     net.add_node("BC")
+#     net.add_node("rx")
+#     for n in flip_flops:
+#         net.add_node(n, color="blue")
+#     for n in conjunctions:
+#         net.add_node(n, color="red")
+
+#     for v in broadcaster:
+#         net.add_edge("BC", v)
+
+#     for n, (_, send_to) in modules.items():
+#         for v in send_to:
+#             net.add_edge(n, v)
+
+#     net.toggle_physics(True)
+#     net.show("temp_graph.html", notebook=False)
+
+
+# visualize_modules(MY_DATA)

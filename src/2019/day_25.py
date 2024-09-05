@@ -9,6 +9,7 @@ from common.aoc import aoc_part, file_to_string, get_filename
 from common.general import powerset_swap, tok
 from common.intcode import IntCode
 from common.graph import dijkstra_paths, optimal_route
+from common.visuals import visualize_graph
 
 
 def parse_output(out):
@@ -253,6 +254,7 @@ def solve_part_a(data) -> int:
     print()
     print(f"Inventory to match weight: {cmb}")
     print()
+    visualize_graph(gph)
     return pwd
 
 
