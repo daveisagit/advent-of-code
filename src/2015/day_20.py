@@ -6,7 +6,7 @@ from collections import Counter, defaultdict
 from math import log2, prod, sqrt
 from common.aoc import file_to_string, aoc_part, get_filename
 from common.general import powerset
-from common.numty import prime_factors, prime_list
+from common.numty import prime_factors, prime_list, sum_geometric_seq
 
 
 def parse_data(raw_data):
@@ -58,7 +58,7 @@ def solve_part_a(data) -> int:
             fs = 1
             for i, p in enumerate(powers):
                 n *= primes[i] ** p
-                fs *= (primes[i] ** (p + 1) - 1) // (primes[i] - 1)
+                fs *= sum_geometric_seq(1, primes[i], p + 1)
 
             if fs * 10 >= data:
                 ans.append((n, fs))

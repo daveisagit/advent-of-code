@@ -183,3 +183,11 @@ def search_for_polynomial_sequence(
             break
 
     return m, idx + 1
+
+
+def sum_arithmetic_seq(a, d, n):
+    return (n * (2 * a + (n - 1) * d)) // 2
+
+
+def sum_geometric_seq(a, r, n):
+    return a * (r**n - 1) // (r - 1)
