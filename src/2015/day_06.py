@@ -5,6 +5,7 @@
 from collections import defaultdict
 import re
 from common.aoc import file_to_list, aoc_part, get_filename
+from common.blocks import BlockResolver
 
 
 def parse_data(raw_data):
@@ -100,6 +101,75 @@ def solve_part_b(data) -> int:
     return total
 
 
+@aoc_part
+def solve_part_c(data) -> int:
+    """Solve part A - alt"""
+
+    def cross_section_resolver(cross_section):
+        state = False
+        for _, stack_data in cross_section[::-1]:
+            op = stack_data[0]
+            if op == "turn on":
+                state = not state
+                break
+            if op == "turn off":
+                break
+            if op == "toggle":
+                state = not state
+
+        return state
+
+    br = BlockResolver(2, cross_section_resolver)
+    for op, a, b in data:
+        block = (a, b)
+        stack_data = (op,)
+        entry = (block, stack_data)
+        br._operation_stack.append(entry)
+    br.resolve()
+
+    total = 0
+    for block, stack_data in br._operation_stack:
+        x_amt = block[1][0] - block[0][0]
+        y_amt = block[1][1] - block[0][1]
+        total += x_amt * y_amt
+
+    return total
+
+
+@aoc_part
+def solve_part_d(data) -> int:
+    """Solve part B - alt"""
+
+    def cross_section_resolver(cross_section):
+        state = 0
+        for _, stack_data in cross_section:
+            op = stack_data[0]
+            if op == "turn on":
+                state += 1
+            if op == "turn off":
+                state -= 1
+                state = max(0, state)
+            if op == "toggle":
+                state += 2
+        return state
+
+    br = BlockResolver(2, cross_section_resolver)
+    for op, a, b in data:
+        block = (a, b)
+        stack_data = (op,)
+        entry = (block, stack_data)
+        br._operation_stack.append(entry)
+    br.resolve()
+
+    total = 0
+    for block, stack_data in br._operation_stack:
+        x_amt = block[1][0] - block[0][0]
+        y_amt = block[1][1] - block[0][1]
+        total += x_amt * y_amt * stack_data[0]
+
+    return total
+
+
 EX_RAW_DATA = file_to_list(get_filename(__file__, "ex"))
 EX_DATA = parse_data(EX_RAW_DATA)
 
@@ -110,3 +180,6 @@ solve_part_a(EX_DATA)
 solve_part_a(MY_DATA)
 
 solve_part_b(MY_DATA)
+
+solve_part_c(MY_DATA)
+solve_part_d(MY_DATA)

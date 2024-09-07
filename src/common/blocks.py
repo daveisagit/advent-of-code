@@ -1,6 +1,145 @@
 """Multi-dimensional blocks"""
 
+from bisect import bisect_left
 from itertools import pairwise
+
+
+class BlockResolver:
+    """Resolve operations on blocks"""
+
+    def __init__(self, dimensions, _cross_section_resolver) -> None:
+        self._dimensions = dimensions
+        self._operation_stack = []
+        self._marker_ordinates = []
+        self._marker_stack = []
+        self._cross_section_resolver = _cross_section_resolver
+
+    def _refresh_marker_ordinates(self):
+        """Refreshes _marker_ordinates which stores actual ordinate values of
+        the grid markers"""
+
+        self._marker_ordinates.clear()
+        for d in range(self._dimensions):
+            markers = set()
+            for block_operation in self._operation_stack:
+                block = block_operation[0]
+                markers.add(block[0][d])
+                markers.add(block[1][d])
+            markers = list(sorted(markers))
+            self._marker_ordinates.append(markers)
+
+    def _refresh_marker_stack(self):
+        """Refreshes _marker_stack which is equivalent to _operation_stack but
+        expressed as grid markers instead of the block ordinates"""
+
+        self._marker_stack.clear()
+        for block, stack_data in self._operation_stack:
+            a = []
+            b = []
+            for d in range(self._dimensions):
+                markers = self._marker_ordinates[d]
+                a.append(bisect_left(markers, block[0][d]))
+                b.append(bisect_left(markers, block[1][d]))
+            marker_block = (tuple(a), tuple(b))
+            entry = (marker_block, stack_data)
+            self._marker_stack.append(entry)
+
+    def _resolve_recursively(self, marker_stack: list, dimension: int = 0) -> dict:
+        """Scan and resolve"""
+
+        # Being in the last dimension is a special case so we note it up front
+        last_dimension = False
+        if self._dimensions == dimension + 1:
+            last_dimension = True
+
+        # Final result set
+        resolved_blocks = {}
+
+        # Used to handle the changes found in cross sections as scan through
+        prev_resolved_x_sec = {}
+        change_marker = None
+
+        # For each marker in this dimension we get the cross section of
+        # normalised blocks of the lower dimension.
+
+        # If there is a change in the normalised blocks between cross sections
+        # then this indicates we should create blocks in this dimension and add
+        # them to our result set.
+
+        for m in range(len(self._marker_ordinates[dimension])):
+
+            # Get the operation stack for the lower dimension at this marker
+            # If this is the last dimension then only the operation makes sense
+            cross_section = [
+                (
+                    (None, stack_data)
+                    if last_dimension
+                    else (
+                        (blk[0][1:], blk[1][1:]),
+                        stack_data,
+                    )
+                )
+                for blk, stack_data in marker_stack
+                if blk[0][0] <= m < blk[1][0]
+            ]
+
+            if last_dimension:
+
+                resolved_x_sec = self._cross_section_resolver(cross_section)
+
+            else:
+                # Get the normalised representation of this cross section
+                # using recursion
+                resolved_x_sec = self._resolve_recursively(cross_section, dimension + 1)
+
+            # By only adding blocks when there are cross section changes
+            # we should hopefully remove redundant blocks
+            if resolved_x_sec != prev_resolved_x_sec:
+
+                # if the change_marker is None then we have
+                # not got a previous x-section
+                if change_marker is not None:
+
+                    # the last dimension simply means we set the value
+                    # for 1D interval (if we have a value of worth)
+                    if last_dimension and prev_resolved_x_sec:
+                        resolved_blocks[((change_marker,), (m,))] = prev_resolved_x_sec
+
+                    # otherwise for all other dimensions
+                    # we use the value from the previous x-section
+                    # to construct the block in this dimension
+                    if not last_dimension:
+                        for x, v in prev_resolved_x_sec.items():
+                            a = (change_marker,) + x[0]
+                            b = (m,) + x[1]
+                            resolved_blocks[(a, b)] = v
+
+                change_marker = m
+                prev_resolved_x_sec = resolved_x_sec
+
+        return resolved_blocks
+
+    def resolve(self):
+        """Normalise the Block operations"""
+
+        def markers_to_ordinates(marker_tuple):
+            return tuple(
+                self._marker_ordinates[d][m] for d, m in enumerate(marker_tuple)
+            )
+
+        self._refresh_marker_ordinates()
+        self._refresh_marker_stack()
+
+        resolved_markers = self._resolve_recursively(self._marker_stack)
+
+        # replace the operation stack with ADD operations for the normalised result
+        self._operation_stack = [
+            (
+                tuple(markers_to_ordinates(x) for x in marker_block),
+                (value, "+"),
+            )
+            for marker_block, value in resolved_markers.items()
+        ]
 
 
 def combine_blocks(a: list, b: list) -> list:
