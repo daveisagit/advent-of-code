@@ -2,10 +2,11 @@
 --- Day 6: Probably a Fire Hazard ---
 """
 
-from collections import defaultdict
+from collections import Counter, defaultdict, deque
 import re
 from common.aoc import file_to_list, aoc_part, get_filename
 from common.blocks import BlockResolver
+from blocksets import Block
 
 
 def parse_data(raw_data):
@@ -170,6 +171,41 @@ def solve_part_d(data) -> int:
     return total
 
 
+@aoc_part
+def solve_part_e(data) -> int:
+    """Solve part A"""
+
+    q = deque()
+    for x in data:
+        q.append(x)
+
+    cubes = Counter()
+    while q:
+        op, a, b = q.popleft()
+        block = Block(a, b)
+        update = Counter()
+
+        if op == "toggle":
+            update[block] += 1
+
+        for c, s in cubes.items():
+            i = block & c
+            if i is None:
+                continue
+
+            if op == "toggle":
+                update[i] -= 2 * s
+            else:
+                update[i] -= s
+
+        if op == "turn on":
+            update[block] += 1
+
+        cubes.update(update)
+
+    return sum(s * b.measure for b, s in cubes.items())
+
+
 EX_RAW_DATA = file_to_list(get_filename(__file__, "ex"))
 EX_DATA = parse_data(EX_RAW_DATA)
 
@@ -181,5 +217,10 @@ solve_part_a(MY_DATA)
 
 solve_part_b(MY_DATA)
 
+# using BlockResolver
 solve_part_c(MY_DATA)
 solve_part_d(MY_DATA)
+
+# part A using set theory, slower due
+# to amount of intersection
+solve_part_e(MY_DATA)

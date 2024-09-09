@@ -362,12 +362,14 @@ def solve_part_f(data) -> int:
             i = block & c
             if i is None:
                 continue
-            update[i.norm] -= s
+            update[i] -= s
+
         if op:
-            update[block.norm] += 1
+            update[block] += 1
+
         cubes.update(update)
 
-    return sum(s * (Block.parse(b)).measure for b, s in cubes.items())
+    return sum(s * b.measure for b, s in cubes.items())
 
 
 EX_RAW_DATA = file_to_list(get_filename(__file__, "ex"))
@@ -378,13 +380,20 @@ MY_RAW_DATA = file_to_list(get_filename(__file__, "my"))
 MY_DATA = parse_data(MY_RAW_DATA)
 
 
-# solve_part_a(EX_DATA)
-# solve_part_a(MY_DATA)
-solve_part_b(EX_DATA)
-# solve_part_b(MY_DATA) # 130s
+solve_part_a(EX_DATA)
+solve_part_a(MY_DATA)
 
+# using solve
+solve_part_b(EX_DATA)
+solve_part_b(MY_DATA)  # > 1 min
+
+# using Block_Resolver is slower
+# due to the amount of blocks
 # solve_part_c(EX_DATA)
 # solve_part_d(MY_DATA)  # 310s
 # solve_part_e(MY_DATA)  # 200s
 
-solve_part_f(EX_DATA)  # 310s
+# using set theory is fastest
+# as there is not much intersection
+solve_part_f(EX_DATA)
+solve_part_f(MY_DATA)  # 1.5s
