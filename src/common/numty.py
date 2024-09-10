@@ -1,8 +1,10 @@
 """Number theory stuff"""
 
 from collections import Counter
+from functools import lru_cache
 from itertools import combinations, pairwise
 import math
+from sys import getrecursionlimit, setrecursionlimit
 
 
 def prime_list(n):
@@ -191,3 +193,34 @@ def sum_arithmetic_seq(a, d, n):
 
 def sum_geometric_seq(a, r, n):
     return a * (r**n - 1) // (r - 1)
+
+
+@lru_cache(maxsize=None)
+def fibonacci(n):
+    if n > 1:
+        return fibonacci(n - 1) + fibonacci(n - 2)
+    elif n == 1:
+        return 1
+    elif n == 0:
+        return 0
+    else:
+        raise ValueError("negative n not allowed")
+
+
+@lru_cache(maxsize=None)
+def derangements(n):
+    """Number of permutations of n such that no element remains in
+    the same place"""
+    if n > 1:
+        return (n - 1) * (derangements(n - 1) + derangements(n - 2))
+    elif n == 1:
+        return 0
+    elif n == 0:
+        return 1
+    else:
+        raise ValueError("negative n not allowed")
+
+
+# setrecursionlimit(2001)
+# print(fibonacci(1000))
+# print(derangements(1000))
