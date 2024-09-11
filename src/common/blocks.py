@@ -1,6 +1,7 @@
 """Multi-dimensional blocks"""
 
 from bisect import bisect_left
+from collections import defaultdict
 from itertools import pairwise
 
 
@@ -12,6 +13,7 @@ class BlockResolver:
         self._operation_stack = []
         self._marker_ordinates = []
         self._marker_stack = []
+        self._dimension_segment_usage_count = []
         self._cross_section_resolver = _cross_section_resolver
 
     def _refresh_marker_ordinates(self):
@@ -43,6 +45,20 @@ class BlockResolver:
             marker_block = (tuple(a), tuple(b))
             entry = (marker_block, stack_data)
             self._marker_stack.append(entry)
+
+    def _refresh_dimension_segment_usage_counts(self):
+        self._dimension_segment_usage_count = []
+        for d in range(self._dimensions):
+            segment_usage_count = defaultdict(set)
+            for idx, (blk, _) in enumerate(self._marker_stack):
+                a = blk[0][d]
+                b = blk[1][d]
+                for x in range(a, b):
+                    segment_usage_count[x].add(idx)
+            segment_usage_count = sorted(
+                segment_usage_count.items(), key=lambda x: len(x[1]), reverse=True
+            )
+            self._dimension_segment_usage_count.append(segment_usage_count)
 
     def _resolve_recursively(self, marker_stack: list, dimension: int = 0) -> dict:
         """Scan and resolve"""
@@ -140,6 +156,45 @@ class BlockResolver:
             )
             for marker_block, value in resolved_markers.items()
         ]
+
+    def most_intersected_segments(self, top=1):
+        """Returns a list of the most heavily used segments within
+        the marker space"""
+
+        def read_dimension(d, all_indexes=None, segments=()):
+            nonlocal most_intersected
+            bar_level = 0
+            if len(most_intersected) >= top:
+                bar_level = most_intersected[top - 1][1]
+
+            for dimension_count in self._dimension_segment_usage_count[d]:
+                seg = dimension_count[0]
+                indexes = dimension_count[1]
+                if d == 0:
+                    new_all_indexes = indexes
+                else:
+                    new_all_indexes = all_indexes & indexes
+                if len(new_all_indexes) < bar_level:
+                    return
+
+                segments += (seg,)
+                if d < self._dimensions - 1:
+                    read_dimension(
+                        d + 1, all_indexes=new_all_indexes, segments=segments
+                    )
+                else:
+                    if len(new_all_indexes) >= bar_level:
+                        most_intersected.append((segments, len(new_all_indexes)))
+                        most_intersected = sorted(
+                            most_intersected, key=lambda x: x[1], reverse=True
+                        )
+                        if len(most_intersected) >= top:
+                            bar_level = most_intersected[top - 1][1]
+
+        most_intersected = []
+        self._refresh_dimension_segment_usage_counts()
+        read_dimension(0)
+        return most_intersected
 
 
 def combine_blocks(a: list, b: list) -> list:

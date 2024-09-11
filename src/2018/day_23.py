@@ -3,11 +3,12 @@
 """
 
 from collections import defaultdict
-from itertools import pairwise
+from itertools import pairwise, product
 from math import inf
 from operator import sub
 import re
 from common.aoc import file_to_list, aoc_part, get_filename
+from common.blocks import BlockResolver
 
 
 def parse_data(raw_data):
@@ -202,6 +203,30 @@ def solve_part_b(data) -> int:
     return shortest_md
 
 
+@aoc_part
+def solve_part_c(data) -> int:
+    """Solve part B"""
+
+    pp = get_parallel_planes(data)
+    pp = [tuple(zip(*x)) for x in pp]
+    br = BlockResolver(4, None)
+
+    for a, b in pp:
+        blk = a, b
+        br._operation_stack.append((blk, 1))
+
+    br._refresh_marker_ordinates()
+    br._refresh_marker_stack()
+    most_intersected = br.most_intersected_segments()
+    most_intersected_segment, _ = most_intersected[0]
+
+    # the 1st parallel plane range is the x+y value
+    # i.e. the manhattan distance
+    # so no need to translate pp back to xy
+    # for the answer
+    return br._marker_ordinates[0][most_intersected_segment[0]]
+
+
 EX_RAW_DATA = file_to_list(get_filename(__file__, "ex"))
 EX_DATA = parse_data(EX_RAW_DATA)
 
@@ -213,3 +238,5 @@ solve_part_a(MY_DATA)
 
 solve_part_b(EX_DATA)
 solve_part_b(MY_DATA)
+
+solve_part_c(MY_DATA)
