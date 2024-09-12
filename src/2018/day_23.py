@@ -9,6 +9,7 @@ from operator import sub
 import re
 from common.aoc import file_to_list, aoc_part, get_filename
 from common.blocks import BlockResolver
+from common.grid_3d import octahedron_manhattan_planes, octaplanes_to_point_set
 
 
 def parse_data(raw_data):
@@ -205,9 +206,12 @@ def solve_part_b(data) -> int:
 
 @aoc_part
 def solve_part_c(data) -> int:
-    """Solve part B"""
+    """Solve part B using BlockResolver"""
 
-    pp = get_parallel_planes(data)
+    # get the octaplanes
+    pp = [octahedron_manhattan_planes((x, y, z), d) for x, y, z, d in data]
+
+    # convert 4 pairs of planes to a 4D block
     pp = [tuple(zip(*x)) for x in pp]
     br = BlockResolver(4, None)
 
@@ -218,7 +222,20 @@ def solve_part_c(data) -> int:
     br._refresh_marker_ordinates()
     br._refresh_marker_stack()
     most_intersected = br.most_intersected_segments()
+
+    # the most i.e. top 1 = first, ignore the value
     most_intersected_segment, _ = most_intersected[0]
+
+    # convert markers back to actual ordinates
+    most_intersected_region = tuple(
+        (br._marker_ordinates[d][x], br._marker_ordinates[d][x + 1])
+        for d, x in enumerate(most_intersected_segment)
+    )
+    print(most_intersected_region)
+
+    # translate the region defined to a set of points
+    p = octaplanes_to_point_set(most_intersected_region)
+    print(p)
 
     # the 1st parallel plane range is the x+y value
     # i.e. the manhattan distance

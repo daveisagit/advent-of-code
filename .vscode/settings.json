@@ -13,6 +13,7 @@
         "mergable",
         "numpy",
         "numty",
+        "octaplanes",
         "pyvis",
         "Spelunking",
         "Spinlock",
