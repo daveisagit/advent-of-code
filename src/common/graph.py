@@ -1,6 +1,6 @@
 """Graphing tools"""
 
-from collections import deque
+from collections import defaultdict, deque
 from copy import deepcopy
 from heapq import heappop, heappush
 from itertools import count
@@ -83,6 +83,27 @@ def dijkstra_paths(gph, source, target=None, weight_attr=None):
     return dist, paths
 
 
+def get_longest_path(gph, start, finish):
+    """Return the longest path length between start and finish that visits nodes
+    only once (not all nodes need to be visited)"""
+
+    def longest(cur, dst, best):
+        if cur == finish:
+            return dst
+        if cur in seen:
+            return best
+        # it is more efficient to keep a mutable set maintained
+        # rather than passing a new frozen one in the arguments
+        seen.add(cur)
+        best = max(longest(nxt, d + dst, best) for nxt, d in gph[cur].items())
+        seen.remove(cur)
+        return best
+
+    seen = set()
+
+    return longest(start, 0, 0)
+
+
 def simplify(gph, protected_nodes=None):
     """
     Remove nodes and merge edges for nodes with 2 edges
@@ -112,6 +133,11 @@ def simplify(gph, protected_nodes=None):
         candidates.difference_update(protected_nodes)
 
 
+# Run Dijkstra from all nodes if you expect to have about as many
+# edges as you have nodes, and run Floyd if you expect to have almost complete
+# graphs.
+
+
 def get_adjacency_matrix(gph, nodes=None, weight_attr=None):
     """Returns the adjacency matrix (as dict)"""
     matrix = {}
@@ -126,6 +152,27 @@ def get_adjacency_matrix(gph, nodes=None, weight_attr=None):
             if v not in nodes:
                 continue
             matrix[u][v] = d
+    return matrix
+
+
+def floyd_warshall(gph):
+    """Returns the adjacency matrix (as dict)"""
+    matrix = defaultdict(dict)
+    nodes = set(gph)
+    for u in nodes:
+        for v in nodes:
+            matrix[u][v] = inf
+            if u == v:
+                matrix[u][v] = 0
+                continue
+            if v in gph[u]:
+                e = gph[u][v]
+                matrix[u][v] = e
+    for k in nodes:
+        for i in nodes:
+            for j in nodes:
+                if matrix[i][j] > matrix[i][k] + matrix[k][j]:
+                    matrix[i][j] = matrix[i][k] + matrix[k][j]
     return matrix
 
 
