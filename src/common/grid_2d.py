@@ -168,53 +168,6 @@ def shoelace_area(outline) -> int:
     return abs(sum(areas) // 2)
 
 
-def maze_to_graph_v1(start, maze):
-    """Take a maze expressed as a set of path points and return a
-    graph of it"""
-    gph = defaultdict(dict)
-    bfs = deque()
-    # state is from_node, edge_cost, prv, cur
-    state = None, 0, None, start
-    bfs.append(state)
-    while bfs:
-
-        state = bfs.popleft()
-        from_node, edge_cost, prv, cur = state
-
-        # what are the choices
-        choices = set()
-        for dv in directions.values():
-            nxt = tuple(map(add, cur, dv))
-            if nxt not in maze:
-                continue
-            choices.add(nxt)
-
-        if len(choices) == 2:
-            # if choices = 2 we are on an edge
-            # we don't want to turn around
-            choices.discard(prv)
-        else:
-            # otherwise we are on a node
-            # record the completed edge
-            if from_node:
-                gph[from_node][cur] = edge_cost
-
-            # if we've already been here
-            if cur in gph:
-                continue
-
-            # this is new from_node
-            from_node = cur
-            edge_cost = 0
-
-        # put the choices on the queue
-        for nxt in choices:
-            new_state = from_node, edge_cost + 1, cur, nxt
-            bfs.append(new_state)
-
-    return gph
-
-
 def maze_to_graph(start, maze, directed=False, path_char="."):
     """Take a maze expressed as a dict of path points the value
     being either a normal path or a specific direction (<>^v)
@@ -238,7 +191,7 @@ def maze_to_graph(start, maze, directed=False, path_char="."):
             if nxt not in maze:
                 continue
             deg += 1
-            if not directed or maze[nxt] == path_char or maze[nxt] == d:
+            if not directed or maze[nxt] in path_char or maze[nxt] == d:
                 choices.add(nxt)
 
         if deg == 2:
@@ -287,3 +240,47 @@ def generate_Z2(limit=None, origin=(0, 0)):
             yield p[0], -p[1]
         if p[0] and p[1]:
             yield -p[0], -p[1]
+
+
+def diamond_manhattan_sides(p, d):
+    """Return 4 sides (2 pairs of 2 opposite parallel lines) of a diamond
+    defined by a centre and manhattan distance.
+
+    similar to the notion of rotating a 2D diamond into a square.
+
+    Each entry is a 2-tuple of the lower and upper manhattan distances
+    from the origin.
+
+    Use the pythonic standard on expressing the upper limit as exclusive"""
+    x, y = p
+    pl = (
+        x + y,
+        x - y,
+    )
+    return tuple((p - d, p + d + 1) for p in pl)
+
+
+def dialines_to_point_set(dialines):
+    """Assuming dialines have been created as in diamond_manhattan_sides
+    dim 1: 🡕+
+    dim 2: 🡖+
+    away from origin, then this is the inverse translation giving the set
+    of lattice points inside the dialines
+    """
+    possible_points = set()
+    for i0 in range(dialines[0][0], dialines[0][1]):
+        for i1 in range(dialines[1][0], dialines[1][1]):
+            x = i0 + i1
+            y = i0 - i1
+            if x % 2 == 0 and y % 2 == 0:
+                x = x // 2
+                y = y // 2
+                d0 = x + y
+                d1 = x - y
+                if (
+                    dialines[0][0] <= d0 < dialines[0][1]
+                    and dialines[1][0] <= d1 < dialines[1][1]
+                ):
+                    # x,y are legitimate
+                    possible_points.add((x, y))
+    return possible_points

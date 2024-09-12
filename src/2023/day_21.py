@@ -6,7 +6,7 @@ from collections import Counter, deque
 from operator import add
 from common.aoc import file_to_list, aoc_part, get_filename
 from common.grid_2d import directions
-from common.linear_algebra import poly_from_points, poly_value, quadratic_from_3_points
+from common.linear_algebra import poly_from_points, poly_value
 from common.numty import extend_polynomial_sequence, search_for_polynomial_sequence
 
 
