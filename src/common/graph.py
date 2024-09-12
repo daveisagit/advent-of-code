@@ -410,3 +410,54 @@ def stoer_wagner(g):
     node_partition_a = set(dijkstra(contractions_graph, t, None))
     node_partition_b = node_set - node_partition_a
     return cut_value, (node_partition_a, node_partition_b)
+
+
+def which_edges_wagner(gph, sg1, sg2):
+    to_cut = set()
+    for u in sg1:
+        for v in gph[u]:
+            if v in sg2:
+                to_cut.add((u, v))
+    return to_cut
+
+
+def tarjan(gph):
+    """Return the strongly connected sub graphs"""
+
+    def strong_connect(v):
+        nonlocal idx
+        low_link[v] = idx
+        index_of[v] = idx
+        idx += 1
+        stk.append(v)
+        on_stack.add(v)
+
+        for w in gph[v]:
+            if w not in index_of:
+                strong_connect(w)
+                low_link[v] = min(low_link[v], low_link[w])
+            elif w in on_stack:
+                low_link[v] = min(low_link[v], index_of[w])
+
+        if low_link[v] == index_of[v]:
+            scc = []
+            while True:
+                w = stk.pop()
+                scc.append(w)
+                on_stack.discard(w)
+                if w == v:
+                    break
+            sub_graphs.append(scc)
+
+    idx = 0
+    stk = deque()
+    low_link = {}
+    index_of = {}
+    sub_graphs = []
+    on_stack = set()
+    for n in gph:
+        if n in low_link:
+            continue
+        strong_connect(n)
+
+    return sub_graphs
