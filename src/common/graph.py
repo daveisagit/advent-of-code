@@ -461,3 +461,44 @@ def tarjan(gph):
         strong_connect(n)
 
     return sub_graphs
+
+
+def minimal_spanning_tree(gph):
+    """
+    Applies Prim's algorithm to compute a minimum spanning tree on an undirected graph
+    """
+    mst = defaultdict(dict)
+    h = BinaryHeap()
+    parent = {}
+
+    for v in gph:
+        parent[v] = None
+        h.upsert(v, inf)
+
+    while h._dict:
+        v, _ = h.pop()
+
+        predecessor = parent[v]
+        if predecessor is not None:
+            weight = gph[predecessor][v]
+            mst[predecessor][v] = weight
+
+        for w in gph[v]:
+            if h.get(w) is not None:
+                new_key = gph[v][w]
+                if new_key < h.get(w):
+                    h.upsert(w, new_key)
+                    parent[w] = v
+
+    return mst
+
+
+# dt = [(0, 1, 10), (0, 2, 6), (0, 3, 5), (1, 3, 15), (2, 3, 4)]
+
+# gph = defaultdict(dict)
+# for u, v, w in dt:
+#     add_edge(gph, u, v, w)
+#     add_edge(gph, v, u, w)
+
+# m = minimal_spanning_tree(gph)
+# print(m)
