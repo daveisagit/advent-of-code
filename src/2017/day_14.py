@@ -6,7 +6,7 @@ from collections import Counter, defaultdict
 from operator import add
 from common.aoc import aoc_part, file_to_string, get_filename
 from common.general import window_over
-from common.graph import subgraph_nodes
+from common.graph import subgraph_nodes, tarjan
 from common.grid_2d import grid_lists_to_dict, directions
 
 
@@ -92,7 +92,10 @@ def solve_part_b(data) -> int:
     grid = grid_lists_to_dict(grid)
     gph = grid_to_graph(grid)
     sgn = subgraph_nodes(gph)
-    return len(sgn)
+    # test tarjan
+    t = tarjan(gph)
+    assert len(sgn) == len(t)
+    return len(t)
 
 
 EX_RAW_DATA = file_to_string(get_filename(__file__, "ex"))

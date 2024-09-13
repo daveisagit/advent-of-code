@@ -432,12 +432,13 @@ def tarjan(gph):
         stk.append(v)
         on_stack.add(v)
 
-        for w in gph[v]:
-            if w not in index_of:
-                strong_connect(w)
-                low_link[v] = min(low_link[v], low_link[w])
-            elif w in on_stack:
-                low_link[v] = min(low_link[v], index_of[w])
+        if v in gph:
+            for w in gph[v]:
+                if w not in index_of:
+                    strong_connect(w)
+                    low_link[v] = min(low_link[v], low_link[w])
+                elif w in on_stack:
+                    low_link[v] = min(low_link[v], index_of[w])
 
         if low_link[v] == index_of[v]:
             scc = []
@@ -464,8 +465,8 @@ def tarjan(gph):
 
 
 def minimal_spanning_tree(gph):
-    """
-    Applies Prim's algorithm to compute a minimum spanning tree on an undirected graph
+    """Applies Prim's algorithm to compute a minimum spanning tree on an undirected graph
+    Returns a graph
     """
     mst = defaultdict(dict)
     h = BinaryHeap()
@@ -492,6 +493,242 @@ def minimal_spanning_tree(gph):
 
     return mst
 
+
+def reverse_graph(gph):
+    """Return the reverse of a directed graph"""
+    rev_gph = defaultdict(dict)
+    for u in gph:
+        for v in gph[u]:
+            rev_gph[v][u] = gph[u][v]
+    return rev_gph
+
+
+def directed_edges(gph):
+    """Return a dict of edges keyed on a tuple (from,to) of a directed graph value is weight"""
+    edges = {}
+    for u in gph:
+        for v, w in gph[u].items():
+            edges[(u, v)] = w
+    return edges
+
+
+def edges_to_graph(edges):
+    """Return a graph given edges with weights"""
+    gph = defaultdict(dict)
+    for (u, v), w in edges.items():
+        gph[u][v] = w
+    return gph
+
+
+def possible_roots(gph, check_all_nodes_reachable=True):
+    """Find all possible roots of a directed graph"""
+    scc_node_groups = tarjan(gph)
+    edges = directed_edges(gph)
+    scc_with_no_incoming_edges = set()
+    for scc_nodes in scc_node_groups:
+        incoming_edges = {
+            v for (u, v), _ in edges.items() if u not in scc_nodes and v in scc_nodes
+        }
+        if incoming_edges:
+            continue
+        scc_with_no_incoming_edges.add(frozenset(scc_nodes))
+
+    if len(scc_with_no_incoming_edges) != 1:
+        return None
+
+    # this is the only scc with no incoming from other groups
+    # so it must be the root (all members can be roots by definition of scc)
+    scc = scc_with_no_incoming_edges.pop()
+
+    if check_all_nodes_reachable:
+        reachable_nodes = reachable(gph, list(scc)[0])
+        for scc_nodes in scc_node_groups:
+            if scc_nodes == scc:
+                continue
+            if scc_nodes[0] in reachable_nodes:
+                continue
+            raise ValueError(f"Unreachable nodes {scc_nodes}")
+    return scc
+
+
+def find_a_circle(gph):
+    """Return the first circle found as a set of edges, nodes"""
+    sg_nodes = tarjan(gph)
+    groups = [ns for ns in sg_nodes if len(ns) > 1]
+    if not groups:
+        return None, None
+
+    group = groups[0]
+    circle = set()
+    nodes = set()
+    src = group[0]
+    group = set(group)
+    cur = src
+    prv = None
+    group.remove(src)
+    while True:
+        nodes.add(cur)
+        prv = cur
+        neighbours = [x for x in gph[cur] if x in group]
+        if len(neighbours) == 0:
+            break
+        cur = neighbours[0]
+        group.remove(cur)
+        circle.add((prv, cur))
+    circle.add((cur, src))
+
+    return circle, nodes
+
+
+def edmond_mst(gph, root):
+    """Return edges of a directed graph that form a minimal spanning tree"""
+
+    rev = reverse_graph(gph)
+    E = directed_edges(gph)
+    # remove any edge going into root
+    for n in rev[root]:
+        del E[(n, root)]
+
+    P = {}
+    v_src = {}
+    # for every node
+    for v, e in rev.items():
+        if not e:
+            continue
+        if v == root:
+            continue
+        # edge into v with the lowest weight
+        pi_v, pi_v_w = sorted([(u, w) for u, w in e.items()], key=lambda x: x[1])[0]
+        P[(pi_v, v)] = pi_v_w
+        v_src[v] = pi_v
+
+    tg = edges_to_graph(P)
+    edge_circle, node_circle = find_a_circle(tg)
+
+    if edge_circle is None:
+        return P
+
+    vc_cnt = 0
+    while True:
+        vc = f"_tmp_vc_{vc_cnt}"
+        if vc not in gph:
+            break
+        vc_cnt += 1
+
+    E2 = {}
+    corresponding_edges = {}
+    for (u, v), w in E.items():
+        if u not in node_circle and v in node_circle:
+            # pi_v, pi_v_w = sorted(
+            #     [(u, w) for u, w in rev[v].items() if u not in node_circle],
+            #     key=lambda x: x[1],
+            # )[0]
+            # nw = w - pi_v_w
+
+            nw = w - P[(v_src[v], v)]
+
+            if (u, vc) in E2:
+                if w < E2[(u, vc)]:
+                    E2[(u, vc)] = nw
+                    corresponding_edges[(u, vc)] = (u, v)
+            else:
+                E2[(u, vc)] = nw
+                corresponding_edges[(u, vc)] = (u, v)
+            continue
+
+        if u in node_circle and v not in node_circle:
+            if (vc, v) in E2:
+                if w < E2[(vc, v)]:
+                    E2[(vc, v)] = w
+                    corresponding_edges[(vc, v)] = (u, v)
+            else:
+                E2[(vc, v)] = w
+                corresponding_edges[(vc, v)] = (u, v)
+            continue
+
+        if u not in node_circle and v not in node_circle:
+            E2[(u, v)] = w
+            corresponding_edges[(u, v)] = (u, v)
+            continue
+
+    ng = edges_to_graph(E2)
+    A2 = edmond_mst(ng, root=root)
+    into_vc = [n for (n, v) in A2 if v == vc]
+    assert len(into_vc) == 1
+    u = into_vc[0]
+
+    (u, v) = corresponding_edges[(u, vc)]
+    edge_circle.remove((v_src[v], v))
+
+    A = {}
+    for e, w in A2.items():
+        ce = corresponding_edges[e]
+        A[ce] = E[ce]
+    for e in edge_circle:
+        A[e] = E[e]
+
+    return A
+
+
+def minimal_spanning_tree_directed(gph, as_edges=False):
+    """Return the minimal spanning arborescence using Edmonds algorithm
+    as a graph"""
+    best_mst = None
+    best_mst_value = inf
+    for v in gph:
+        mst = edmond_mst(gph, v)
+        print(v)
+        print(mst)
+        value = sum(mst.values())
+        if value < best_mst_value:
+            best_mst_value = value
+            best_mst = mst
+    if not as_edges:
+        best_mst = edges_to_graph(best_mst)
+    return best_mst
+
+
+test_data = [
+    ("A", "B", 1),
+    ("A", "C", 2),
+    ("A", "D", 3),
+    ("B", "A", 7),
+    ("B", "C", 4),
+    ("B", "D", 5),
+    ("C", "A", 8),
+    ("C", "B", 10),
+    ("C", "D", 6),
+    ("D", "A", 9),
+    ("D", "B", 11),
+    ("D", "C", 12),
+]
+
+# import networkx as nx
+
+# dg = nx.DiGraph()
+# gph = defaultdict(dict)
+# for u, v, w in test_data:
+#     gph[u][v] = w
+#     dg.add_edge(u, v, w=w)
+
+# print("min")
+# a = nx.minimum_spanning_arborescence(dg, "w")
+# for u, v, w in a.edges(data=True):
+#     print(u, v, w)
+
+# print("max")
+# a = nx.maximum_spanning_arborescence(dg, "w")
+# for u, v, w in a.edges(data=True):
+#     print(u, v, w)
+
+# a = edmond_mst(gph, root="A")
+# print(a)
+
+# a = minimal_spanning_tree_directed(gph)
+# print(a)
+
+# pr = possible_roots(gph)
+# print(pr)
 
 # dt = [(0, 1, 10), (0, 2, 6), (0, 3, 5), (1, 3, 15), (2, 3, 4)]
 
