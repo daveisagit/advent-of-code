@@ -165,6 +165,7 @@ def simplify(gph, protected_nodes=None):
         candidates.difference_update(protected_nodes)
 
 
+# For Adjacency Matrix:
 # Run Dijkstra from all nodes if you expect to have about as many
 # edges as you have nodes, and run Floyd if you expect to have almost complete
 # graphs.
@@ -541,6 +542,56 @@ def minimal_spanning_tree(gph):
     return mst
 
 
+def kruskal_mst(gph):
+    """Minimal spanning tree using Kruskal's algorithm
+    This can also be used for maximum spanning tree if weights are negated
+    and also works on graphs not strongly connected
+    Edges are returned as dictionary
+    """
+
+    def find(parent, i):
+        if parent[i] == i:
+            return i
+        return find(parent, parent[i])
+
+    def union(parent, rank, x, y):
+        x_root = find(parent, x)
+        y_root = find(parent, y)
+
+        if rank[x_root] < rank[y_root]:
+            parent[x_root] = y_root
+        elif rank[x_root] > rank[y_root]:
+            parent[y_root] = x_root
+        else:
+            parent[y_root] = x_root
+            rank[x_root] += 1
+
+    result = {}
+    i = 0
+    e = 0
+    edges = directed_edges(gph)
+    edges = {(frozenset(e), w) for e, w in edges.items()}
+    nodes = all_nodes(gph)
+    V = len(nodes)
+
+    edges = sorted(edges, key=lambda x: x[1])
+    parent = [i for i in range(V)]
+    rank = [0] * V
+
+    while e < V - 1:
+        (u, v), w = edges[i]
+        i += 1
+        x = find(parent, u)
+        y = find(parent, v)
+
+        if x != y:
+            e += 1
+            result[(u, v)] = w
+            union(parent, rank, x, y)
+
+    return result
+
+
 def reverse_graph(gph):
     """Return the reverse of a directed graph"""
     rev_gph = defaultdict(dict)
@@ -559,11 +610,13 @@ def directed_edges(gph):
     return edges
 
 
-def edges_to_graph(edges):
+def edges_to_graph(edges, directed=True):
     """Return a graph given edges with weights"""
     gph = defaultdict(dict)
     for (u, v), w in edges.items():
         gph[u][v] = w
+        if not directed:
+            gph[v][u] = w
     return gph
 
 
@@ -852,8 +905,10 @@ e 0 1 9 10
 """
     gph = make_test_graph(g_data)
     mst = minimal_spanning_tree(gph)
+    kru = kruskal_mst(gph)
     edges = directed_edges(mst)
     assert sum(w for _, w in edges.items()) == 43
+    assert sum(kru.values()) == 43
 
 
 def test_floyd():
