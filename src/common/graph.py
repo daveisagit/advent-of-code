@@ -93,6 +93,28 @@ def dijkstra_paths(gph, source, target=None, weight_attr=None):
     return dist, paths
 
 
+def bellman_ford(graph, source):
+    """Like Dijkstra but will handle negative weights"""
+    # Step 1: Initialize distances
+    distances = {n: inf for n in all_nodes(graph)}
+    distances[source] = 0
+
+    # Step 2: Relax edges |V| - 1 times
+    for _ in range(len(graph) - 1):
+        for u in graph:
+            for v, weight in graph[u].items():
+                if distances[u] != inf and distances[u] + weight < distances[v]:
+                    distances[v] = distances[u] + weight
+
+    # Step 3: Check for negative weight cycles
+    for u in graph:
+        for v, weight in graph[u].items():
+            if distances[u] != inf and distances[u] + weight < distances[v]:
+                raise ValueError("Graph contains negative weight cycle")
+
+    return distances
+
+
 def get_longest_path(gph, start, finish):
     """Return the longest path length between start and finish that visits nodes
     only once (not all nodes need to be visited)"""
@@ -158,6 +180,7 @@ def get_adjacency_matrix(
 
     if include_unreachable:
         for u in nodes:
+            matrix[u] = {}
             for v in nodes:
                 matrix[u][v] = inf
                 if u == v and include_diagonal:
@@ -165,7 +188,8 @@ def get_adjacency_matrix(
 
     for u in nodes:
         distances, _ = dijkstra_paths(gph, u, weight_attr=weight_attr)
-        matrix[u] = {}
+        if not include_unreachable:
+            matrix[u] = {}
         for v, d in distances.items():
             if u == v:
                 if include_diagonal:
@@ -766,13 +790,18 @@ test_data = [
 # m = minimal_spanning_tree(gph)
 # print(m)
 
+#########################################################################
+# Tests using
+# https://algorithms.discrete.ma.tum.de/
+#########################################################################
+
 
 def make_test_graph(gd: str, directed=False, use_alpha=False):
     gph = defaultdict(dict)
     for line in gd.splitlines():
         if not line:
             continue
-        arr = tok(line)
+        arr = tok(line.strip())
         e = tuple(int(x) for x in arr[1:])
         u = e[0]
         v = e[1]
@@ -867,4 +896,40 @@ h	∞	∞	3	19	13	18	∞	0
             assert am[u][v] == w
 
 
+def test_bellman_ford():
+    g_data = """
+e 2 4 0 33
+e 3 5 1 -2
+e 3 4 2 -20
+e 4 5 3 1
+e 2 3 4 20
+e 1 4 5 10
+e 1 3 6 50
+e 0 2 7 20
+e 0 1 8 10
+"""
+    gph = make_test_graph(g_data, directed=True)
+    bf = bellman_ford(gph, 5)
+    assert all(w == inf for v, w in bf.items() if v != 5)
+    bf = bellman_ford(gph, 0)
+    assert bf == {0: 0, 1: 10, 2: 20, 3: 40, 4: 20, 5: 21}
+
+    g_data = """
+e 0 1 0 10
+e 1 2 1 1
+e 2 4 2 3
+e 4 3 3 -10
+e 3 1 4 4
+e 4 5 5 22
+"""
+    gph = make_test_graph(g_data, directed=True)
+    try:
+        bf = bellman_ford(gph, 0)
+        raise RuntimeError("Should fail")
+    except ValueError:
+        pass
+
+
+# test_bellman_ford()
 # test_floyd()
+# test_prim()
