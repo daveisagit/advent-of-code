@@ -6,7 +6,17 @@ from heapq import heappop, heappush
 from itertools import count
 from math import inf
 
+from common.general import tok
 from common.heap import BinaryHeap
+
+
+def all_nodes(gph):
+    """Return all the nodes of a graph as a set"""
+    nodes = set()
+    for u, v in gph.items():
+        nodes.add(u)
+        nodes.update(v.keys())
+    return nodes
 
 
 def dijkstra(gph, source, target, weight_attr=None):
@@ -138,16 +148,28 @@ def simplify(gph, protected_nodes=None):
 # graphs.
 
 
-def get_adjacency_matrix(gph, nodes=None, weight_attr=None):
+def get_adjacency_matrix(
+    gph, nodes=None, weight_attr=None, include_unreachable=False, include_diagonal=False
+):
     """Returns the adjacency matrix (as dict)"""
     matrix = {}
     if nodes is None:
-        nodes = set(gph)
+        nodes = all_nodes(gph)
+
+    if include_unreachable:
+        for u in nodes:
+            for v in nodes:
+                matrix[u][v] = inf
+                if u == v and include_diagonal:
+                    matrix[u][v] = 0
+
     for u in nodes:
         distances, _ = dijkstra_paths(gph, u, weight_attr=weight_attr)
         matrix[u] = {}
         for v, d in distances.items():
             if u == v:
+                if include_diagonal:
+                    matrix[u][v] = 0
                 continue
             if v not in nodes:
                 continue
@@ -158,7 +180,7 @@ def get_adjacency_matrix(gph, nodes=None, weight_attr=None):
 def floyd_warshall(gph):
     """Returns the adjacency matrix (as dict)"""
     matrix = defaultdict(dict)
-    nodes = set(gph)
+    nodes = all_nodes(gph)
     for u in nodes:
         for v in nodes:
             matrix[u][v] = inf
@@ -168,6 +190,7 @@ def floyd_warshall(gph):
             if v in gph[u]:
                 e = gph[u][v]
                 matrix[u][v] = e
+
     for k in nodes:
         for i in nodes:
             for j in nodes:
@@ -673,9 +696,12 @@ def edmond_mst(gph, root):
 def minimal_spanning_tree_directed(gph, as_edges=False):
     """Return the minimal spanning arborescence using Edmonds algorithm
     as a graph"""
+    roots = possible_roots(gph)
+    if not roots:
+        raise ValueError("Directed graph has no root that will span all nodes")
     best_mst = None
     best_mst_value = inf
-    for v in gph:
+    for v in roots:
         mst = edmond_mst(gph, v)
         print(v)
         print(mst)
@@ -709,7 +735,7 @@ test_data = [
 # gph = defaultdict(dict)
 # for u, v, w in test_data:
 #     gph[u][v] = w
-#     dg.add_edge(u, v, w=w)
+#     # dg.add_edge(u, v, w=w)
 
 # print("min")
 # a = nx.minimum_spanning_arborescence(dg, "w")
@@ -724,7 +750,7 @@ test_data = [
 # a = edmond_mst(gph, root="A")
 # print(a)
 
-# a = minimal_spanning_tree_directed(gph)
+# a = minimal_spanning_tree_directed(gph, as_edges=True)
 # print(a)
 
 # pr = possible_roots(gph)
@@ -739,3 +765,106 @@ test_data = [
 
 # m = minimal_spanning_tree(gph)
 # print(m)
+
+
+def make_test_graph(gd: str, directed=False, use_alpha=False):
+    gph = defaultdict(dict)
+    for line in gd.splitlines():
+        if not line:
+            continue
+        arr = tok(line)
+        e = tuple(int(x) for x in arr[1:])
+        u = e[0]
+        v = e[1]
+        if use_alpha:
+            u = chr(ord("a") + u)
+            v = chr(ord("a") + v)
+        gph[u][v] = e[3]
+        if directed:
+            continue
+        gph[v][u] = e[3]
+    return gph
+
+
+def make_test_matrix(md: str):
+    nodes = []
+    for line in md.splitlines():
+        if not line:
+            continue
+        arr = tok(line, delim="\t")
+        nodes.append(arr[0])
+
+    mtx = defaultdict(dict)
+    for line in md.splitlines():
+        if not line:
+            continue
+        arr = tok(line, delim="\t")
+        u = arr[0]
+        for i, x in enumerate(arr[1:]):
+            v = nodes[i]
+            w = inf
+            if x.isnumeric():
+                w = int(x)
+            mtx[u][v] = w
+    return mtx
+
+
+def test_prim():
+    g_data = """
+e 2 4 0 33
+e 3 5 1 2
+e 3 4 2 20
+e 4 5 3 1
+e 2 3 4 20
+e 1 4 5 10
+e 1 3 6 50
+e 0 2 7 20
+e 0 1 9 10
+"""
+    gph = make_test_graph(g_data)
+    mst = minimal_spanning_tree(gph)
+    edges = directed_edges(mst)
+    assert sum(w for _, w in edges.items()) == 43
+
+
+def test_floyd():
+    g_data = """
+e 0 1 0 4
+e 1 2 1 9
+e 0 6 2 7
+e 0 7 3 4
+e 1 7 4 1
+e 7 2 5 3
+e 1 6 6 8
+e 6 1 7 4
+e 6 5 8 7
+e 1 5 9 6
+e 5 4 10 6
+e 4 5 11 5
+e 4 3 12 6
+e 2 4 13 10
+e 4 2 14 8
+"""
+
+    m_data = """
+a	0	4	7	22	16	10	7	4
+b	∞	0	4	18	12	6	8	1
+c	∞	∞	0	16	10	15	∞	∞
+d	∞	∞	∞	0	∞	∞	∞	∞
+e	∞	∞	8	6	0	5	∞	∞
+f	∞	∞	14	12	6	0	∞	∞
+g	∞	4	8	19	13	7	0	5
+h	∞	∞	3	19	13	18	∞	0
+"""
+
+    gph = make_test_graph(g_data, use_alpha=True, directed=True)
+    mtx = make_test_matrix(m_data)
+    f = floyd_warshall(gph)
+    am = get_adjacency_matrix(gph, include_unreachable=True, include_diagonal=True)
+    for u, e in mtx.items():
+        for v, w in e.items():
+            assert f[u][v] == w
+            assert am[u][v] == w
+
+
+# test_floyd()
