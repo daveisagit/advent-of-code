@@ -9,6 +9,26 @@ from math import inf
 from common.general import tok
 from common.heap import BinaryHeap
 
+# Adjacency
+#   get_adjacency_matrix:   uses Dijkstra (& options)
+#   floyd_warshall:         cross-product of all nodes in a the graph
+
+# Shortest Paths
+#   Dijkstra        2 functions one for distances and one for the path too
+#   Bellman-Ford:   -ve & disjoint ssc, just distances
+#   TSP:            optimal_route() options for visit, start, end (& ignore node callable)
+
+# Longest Path
+#   simple recursion (not LRU) using a mutable set for visited
+
+# Minimal Spanning Tree
+#   undirected: Prim
+#   directed:   Edmonds/Chi
+#               Kruskal
+
+# Maximum Spanning Tree
+#   directed:   Kruskal, negate the weights
+
 
 def all_nodes(gph):
     """Return all the nodes of a graph as a set"""
@@ -17,6 +37,11 @@ def all_nodes(gph):
         nodes.add(u)
         nodes.update(v.keys())
     return nodes
+
+
+#
+# SHORTEST PATHS
+#
 
 
 def dijkstra(gph, source, target, weight_attr=None):
@@ -681,7 +706,8 @@ def find_a_circle(gph):
 
 
 def edmond_mst(gph, root):
-    """Return edges of a directed graph that form a minimal spanning tree"""
+    """Return edges of a directed graph that form a minimal spanning tree
+    ref: Wikipedia"""
 
     rev = reverse_graph(gph)
     E = directed_edges(gph)
@@ -719,11 +745,6 @@ def edmond_mst(gph, root):
     corresponding_edges = {}
     for (u, v), w in E.items():
         if u not in node_circle and v in node_circle:
-            # pi_v, pi_v_w = sorted(
-            #     [(u, w) for u, w in rev[v].items() if u not in node_circle],
-            #     key=lambda x: x[1],
-            # )[0]
-            # nw = w - pi_v_w
 
             nw = w - P[(v_src[v], v)]
 

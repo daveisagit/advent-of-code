@@ -207,3 +207,16 @@ def test_powerset_swap():
     s = set(["A", "C"])
     print(f"Start {s}")
     run_swap()
+
+
+def same_cyclic_seq(a, b, include_reverse=True):
+    """Compare 2 sequences a,b as cycles"""
+    for i in range(len(a)):
+        t = b[i:] + b[:i]
+        r = t[::-1]
+        if t == a:
+            return True
+        if include_reverse and r == a:
+            return True
+
+    return False

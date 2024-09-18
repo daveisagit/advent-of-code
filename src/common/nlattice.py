@@ -87,4 +87,59 @@ def generate_Zn(n=2, limit=None, origin=None, dist_metric="manhattan"):
 
 # print(sorted(list(generate_Zn(n=4, limit=2))))
 
+
 # print(list(multirange(3, 3)))
+
+
+# def same_poly(a, b, rev=True):
+#     for i in range(len(a)):
+#         t = b[i:] + b[:i]
+#         r = t[::-1]
+#         if t == a:
+#             return True
+#         if rev and r == a:
+#             return True
+
+#     return False
+
+
+# def poly_circle(n, k):
+#     for t in generate_Nn(k - 1):
+#         if any(x == 0 for x in t):
+#             continue
+#         x = n - sum(t)
+#         if x == 0:
+#             break
+
+#         r = t + (x,)
+#         yield r
+
+
+# def unique_poly_circle(n, k):
+#     unique = defaultdict(set)
+#     for pc in poly_circle(n, k):
+#         new = True
+#         for u in unique:
+#             if same_poly(pc, u):
+#                 unique[u].add(pc)
+#                 new = False
+#                 break
+#         if new:
+#             unique[pc].add(pc)
+#     return unique
+
+
+# # upc = unique_poly_circle(6, 3)
+# # print(upc)
+# # print(len(upc))
+
+# for n in range(6, 13):
+#     print(f"n={n}")
+#     for k in range(3, n // 2 + 1):
+#         upc = unique_poly_circle(n, k)
+#         print(
+#             f"\tk={k} : unique={len(upc)} : total={sum(len(x) for x in upc.values())}"
+#         )
+#         for c, p in upc.items():
+#             parts = " ; ".join([str(x) for x in p])
+#             print(f"\t\t{c}\t{len(p)}\t{parts}")
