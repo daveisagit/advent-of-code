@@ -1,9 +1,9 @@
 """Number theory stuff"""
 
 from collections import Counter
-from functools import lru_cache
-from itertools import combinations, islice, pairwise
-from math import sqrt, gcd
+from functools import lru_cache, reduce
+from itertools import combinations, islice, pairwise, product
+from math import lcm, prod, sqrt, gcd
 from sys import getrecursionlimit, setrecursionlimit
 
 
@@ -119,6 +119,51 @@ def phi(n):
     return r
 
 
+def factors(n):
+    return set(
+        reduce(
+            list.__add__, ([i, n // i] for i in range(1, int(n**0.5) + 1) if n % i == 0)
+        )
+    )
+
+
+def factors_from_prime_factors(pfs):
+    prime_powers = [tuple(p**j for j in range(k + 1)) for p, k in pfs]
+    return {prod(pp) for pp in product(*prime_powers)}
+
+
+# f1 = factors(1440)
+# f2 = factors_from_prime_factors(prime_factorized(1440))
+# assert f1 == f2
+
+
+def necklace_arrangements_2_colours(n):
+    """Only rotational symmetry considered i.e. BBwwB = wwBBB
+    Reflection symmetry is ignored i.e. counted twice
+    for 2 arrangements reflectively the same"""
+    fs = factors(n)
+    r = 0
+    for d in fs:
+        r += phi(d) * (2 ** (n // d))
+    return r // n
+
+
+def bracelet_arrangements_2_colours(n):
+    """Not just rotational symmetry considered
+    Reflection symmetry also, so BBwwBBBw = wBBBwwBB
+    """
+
+    na = necklace_arrangements_2_colours(n)
+
+    # an adjustment for the reflections
+    if n % 2 == 1:
+        a = 2 ** (n // 2)
+    else:
+        a = 2 ** (n // 2 - 1) + 2 ** (n // 2 - 2)
+
+    return na // 2 + a
+
+
 def extended_euclid(a: int, b: int):
     """Returns the Bézout coefficients s,t where
     as+bt=GCD"""
@@ -175,20 +220,20 @@ def solve_congruences(congruences: list) -> int:
     """
     # classes = [c[0] for c in congruences]
     moduli = [c[1] for c in congruences]
-    chk = max(math.gcd(a, b) for a, b in combinations(moduli, 2))
+    chk = max(gcd(a, b) for a, b in combinations(moduli, 2))
     if chk != 1:
         raise ValueError("Moduli should be pairwise coprime")
 
-    lcm = math.lcm(*moduli)
+    lcm_value = lcm(*moduli)
     total_cc = 0
     for a, m in congruences:
         other_moduli = [o for o in moduli if o != m]
-        other_moduli_product = math.prod(other_moduli)
+        other_moduli_product = prod(other_moduli)
         inv = mod_inv(m, other_moduli_product)
         cc = a * other_moduli_product * inv
         total_cc += cc
 
-    return total_cc % lcm
+    return total_cc % lcm_value
 
 
 def mod_exp(b, e, m):
