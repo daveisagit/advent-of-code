@@ -3,7 +3,6 @@
 """
 
 from collections import Counter
-import json
 from common.aoc import file_to_string, aoc_part, get_filename
 
 

@@ -134,7 +134,7 @@ def solve_part_b_x(data) -> int:
         for s in x
     )
     print(f"x={x} y={y}")
-    poly = poly_from_points(x, y)
+    poly = poly_from_points(x, y, expect_integer=False)
     return poly_value(poly, steps)
 
 

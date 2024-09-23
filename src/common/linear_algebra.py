@@ -96,7 +96,7 @@ def quadratic_from_3_points(x, y):
     return r
 
 
-def poly_from_points(x, y):
+def poly_from_points(x, y, expect_integer=True):
     """Return polynomial coefficients a,b,c for the curve through points
     using Lagrange polynomial interpolation.
     Returns a tuple ( y-coefficient, (x-coefficients,))
@@ -109,7 +109,7 @@ def poly_from_points(x, y):
     for i in range(terms):
         row = [x[i] ** e for e in range(terms)]
         mtx.append(row)
-    return mtx_solve(mtx, y)
+    return mtx_solve(mtx, y, expect_integer=expect_integer)
 
 
 def poly_value(poly, x):
