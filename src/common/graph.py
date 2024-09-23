@@ -29,6 +29,9 @@ from common.heap import BinaryHeap
 # Maximum Spanning Tree
 #   directed:   Kruskal, negate the weights
 
+# Flow
+#   Edmonds-Karp: TODO
+
 
 def all_nodes(gph):
     """Return all the nodes of a graph as a set"""

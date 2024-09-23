@@ -284,3 +284,53 @@ def dialines_to_point_set(dialines):
                     # x,y are legitimate
                     possible_points.add((x, y))
     return possible_points
+
+
+#
+# sets of points
+#
+
+
+def set_translate(g, v):
+    ng = set()
+    for p in g:
+        q = tuple(map(add, p, v))
+        ng.add(q)
+    return ng
+
+
+def set_reflect_y(g):
+    ng = set()
+    for r, c in g:
+        r = -r
+        q = (r, c)
+        ng.add(q)
+    return ng
+
+
+def set_rotate_90(g):
+    ng = set()
+    for p in g:
+        q = rotate90(p)
+        ng.add(q)
+    return ng
+
+
+def set_dihedral_arrangements(g, sz):
+    """Generator for the 8 arrangements of a square grid
+    returns a triple a,b,grid where a is the number of rotations and b reflections"""
+    # Rotate 4 times
+    # Reflect and rotate 4 times again
+    sg = g
+    sz -= 1
+    for a in range(4):
+        yield a, 0, sg
+        sg = set_rotate_90(sg)
+        sg = set_translate(sg, (sz, 0))
+
+    sg = set_reflect_y(sg)
+    sg = set_translate(sg, (sz, 0))
+    for a in range(4):
+        yield a, 1, sg
+        sg = set_rotate_90(sg)
+        sg = set_translate(sg, (sz, 0))

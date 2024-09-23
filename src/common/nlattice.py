@@ -1,6 +1,7 @@
 """Lattice over n dimensions"""
 
 from collections import defaultdict
+from itertools import product
 from operator import add, sub
 from common.general import powerset
 
@@ -76,6 +77,29 @@ def generate_Zn(n=2, limit=None, origin=None, dist_metric="manhattan"):
                 t[i] = -t[i]
             if no_zeros:
                 yield tuple(map(add, t, origin))
+
+
+def generate_hypercube_lattice(dimensions, limit, lower_limit=0, step=1):
+    """Generate hypercube lattice"""
+    ranges = [range(lower_limit, limit, step)] * dimensions
+    for t in product(*ranges):
+        yield t
+
+
+# def generate_unique():
+#     g33 = list(generate_grid(2, 3))
+#     seen = set()
+#     for layout in powerset(g33):
+#         layout = frozenset(layout)
+#         if layout in seen:
+#             continue
+#         for _, _, sym in set_dihedral_arrangements(layout, 3):
+#             seen.add(frozenset(sym))
+#         yield layout
+
+
+# x = list(generate_unique())
+# print(len(x))
 
 
 # for x in generate_Zn(n=2, limit=3, origin=(10, 10)):
