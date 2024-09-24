@@ -7,6 +7,26 @@ from math import lcm, prod, sqrt, gcd
 from sys import getrecursionlimit, setrecursionlimit
 
 
+def integer_root(n: int, e: int):
+    """Returns the e-root of n if it is an integer"""
+    r = int(n ** (1 / e))
+    r_e = r**e
+    if r_e == n:
+        return r
+
+    if r_e > n:
+        r -= 1
+        r_e = r**e
+
+    while r_e < n:
+        r += 1
+        r_e = r**e
+        if r_e == n:
+            return r
+
+    return None
+
+
 def prime_list(n):
     """Return all the primes up to n
     PREFER list_of_primes()"""
@@ -336,7 +356,15 @@ def fibonacci(n):
 @lru_cache(maxsize=None)
 def derangements(n):
     """Number of permutations of n such that no element remains in
-    the same place"""
+    the same place
+
+    recursively (n>2)
+    !n = (n-1) x [ !(n-1) + !(n-2) ]
+
+    or as a sum
+    !n = n! x sum(i=0 to n) (-1)**i / i!
+    (this shows as n 🡒 ∞, !n/n! 🡒 1/e by def of e)
+    """
     if n > 1:
         return (n - 1) * (derangements(n - 1) + derangements(n - 2))
     elif n == 1:

@@ -1,5 +1,7 @@
 """Mostly 2D matrices functions"""
 
+from common.numty import integer_root
+
 
 def mtx_print(m):
     """A quick visual"""
@@ -96,6 +98,11 @@ def quadratic_from_3_points(x, y):
     return r
 
 
+#
+# Polynomials expressed as (cy,(cx0,cx1, ..., cxn))
+#
+
+
 def poly_from_points(x, y, expect_integer=True):
     """Return polynomial coefficients a,b,c for the curve through points
     using Lagrange polynomial interpolation.
@@ -121,6 +128,28 @@ def poly_value(poly, x):
     x_sum = sum(xcs[t] * x**t for t in range(terms))
     assert x_sum % yc == 0
     return x_sum // yc
+
+
+def solve_quadratic(p):
+    """Return 2a,x1,x2"""
+    _, rhs = p
+    a = rhs[2]
+    b = rhs[1]
+    c = rhs[0]
+    det = b**2 - 4 * a * c
+    det = integer_root(det, 2)
+    if det is None:
+        raise ValueError("No integer solution - Surd")
+    return 2 * a, -b + det, -b - det
+
+
+def differentiate(p):
+    """Return f'"""
+    y, rhs = p
+    fd = []
+    for i, c in enumerate(rhs[1:]):
+        fd.append(c * (i + 1))
+    return (y, tuple(fd))
 
 
 def test_inv():
