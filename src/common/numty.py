@@ -7,6 +7,37 @@ from math import lcm, prod, sqrt, gcd
 from sys import getrecursionlimit, setrecursionlimit
 
 
+def generate_rationals():
+    """Return p,q such 0 < p < q and (p,q)=1"""
+    q = 2
+    while True:
+        for p in range(1, q):
+            if gcd(p, q) == 1:
+                yield p, q
+        q += 1
+
+
+def generate_pythagorean_triples():
+    """Return p,q such 0 < p < q and (p,q)=1"""
+    for p, q in generate_rationals():
+        x = q**2 - p**2
+        y = 2 * p * q
+        if gcd(x, y) != 1:
+            continue
+        z = q**2 + p**2
+        yield min(x, y), max(x, y), z
+
+
+def generate_pythagorean_triples_under(n):
+    """All triple values are < n"""
+    for t in generate_pythagorean_triples():
+        if t[0] >= n:
+            break
+        if any(x >= n for x in t):
+            continue
+        yield t
+
+
 def integer_root(n: int, e: int):
     """Returns the e-root of n if it is an integer"""
     r = int(n ** (1 / e))
