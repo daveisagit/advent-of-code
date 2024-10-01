@@ -1,5 +1,6 @@
 """Mostly 2D matrices functions"""
 
+from math import gcd
 from common.numty import integer_root
 
 
@@ -196,4 +197,29 @@ def test_quadratic_from_3_points():
     assert cof == (1, 0, 3)
 
 
-test_quadratic_from_3_points()
+# test_quadratic_from_3_points()
+
+
+def simplify_poly(p):
+    gd = gcd(*p[1])
+    if gd > 1:
+        gd = gcd(p[0], gd)
+    if gd > 1:
+        smp = tuple(x // gd for x in p[1])
+        return p[0] // gd, smp
+    return p
+
+
+def test_poly_from_points():
+    """Mosers problem regions in a circle"""
+    points = ((2, 2), (3, 4), (4, 8), (5, 16), (6, 31))
+    arr = [t for t in zip(*points)]
+    x = arr[0]
+    y = arr[1]
+    p = poly_from_points(x, y, expect_integer=False)
+    assert p == (288, (288, -216, 276, -72, 12))
+    p = simplify_poly(p)
+    assert p == (24, (24, -18, 23, -6, 1))
+
+
+test_poly_from_points()
