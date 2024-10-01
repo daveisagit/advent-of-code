@@ -253,8 +253,8 @@ def solve_part_a(data) -> int:
     _, pwd, cmb = try_item_combos(ic, collected_items)
     print()
     print(f"Inventory to match weight: {cmb}")
-    print()
-    visualize_graph(gph)
+    # print()
+    # visualize_graph(gph)
     return pwd
 
 

@@ -30,7 +30,7 @@ from common.heap import BinaryHeap
 #   directed:   Kruskal, negate the weights
 
 # Flow
-#   Edmonds-Karp: TODO
+#   Edmonds-Karp: TODO: https://en.wikipedia.org/wiki/Edmonds%E2%80%93Karp_algorithm
 
 
 def all_nodes(gph):

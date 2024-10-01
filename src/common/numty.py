@@ -3,7 +3,7 @@
 from collections import Counter
 from functools import lru_cache, reduce
 from itertools import combinations, islice, pairwise, product
-from math import lcm, prod, sqrt, gcd
+from math import comb, lcm, prod, sqrt, gcd
 from sys import getrecursionlimit, setrecursionlimit
 
 
@@ -409,3 +409,14 @@ def derangements(n):
 # setrecursionlimit(2001)
 # print(fibonacci(1000))
 # print(derangements(1000))
+
+
+@lru_cache(maxsize=None)
+def bell_number(n):
+    if 0 <= n <= 1:
+        return 1
+    return sum(comb(n - 1, k) * bell_number(k) for k in range(n))
+
+
+def catalan_number(n):
+    return comb(2 * n, n) // (n + 1)

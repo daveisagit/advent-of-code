@@ -2,7 +2,9 @@
 Copied into partitions.py as needed by AoC, such as 2015.15
 """
 
+from functools import lru_cache
 from itertools import combinations_with_replacement as cr
+from math import comb
 
 
 def partition_count(n):
@@ -76,6 +78,28 @@ print("set_partitions")
 something = list(range(100, 105))
 for n, p in enumerate(set_partition(something), 1):
     print(n, sorted(p))
+
+
+@lru_cache(maxsize=None)
+def bell_number(n):
+    if 0 <= n <= 1:
+        return 1
+    return sum(comb(n - 1, k) * bell_number(k) for k in range(n))
+
+
+print(f"Bell Number 5={bell_number(5)}")
+print(f"Bell Number 6={bell_number(6)}")
+
+"""
+Bell triangle, use end of previous for start of next
+                    1
+                 1     2
+              2     3     5
+           5     7    10    15
+       15    20    27    37    52
+    52    67    87   114   151   203
+203   255   322   409   523   674   877
+"""
 
 
 def coin_change(n, coins):
