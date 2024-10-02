@@ -23,6 +23,7 @@
         "Springdroid",
         "tarjan",
         "Volcanium",
-        "warshall"
+        "warshall",
+        "zeckendorf"
     ]
 }

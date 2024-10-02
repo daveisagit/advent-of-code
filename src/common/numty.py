@@ -384,6 +384,21 @@ def fibonacci(n):
         raise ValueError("negative n not allowed")
 
 
+def zeckendorf(n):
+    if n == 0:
+        return [0]
+    fib = [2, 1]
+    while fib[0] < n:
+        fib[0:0] = [sum(fib[:2])]
+    dig = []
+    for f in fib:
+        if f <= n:
+            dig, n = dig + [1], n - f
+        else:
+            dig += [0]
+    return dig if dig[0] else dig[1:]
+
+
 @lru_cache(maxsize=None)
 def derangements(n):
     """Number of permutations of n such that no element remains in
@@ -420,3 +435,22 @@ def bell_number(n):
 
 def catalan_number(n):
     return comb(2 * n, n) // (n + 1)
+
+
+# Pascal derivations
+
+
+def bernoulli_triangle(n, k):
+    return sum(comb(n, i) for i in range(k + 1))
+
+
+def lazy_caterer(n):
+    return bernoulli_triangle(n, 2)
+
+
+def cake_number(n):
+    return bernoulli_triangle(n, 3)
+
+
+def circle_regions(n):
+    return bernoulli_triangle(n, 4)
