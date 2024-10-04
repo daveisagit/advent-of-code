@@ -1012,3 +1012,33 @@ e 4 5 5 22
 # test_bellman_ford()
 # test_floyd()
 # test_prim()
+
+#
+# Some directed graph util to turn list of intro,cycle
+# into a directed graph, where the cycles are nodes
+# This example using kaprekar_seq
+#
+# def q_cycles_to_dg():
+#     dg = defaultdict(dict)
+#     cycles = []
+#     l_intro = 0
+#     l_cycle = 0
+#     for n in range(1000000):
+#         ns = f"{n:06d}"
+#         if ns in dg:
+#             continue
+
+#         intro, cycle = kaprekar_seq(ns)
+#         cyc = frozenset(cycle)
+#         if cyc not in cycles:
+#             cycles.append(cyc)
+#         c_id = cycles.index(cyc)
+
+#         l_intro = max(l_intro, len(intro))
+#         l_cycle = max(l_cycle, len(cycle))
+
+#         for a, b in pairwise(intro):
+#             dg[a][b] = 1
+
+#         if intro:
+#             dg[intro[-1]][c_id] = 1

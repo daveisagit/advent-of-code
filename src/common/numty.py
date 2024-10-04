@@ -454,3 +454,34 @@ def cake_number(n):
 
 def circle_regions(n):
     return bernoulli_triangle(n, 4)
+
+
+def kaprekar_seq(ns: str):
+    """Return the sequence (intro,cycle) of numbers found
+    performing a Kaprekar routine.
+    eg. given 1234
+    Intro                       Cycle
+    ('1234', '3087', '8352') ,  ('6174')
+    """
+
+    def next_seq(k):
+        int_1 = int("".join(sorted(k))[::-1])
+        int_2 = int("".join(sorted(k)))
+        int_nxt = int_1 - int_2
+        return str(int_nxt).rjust(l, "0")
+
+    l = len(ns)
+    seq = []
+    seen = set()
+    while True:
+
+        if ns in seen:
+            fi = seq.index(ns)
+            cycle = tuple(seq[fi:])
+            intro = tuple(seq[:fi])
+            break
+        seq.append(ns)
+        seen.add(ns)
+
+        ns = next_seq(ns)
+    return intro, cycle
