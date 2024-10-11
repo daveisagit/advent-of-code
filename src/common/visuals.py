@@ -21,16 +21,16 @@ def visualize_graph_2019_25(gph):
     net.show("temp_graph.html", notebook=False)
 
 
-def visualize_graph(gph):
+def visualize_graph(gph, directed=True):
     """Basic visual"""
-    net = Network(height="1200px", width="100%", directed=True)
+    net = Network(height="1200px", width="100%", directed=directed)
 
     for n in all_nodes(gph):
-        net.add_node(n)
+        net.add_node(str(n))
 
     for u, edges in gph.items():
         for v, c in edges.items():
-            net.add_edge(u, v, weight=1, label=c)
+            net.add_edge(str(u), str(v), weight=1, label=str(c))
 
     net.toggle_physics(True)
     net.show("temp_graph.html", notebook=False)
