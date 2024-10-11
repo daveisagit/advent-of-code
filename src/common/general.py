@@ -259,3 +259,14 @@ def test_binary_search():
     trg = f(v)
     r = binary_search(f, trg, inverse=False)
     assert r == v
+
+
+def dict_to_tuple(d: dict):
+    """For when we need to save an immutable copy of a dict
+    It is assumed the value part is already immutable too"""
+    return tuple([(k, v) for k, v in d.items()])
+
+
+def tuple_to_dict(t: tuple):
+    """Restore the dict"""
+    return {k: v for k, v in t}

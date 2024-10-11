@@ -7,6 +7,7 @@ from heapq import heappop, heappush
 from operator import add
 import re
 from common.aoc import file_to_list, aoc_part, get_filename
+from common.general import dict_to_tuple, tuple_to_dict
 from common.grid_2d import directions, manhattan
 
 
@@ -147,7 +148,7 @@ def solve_part_c(nodes) -> int:
             return steps
 
         # make a mutable version of used, working storage (ws)
-        ws = {p: u for p, u in used}
+        ws = tuple_to_dict(used)
         available = nodes[empty_pos][0]
 
         for d in directions.values():
@@ -164,10 +165,12 @@ def solve_part_c(nodes) -> int:
             new_used = deepcopy(ws)
             new_used[n] = 0
             new_used[empty_pos] = ws[n]
-            new_used = tuple([(p, u) for p, u in new_used.items()])
+            new_used = dict_to_tuple(new_used)
 
             new_pos = cur_pos
             new_empty = n
+            # if we are swapping with cur_pos then
+            # update it to the old empty_pos
             if n == cur_pos:
                 new_pos = empty_pos
             md = manhattan(new_empty, new_pos)
