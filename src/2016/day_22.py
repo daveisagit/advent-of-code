@@ -106,6 +106,75 @@ def solve_part_b(nodes) -> int:
     return None
 
 
+@aoc_part
+def solve_part_c(nodes) -> int:
+    """Solve part B"""
+    from_x = max(n[0] for n in nodes)
+    # find the empty one dat_1 = used
+    # we will move this around as much if not more than the
+    # block @ (from_x,0)
+    empties = [p for p, dat in nodes.items() if dat[1] == 0]
+    assert len(empties) == 1
+    empty_pos = empties[0]
+
+    # we will keep state on the used amount in the grid
+    # as well as cur_pos & empty_pos
+    # used is an immutable rep of usage for the whole grid
+    # we dont need to make the rep hash unique so no need to sort
+    used = tuple([(p, u) for p, (_, u, _, _) in nodes.items()])
+
+    cur_pos = (from_x, 0)
+    md = manhattan(empty_pos, cur_pos)
+
+    # use a min heap to prioritise positions closer to 0,0
+    # and within that ones with a closer empty cell
+
+    state = (cur_pos, md, empty_pos, 0, used)
+    seen = set()
+    h = []
+    heappush(h, state)
+
+    while h:
+
+        cur_pos, md, empty_pos, steps, used = heappop(h)
+
+        # dont repeat the same cur_pos, empty_pos
+        if (cur_pos, empty_pos) in seen:
+            continue
+        seen.add((cur_pos, empty_pos))
+
+        if cur_pos == (0, 0):
+            return steps
+
+        # make a mutable version of used, working storage (ws)
+        ws = {p: u for p, u in used}
+        available = nodes[empty_pos][0]
+
+        for d in directions.values():
+            n = tuple(map(add, empty_pos, d))
+
+            # ignore off grid
+            if n not in ws:
+                continue
+
+            # ignore if too large
+            if ws[n] > available:
+                continue
+
+            new_used = deepcopy(ws)
+            new_used[n] = 0
+            new_used[empty_pos] = ws[n]
+            new_used = tuple([(p, u) for p, u in new_used.items()])
+
+            new_pos = cur_pos
+            new_empty = n
+            if n == cur_pos:
+                new_pos = empty_pos
+            md = manhattan(new_empty, new_pos)
+            new_state = (new_pos, md, new_empty, steps + 1, new_used)
+            heappush(h, new_state)
+
+
 EX_RAW_DATA = file_to_list(get_filename(__file__, "ex"))
 EX_DATA = parse_data(EX_RAW_DATA)
 
@@ -116,3 +185,5 @@ solve_part_a(MY_DATA)
 
 solve_part_b(EX_DATA)
 solve_part_b(MY_DATA)
+
+solve_part_c(MY_DATA)
