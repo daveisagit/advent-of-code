@@ -5,6 +5,7 @@
 from itertools import pairwise
 from common.aoc import file_to_list, aoc_part, get_filename
 from common.general import tok
+from blocksets import BlockSet, Block
 
 
 def parse_data(raw_data):
@@ -61,6 +62,17 @@ def solve_part_b(data) -> int:
     return total
 
 
+@aoc_part
+def solve_part_c(data) -> int:
+    bs = BlockSet(1)
+    b = Block(0, 2**32)
+    bs.add(b)
+    for a, b in data:
+        b = Block(a, b)
+        bs.remove(b)
+    return bs.measure
+
+
 EX_RAW_DATA = file_to_list(get_filename(__file__, "ex"))
 EX_DATA = parse_data(EX_RAW_DATA)
 
@@ -71,3 +83,4 @@ solve_part_a(EX_DATA)
 solve_part_a(MY_DATA)
 
 solve_part_b(MY_DATA)
+solve_part_c(MY_DATA)
