@@ -4,6 +4,7 @@ from collections import deque
 import hashlib
 from itertools import chain, combinations
 import json
+from math import inf
 from typing import Iterable
 
 
@@ -220,3 +221,41 @@ def same_cyclic_seq(a, b, include_reverse=True):
             return True
 
     return False
+
+
+def binary_search(f: callable, target, start=1, inverse=False, min_x=0, max_x=inf):
+    """Find x given f(x)"""
+    x = start
+    inc = 1
+    while True:
+        fx = f(x)
+        if fx == target:
+            return x
+
+        if not inverse and fx > target or inverse and fx < target:
+            if inc > 0:
+                inc = -1
+            else:
+                inc *= 2
+
+        if not inverse and fx < target or inverse and fx > target:
+            if inc > 0:
+                inc *= 2
+            else:
+                inc = 1
+
+        x += inc
+
+        if x < min_x or x > max_x:
+            raise ValueError(f"Gone beyond limits x={x}")
+
+
+def test_binary_search():
+
+    def f(x):
+        return x * 52 + 71
+
+    v = 2342557
+    trg = f(v)
+    r = binary_search(f, trg, inverse=False)
+    assert r == v
