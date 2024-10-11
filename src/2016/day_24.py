@@ -5,11 +5,11 @@
 from operator import add
 
 from common.aoc import file_to_list, aoc_part, get_filename
-from common.grid_2d import directions
+from common.grid_2d import directions, maze_to_graph
 from common.graph import optimal_route, simplify
 
 
-def parse_data(raw_data):
+def parse_data_old(raw_data):
     """Parse the input"""
     gph = {}
     poi = {}
@@ -31,6 +31,26 @@ def parse_data(raw_data):
                 gph[v][u] = 1
 
     simplify(gph, poi)
+
+    return gph, poi
+
+
+def parse_data(raw_data):
+    """Parse the input"""
+    mz = {}
+    poi = {}
+    start = None
+    for r, line in enumerate(raw_data):
+        for c, ch in enumerate(line):
+            if ch == "#":
+                continue
+            p = (r, c)
+            if ch.isdigit():
+                poi[p] = ch
+                start = p
+            mz[p] = ch
+
+    gph = maze_to_graph(start, mz, path_char=".", node_chars="0123456789")
 
     return gph, poi
 

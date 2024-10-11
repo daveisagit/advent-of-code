@@ -168,15 +168,20 @@ def shoelace_area(outline) -> int:
     return abs(sum(areas) // 2)
 
 
-def maze_to_graph(start, maze, directed=False, path_char="."):
+def maze_to_graph(start, maze, directed=False, path_char=".", node_chars=""):
     """Take a maze expressed as a dict of path points the value
     being either a normal path or a specific direction (<>^v)
     and return a directed graph of it.
-    If directed is false then all edges modelled as 2 directed edges"""
+    If directed is false then all edges modelled as 2 directed edges.
+    Force nodes via node_chars
+    """
     gph = defaultdict(dict)
     bfs = deque()
+    seen = set()
+
     # state is from_node, edge_cost, prv, cur
     state = None, 0, None, start
+
     bfs.append(state)
     while bfs:
 
@@ -191,26 +196,34 @@ def maze_to_graph(start, maze, directed=False, path_char="."):
             if nxt not in maze:
                 continue
             deg += 1
-            if not directed or maze[nxt] in path_char or maze[nxt] == d:
+            if (
+                not directed
+                or maze[nxt] in path_char
+                or maze[nxt] == d
+                or maze[nxt] in node_chars
+            ):
                 choices.add(nxt)
 
-        if deg == 2:
+        if deg == 2 and maze[cur] not in node_chars:
             # if choices = 2 we are on an edge
             # we don't want to turn around
             choices.discard(prv)
         else:
             # otherwise we are on a node
-            # record the completed edge
+            # record the best completed edge
             if from_node:
+                if from_node in gph and cur in gph[from_node]:
+                    edge_cost = min(edge_cost, gph[from_node][cur])
                 gph[from_node][cur] = edge_cost
 
             # if we've already been here
-            if cur in gph:
+            if cur in seen:
                 continue
 
             # this is new from_node
             from_node = cur
             edge_cost = 0
+            seen.add(cur)
 
         # put the choices on the queue
         for nxt in choices:
