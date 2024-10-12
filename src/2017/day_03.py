@@ -5,6 +5,7 @@
 from math import ceil, floor, sqrt
 from operator import add
 from common.aoc import aoc_part, file_to_string, get_filename
+from common.grid_2d import manhattan, spiral_location
 
 
 def parse_data(raw_data):
@@ -25,7 +26,11 @@ def get_md(n):
 @aoc_part
 def solve_part_a(data) -> int:
     """Solve part A"""
-    return get_md(data)
+    r = get_md(data)
+    # test spiral_location function
+    loc = spiral_location(data, base=1)
+    assert manhattan(loc) == r
+    return r
 
 
 @aoc_part

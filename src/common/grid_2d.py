@@ -2,6 +2,7 @@
 
 from collections import defaultdict, deque, namedtuple
 from itertools import pairwise
+from math import ceil, sqrt
 from operator import add, sub
 
 directions = {
@@ -347,3 +348,85 @@ def set_dihedral_arrangements(g, sz):
         yield a, 1, sg
         sg = set_rotate_90(sg)
         sg = set_translate(sg, (sz, 0))
+
+
+#
+# dict grid utils
+#
+
+
+def print_dict_grid_values(g, cell_width=5, none_char=""):
+    """Visualise a dict grid"""
+    min_r, min_c, max_r, max_c = get_grid_limits(g)
+    print(f"Rows: {min_r} to {max_r} ,  Columns: {min_c} to {max_c}")
+    for r in range(min_r, max_r + 1):
+        row = ""
+        for c in range(min_c, max_c + 1):
+            vs = str(g.get((r, c), none_char))
+            row += vs.ljust(cell_width)
+        print(row)
+
+
+def spiral_out(centre=(0, 0), direction=0):
+    """Generator for points on a spiral starting at a centre
+    initial heading Right,East,(0,1)"""
+    yield centre
+
+    pos = centre
+    d = direction
+
+    pos = tuple(map(add, pos, rotations[direction]))
+    yield pos
+    d += 1
+
+    # now turn when pos on a diagonal
+    while True:
+        d %= 4
+        pos = tuple(map(add, pos, rotations[d]))
+        yield pos
+        if abs(pos[0]) == abs(pos[1]):
+            if d == direction:
+                pos = tuple(map(add, pos, rotations[d]))
+                yield pos
+            d += 1
+
+
+def spiral_location(n, base=0):
+    """Return the row,column for a given value"""
+    n += 1 - base
+    k = ceil((sqrt(n) - 1) / 2)
+    t = 2 * k + 1
+    m = t**2
+    t = t - 1
+
+    if n >= m - t:
+        return k, k - (m - n)
+    else:
+        m = m - t
+
+    if n >= m - t:
+        return k - (m - n), -k
+    else:
+        m = m - t
+
+    if n >= m - t:
+        return -k, -k + (m - n)
+    else:
+        return (m - n - t) - k, k
+
+
+def spiral_value(row, col, base=0):
+    """Return the value for a row,column"""
+    # main code starts downward, so we transform 90 CW
+    # to compensate for the visual 90 ACW
+    col, row = -row, col
+    if abs(col) >= abs(row):
+        idx = 4 * col * col - col - row
+        if col < row:
+            idx -= 2 * (col - row)
+    else:
+        idx = 4 * row * row - col - row
+        if col < row:
+            idx += 2 * (col - row)
+
+    return idx + base
