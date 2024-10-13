@@ -1,7 +1,7 @@
 """Useful things for 2D grids"""
 
 from collections import defaultdict, deque, namedtuple
-from itertools import pairwise
+from itertools import islice, pairwise
 from math import ceil, sqrt
 from operator import add, sub
 
@@ -355,12 +355,31 @@ def set_dihedral_arrangements(g, sz):
 #
 
 
-def print_dict_grid_values(g, cell_width=5, none_char=""):
+def print_dict_grid_values(g, cell_width=5, none_char="", limits=None, headings=True):
     """Visualise a dict grid"""
     min_r, min_c, max_r, max_c = get_grid_limits(g)
+    if limits is not None:
+        min_r = max(min_r, limits[0])
+        min_c = max(min_c, limits[1])
+        max_r = min(max_r, limits[2])
+        max_c = min(max_c, limits[3])
+    print()
     print(f"Rows: {min_r} to {max_r} ,  Columns: {min_c} to {max_c}")
+    print()
+    row = ""
+    if headings:
+        row = (" " * cell_width) + "| "
+        for c in range(min_c, max_c + 1):
+            vs = str(c)
+            row += vs.ljust(cell_width)
+        print(row)
+        row = "-" * len(row)
+        print(row)
+
     for r in range(min_r, max_r + 1):
         row = ""
+        if headings:
+            row = str(r).ljust(cell_width) + "| "
         for c in range(min_c, max_c + 1):
             vs = str(g.get((r, c), none_char))
             row += vs.ljust(cell_width)
@@ -430,3 +449,63 @@ def spiral_value(row, col, base=0):
             idx += 2 * (col - row)
 
     return idx + base
+
+
+def cantor_zigzag(col_first=True):
+    """Generator for points on the zig zag diagonal"""
+    r, c = 0, 0
+    inc_col = col_first
+    yield (r, c)
+    while True:
+        if inc_col and r == 0 or not inc_col and c == 0:
+            if inc_col:
+                c += 1
+            else:
+                r += 1
+
+            inc_col = not inc_col
+        else:
+            if inc_col:
+                r -= 1
+                c += 1
+            else:
+                r += 1
+                c -= 1
+
+        yield (r, c)
+
+
+# d = {p: v for v, p in enumerate(islice(cantor_zigzag(col_first=True), 50))}
+# print_dict_grid_values(d, limits=(2, 3, 16, 15))
+
+
+def cantor_location(idx, col_first=True):
+    """Return location of an index in a cantor zigzag"""
+    md = int(sqrt(2 * idx))
+    t_md = ((md + 1) * md) // 2
+    if idx < t_md:
+        md -= 1
+
+    r = idx - (md * (md + 1) // 2)
+    c = md - r
+    if md % 2 == 0:
+        r, c = c, r
+
+    if not col_first:
+        r, c = c, r
+
+    return r, c
+
+
+def cantor_value(row, col, col_first=True):
+    """Return the index of a cantor zigzag location"""
+    md = manhattan((row, col))
+    base = md * (md + 1) // 2
+    parity = 1
+    if col_first:
+        parity = 0
+    if md % 2 == parity:
+        idx = base + col
+    else:
+        idx = base + row
+    return idx
