@@ -3,7 +3,7 @@
 from collections import Counter
 from functools import lru_cache, reduce
 from itertools import combinations, islice, pairwise, product
-from math import comb, lcm, prod, sqrt, gcd
+from math import ceil, comb, floor, lcm, prod, sqrt, gcd
 from sys import getrecursionlimit, setrecursionlimit
 
 
@@ -485,3 +485,45 @@ def kaprekar_seq(ns: str):
 
         ns = next_seq(ns)
     return intro, cycle
+
+
+#
+# Beatty
+#
+
+golden_ratio = (1 + sqrt(5)) / 2
+
+
+def beatty(r, n):
+    """r: irrational > 1"""
+    return floor(n * r)
+
+
+def beatty_index(r, v):
+    """r: irrational > 1"""
+    n_test = ceil(v / r)
+    if beatty(r, n_test) == v:
+        return n_test
+    return None
+
+
+def beatty_conjugate(x):
+    """Return s = r/r-1"""
+    return x / (x - 1)
+
+
+def beatty_seq(r, limit=None):
+    """Generator for a sequence, stop if >= limit"""
+    n = 1
+    while True:
+        v = beatty(r, n)
+        if v >= limit:
+            break
+        yield v
+        n += 1
+
+
+# l1 = list(islice(beatty_seq(golden_ratio, limit=100), 100))
+# l2 = list(islice(beatty_seq(beatty_conjugate(golden_ratio), limit=100), 100))
+# assert set(l1) & set(l2) == set()
+# assert set(l1) | set(l2) == set(range(1, 100))

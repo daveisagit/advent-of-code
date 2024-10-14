@@ -386,6 +386,12 @@ def print_dict_grid_values(g, cell_width=5, none_char="", limits=None, headings=
         print(row)
 
 
+def print_single_char_dict_grid(g, limits=None):
+    print_dict_grid_values(
+        g, cell_width=1, none_char=" ", headings=False, limits=limits
+    )
+
+
 def spiral_out(centre=(0, 0), direction=0):
     """Generator for points on a spiral starting at a centre
     initial heading Right,East,(0,1)"""
