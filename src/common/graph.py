@@ -29,6 +29,13 @@ from common.heap import BinaryHeap
 # Maximum Spanning Tree
 #   directed:   Kruskal, negate the weights
 
+# Subgraphs
+#   Tarjan will return subgraphs of strongly connected nodes, so for
+#   directed any SCCs > 1 in size are cycles
+
+# Minimum Cuts
+#   Stoer-Wagner
+
 # Flow
 #   Edmonds-Karp: TODO: https://en.wikipedia.org/wiki/Edmonds%E2%80%93Karp_algorithm
 

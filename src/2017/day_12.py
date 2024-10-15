@@ -5,6 +5,7 @@
 from collections import defaultdict, deque
 from common.aoc import file_to_list, aoc_part, get_filename
 from common.general import tok
+from common.graph import tarjan
 
 
 def parse_data(raw_data):
@@ -56,6 +57,17 @@ def solve_part_b(gph) -> int:
     return grp_cnt
 
 
+@aoc_part
+def solve_part_c(gph) -> int:
+    """Solve both parts with Tarjan algorithm"""
+    # get a list subgraphs, each subgraph is a list of nodes
+    cgs = tarjan(gph)
+    for scc in cgs:
+        if 0 in scc:
+            print(len(scc))
+    return len(cgs)
+
+
 EX_RAW_DATA = file_to_list(get_filename(__file__, "ex"))
 EX_DATA = parse_data(EX_RAW_DATA)
 
@@ -67,3 +79,5 @@ solve_part_a(MY_DATA)
 
 solve_part_b(EX_DATA)
 solve_part_b(MY_DATA)
+
+solve_part_c(MY_DATA)
