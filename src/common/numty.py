@@ -527,3 +527,41 @@ def beatty_seq(r, limit=None):
 # l2 = list(islice(beatty_seq(beatty_conjugate(golden_ratio), limit=100), 100))
 # assert set(l1) & set(l2) == set()
 # assert set(l1) | set(l2) == set(range(1, 100))
+
+
+class Lindenmayer:
+    """L systems generator
+    axiom: is the seed
+    rules: is a dict, key for every variable in the alphabet"""
+
+    def __init__(self, axiom: str, rules: dict, constants=None) -> None:
+        self.rules = rules
+        self.axiom = axiom
+        self.constants = set()
+        if constants:
+            self.constants = constants
+        self.n = 0
+        self.current_value = axiom
+
+    def next(self):
+        new_value = ""
+        for ch in self.current_value:
+            if ch in self.constants:
+                new_value += ch
+            else:
+                new_value += self.rules[ch]
+        self.current_value = new_value
+        self.n += 1
+
+
+# l = Lindenmayer("A", {"A": "AB", "B": "A"})
+# for _ in range(10):
+#     l.next()
+
+# l1 = list(islice(beatty_seq(golden_ratio, limit=145), 145))
+# l2 = [i + 1 for i, ch in enumerate(l.current_value) if ch == "A"]
+# assert l1 == l2
+
+# l1 = list(islice(beatty_seq(beatty_conjugate(golden_ratio), limit=145), 145))
+# l2 = [i + 1 for i, ch in enumerate(l.current_value) if ch == "B"]
+# assert l1 == l2
