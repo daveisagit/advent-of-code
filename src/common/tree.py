@@ -17,10 +17,22 @@ class Node:
     def __str__(self) -> str:
         return str(self.data)
 
+    @property
+    def depth(self):
+        """The depth"""
+        if self.parent is None:
+            return 0
+        return self.parent.depth + 1
+
     def set_parent(self, p):
         """Set the parent"""
         self.parent = p
         p.children.append(self)
+
+    def add_child(self, c):
+        """Add a child"""
+        self.children.append(c)
+        c.parent = self
 
     def dump(self, indent=0, attrs=None):
         """Quick visual"""

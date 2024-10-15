@@ -14,13 +14,6 @@ class GG(Node):
         self.garbage = garbage
 
     @property
-    def depth(self):
-        """The depth"""
-        if self.parent is None:
-            return 0
-        return self.parent.depth + 1
-
-    @property
     def score(self):
         """Score"""
         score = 0
