@@ -5,7 +5,7 @@
 from collections import Counter
 from common.aoc import file_to_list, aoc_part, get_filename
 from common.general import tok
-from common.grid_2d import dihedral_arrangements
+from common.grid_2d import dihedral_arrangements, draw_grid, window_join, window_split
 
 
 def parse_data(raw_data):
@@ -47,7 +47,7 @@ def create_maps(data, sz):
     return all_maps
 
 
-def iterate(grid, maps):
+def iterate_old(grid, maps):
     """Perform a mapping, return new layout"""
     rows = len(grid)
     cols = len(grid[0])
@@ -91,6 +91,30 @@ def iterate(grid, maps):
         new_grid.extend(new_row_slice)
 
     return new_grid
+
+
+def iterate(grid, maps):
+    """Perform a mapping, return new layout"""
+    rows = len(grid)
+    sz = 3
+    if rows % 2 == 0:
+        sz = 2
+
+    windows = window_split(grid, (sz, sz))
+
+    new_windows = []
+    for wr in windows:
+        new_wr = []
+        for window in wr:
+            # map to the new window
+            window = grid_2_pattern(window)
+            window = maps[window]
+            window = pattern_2_grid(window)
+            # add to the new row of windows
+            new_wr.append(window)
+        new_windows.append(new_wr)
+
+    return window_join(new_windows)
 
 
 def iterate_n(data, n=5) -> int:

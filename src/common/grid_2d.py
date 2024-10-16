@@ -152,6 +152,55 @@ def window_over_grid(grid, window, step=(1, 1)):
             yield window
 
 
+def window_split(grid, window=(1, 1)):
+    """Split a grid into windows and return a grid of the windows
+    Each window being a local grid"""
+    rows = len(grid)
+    cols = len(grid[0])
+    window_grid = []
+
+    assert rows % window[0] == 0
+    assert cols % window[1] == 0
+
+    # row_idx and col_idx are the top left of each window
+    # iterate over each window using them as the local origin
+    for row_idx in range(0, rows - window[0] + 1, window[0]):
+
+        window_row = []
+
+        # get the current row of windows
+        row_slice = grid[row_idx : row_idx + window[0]]
+
+        for col_idx in range(0, cols - window[1] + 1, window[1]):
+
+            # build the window
+            window_data = []
+            for row in row_slice:
+                window_data.append(row[col_idx : col_idx + window[1]])
+
+            window_row.append(window_data)
+
+        # extend the new grid
+        window_grid.append(window_row)
+
+    return window_grid
+
+
+def window_join(windows):
+    """Join a grid of windows where ever window is a grid
+    of the same size"""
+    grid = []
+    for window_row in windows:
+        row_slice = []
+        for window_data in window_row:
+            for idx, row in enumerate(window_data):
+                if idx >= len(row_slice):
+                    row_slice.append([])
+                row_slice[idx].extend(row)
+        grid.extend(row_slice)
+    return grid
+
+
 def transpose(grid):
     """Transpose [][]"""
     return list(map(list, zip(*grid)))
