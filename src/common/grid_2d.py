@@ -139,7 +139,7 @@ def grid_lists_to_dict(grid, content_filter=None):
     return new_grid
 
 
-def window_over_grid(grid, window, step):
+def window_over_grid(grid, window, step=(1, 1)):
     """Generator for a window over a 2D grid"""
     rows = len(grid)
     cols = len(grid[0])
@@ -353,6 +353,30 @@ def set_dihedral_arrangements(g, sz):
 #
 # dict grid utils
 #
+
+
+def dict_to_grid_list(d: dict, size=None, default_char=" ", char_filter=None):
+    """Convert dict to [][] if size not given then use limits"""
+    min_r = 0
+    min_c = 0
+    if size is None:
+        min_r, min_c, max_r, max_c = get_grid_limits(d)
+        max_r += 1
+        max_c += 1
+    else:
+        max_r, max_c = size
+
+    grid = []
+    for ri in range(min_r, max_r):
+        row = []
+        for ci in range(min_c, max_c):
+            ch = d.get((ri, ci), default_char)
+            if char_filter and ch not in char_filter:
+                ch = default_char
+            row.append(ch)
+        grid.append(row)
+
+    return grid
 
 
 def print_dict_grid_values(g, cell_width=5, none_char="", limits=None, headings=True):

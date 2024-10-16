@@ -57,25 +57,37 @@ def iterate(grid, maps):
     nsz = sz + 1
 
     new_grid = []
+
+    # row_idx and col_idx are the top left of each window
+    # iterate over each window using them as the local origin
     for row_idx in range(0, rows - sz + 1, sz):
 
+        # start with an empty row slice (a row of windows)
+        # for the new output size
         new_row_slice = []
         for _ in range(nsz):
             new_row_slice.append([])
 
         for col_idx in range(0, cols - sz + 1, sz):
+
+            # get the current row of windows
             row_slice = grid[row_idx : row_idx + sz]
+
+            # build the window
             window = []
             for row in row_slice:
                 window.append(row[col_idx : col_idx + sz])
 
+            # map to the new window
             window = grid_2_pattern(window)
             window = maps[window]
             window = pattern_2_grid(window)
 
+            # extend the new row of windows
             for i in range(nsz):
                 new_row_slice[i].extend(window[i])
 
+        # extend the new grid
         new_grid.extend(new_row_slice)
 
     return new_grid
