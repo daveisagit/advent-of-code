@@ -3,7 +3,7 @@
 """
 
 from common.aoc import file_to_list, aoc_part, get_filename
-from common.general import tok
+from common.general import bouncing_cursor_position, tok
 
 
 def parse_data(raw_data):
@@ -24,14 +24,7 @@ def get_severity(data):
             continue
 
         r = data[t]
-        if r == 2:
-            p = t % 2
-        else:
-            d = 2 * -((t // (r - 1)) % 2) + 1
-            a = (t % (r - 1)) * d
-            e = 0 if d == 1 else r - 1
-            p = e + a
-
+        p = bouncing_cursor_position(r, t)
         if p == 0:
             s += t * r
 
@@ -45,7 +38,7 @@ def solve_part_a(data) -> int:
 
 
 def caught(data, delay=0):
-    """Return the severity of the delay"""
+    """Return True if caught"""
     for layer in range(max(data) + 1):
 
         if layer not in data:
@@ -53,13 +46,7 @@ def caught(data, delay=0):
 
         t = layer + delay
         r = data[layer]
-        if r == 2:
-            p = t % 2
-        else:
-            d = 2 * -((t // (r - 1)) % 2) + 1
-            a = (t % (r - 1)) * d
-            e = 0 if d == 1 else r - 1
-            p = e + a
+        p = bouncing_cursor_position(r, t)
 
         if p == 0:
             return True

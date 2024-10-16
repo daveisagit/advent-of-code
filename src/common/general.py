@@ -270,3 +270,21 @@ def dict_to_tuple(d: dict):
 def tuple_to_dict(t: tuple):
     """Restore the dict"""
     return {k: v for k, v in t}
+
+
+def bouncing_cursor_position(width: int, steps: int):
+    """Given 1D range of width we have a cursor scanning back and forth
+    return the pos/idx after so many steps
+    """
+    if width == 1:
+        return 0
+
+    if width == 2:
+        return steps % 2
+    else:
+        m = (width - 1) * 2
+        steps %= m
+        if steps < width:
+            return steps
+        else:
+            return m - steps
