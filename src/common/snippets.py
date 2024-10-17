@@ -56,12 +56,42 @@ while bfs:
         continue
     seen.add(state)
 
+    # check if target reached
+
+    # check if unreachable?
+
+    # add options to queue
     for _ in {}:
         new_state = list(state)
         new_state[0] = 2
         new_state = tuple(new_state)
         bfs.append(new_state)
 
+# ----------------
+# Heap
+# ----------------
+
+from heapq import heappush, heappop
+
+h = []
+# state = Priority,x, y, z, etc
+state = 0, 0, 0, 0
+heappush(h, state)
+seen = set()
+while h:
+    state = heappop(h)
+    if state in seen:
+        continue
+    seen.add(state)
+
+    # check if target reached
+
+    # check if unreachable
+
+    # add options to heap
+    for _ in {}:
+        state = 0, 0, 0, 0
+        heappush(h, state)
 
 # ----------------
 # Directions

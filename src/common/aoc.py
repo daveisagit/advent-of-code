@@ -55,7 +55,7 @@ def file_to_list_no_strip(filename: str):
 
 
 def file_to_list_no_strip_2(filename: str):
-    """Read text file to list of strings"""
+    """Read text file to list of strings - Keeps EOL char"""
     with open(filename, encoding=ENCODING) as f:
         lines = f.readlines()
     return lines
