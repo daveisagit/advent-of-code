@@ -3,6 +3,7 @@
 """
 
 from collections import deque
+from heapq import heappop, heappush
 from common.aoc import file_to_list, aoc_part, get_filename
 from common.general import tok
 
@@ -16,7 +17,7 @@ def parse_data(raw_data):
     return frozenset(components)
 
 
-def get_strongest_bridge(components):
+def get_strongest_bridge_old(components):
     """Find the strongest"""
     dfs = deque()
     dfs.append(([], 0))
@@ -38,6 +39,40 @@ def get_strongest_bridge(components):
             ports.remove(port)
             new_port = ports[0]
             dfs.append((new_chain, new_port))
+
+    return strongest
+
+
+def get_strongest_bridge(components):
+    """Using a heap and ignoring routes that will never improve
+    Doubt this will apply to part B where longest is not weighted
+    """
+    available = sum(a + b for a, b in components)
+    strongest = 0
+    h = []
+    # state = -len, chain, port, available
+    state = 0, frozenset(), 0, available
+    heappush(h, state)
+
+    while h:
+        state = heappop(h)
+        strength, chain, port, available = state
+        strength = -strength
+
+        strongest = max(strongest, strength)
+
+        if strength + available <= strongest:
+            continue
+
+        options = [cmp for cmp in components if port in cmp and cmp not in chain]
+        for opt in options:
+            val = sum(opt)
+            new_chain = frozenset(chain | {opt})
+            new_port = opt[0]
+            if new_port == port:
+                new_port = opt[1]
+            state = -strength - val, new_chain, new_port, available - val
+            heappush(h, state)
 
     return strongest
 
