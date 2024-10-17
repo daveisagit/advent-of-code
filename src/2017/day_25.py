@@ -5,10 +5,10 @@
 from collections import defaultdict
 import re
 from common.aoc import file_to_list, aoc_part, get_filename
-from common.general import window_over
+from common.general import input_sections, window_over
 
 
-def parse_data(raw_data):
+def parse_data_old(raw_data):
     """Parse the input"""
     start_state = raw_data[0][-2]
     rr = re.search(r".+\s(\d+)\s.+", raw_data[1])
@@ -26,6 +26,32 @@ def parse_data(raw_data):
             if state_lines[3 + offset][-5:] == "left.":
                 m = -1
             ns = state_lines[4 + offset][-2]
+
+            states[state_id].append((w, m, ns))
+
+    return start_state, steps, states
+
+
+def parse_data(raw_data):
+    """Parse the input"""
+    sections = input_sections(raw_data)
+
+    start_state = sections[0][0][-2]
+    rr = re.search(r".+\s(\d+)\s.+", sections[0][1])
+    steps = int(rr.group(1))
+
+    states = defaultdict(list)
+    for state_block in sections[1:]:
+        state_id = state_block[0][-2]
+
+        for offset in range(2):
+            offset *= 4
+            rr = re.search(r".+\s(\d+).", state_block[2 + offset])
+            w = int(rr.group(1))
+            m = 1
+            if state_block[3 + offset][-5:] == "left.":
+                m = -1
+            ns = state_block[4 + offset][-2]
 
             states[state_id].append((w, m, ns))
 
