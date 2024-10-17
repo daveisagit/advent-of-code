@@ -24,6 +24,7 @@ def visualize_graph_2019_25(gph):
 def visualize_graph(gph, directed=True):
     """Basic visual"""
     net = Network(height="1200px", width="100%", directed=directed)
+    net.show_buttons()
 
     for n in all_nodes(gph):
         net.add_node(str(n))

@@ -76,6 +76,7 @@ def parse_data():
 def visualize_graph(gph):
     """Basic visual"""
     net = Network(height="1200px", width="100%", directed=True)
+    net.show_buttons()
 
     for n in gph:
         net.add_node(n)
@@ -115,7 +116,7 @@ def best_route():
             continue
         ng["3"][loc] = 1
 
-    # visualize_graph(ng)
+    visualize_graph(ng)
 
     # print(ng)
     r = optimal_route(ng, set(locations), start="F", end="F")
