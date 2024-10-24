@@ -3,7 +3,9 @@
 """
 
 from collections import Counter
+from itertools import combinations
 from common.aoc import file_to_list, aoc_part, get_filename
+from common.general import string_differs_at
 
 
 def parse_data(raw_data):
@@ -40,8 +42,19 @@ def solve_part_b(data) -> int:
                 return a[:idx] + a[idx + 1 :]
 
 
+@aoc_part
+def solve_part_c(data) -> int:
+    """Solve part B"""
+    for a, b in combinations(data, 2):
+        d = string_differs_at(a, b)
+        if len(d) == 1:
+            d = d[0]
+            return a[:d] + a[d + 1 :]
+
+
 MY_RAW_DATA = file_to_list(get_filename(__file__, "my"))
 MY_DATA = parse_data(MY_RAW_DATA)
 
 solve_part_a(MY_DATA)
 solve_part_b(MY_DATA)
+solve_part_c(MY_DATA)

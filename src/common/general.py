@@ -288,3 +288,13 @@ def bouncing_cursor_position(width: int, steps: int):
             return steps
         else:
             return m - steps
+
+
+def string_differs_at(a, b):
+    """Return a list of differences as a list of indexes"""
+    assert len(a) == len(b)
+    differences = []
+    for i, c in enumerate(a):
+        if c != b[i]:
+            differences.append(i)
+    return differences
