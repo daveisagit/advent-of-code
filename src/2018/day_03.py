@@ -3,8 +3,10 @@
 """
 
 from collections import defaultdict
+import re
 from common.aoc import file_to_list, aoc_part, get_filename
 from common.general import tok
+from blocksets import Block
 
 
 def parse_data(raw_data):
@@ -18,6 +20,17 @@ def parse_data(raw_data):
         pos = [int(x) for x in pos]
         siz = [int(x) for x in siz]
         patch = ((pos[0], pos[0] + siz[0]), (pos[1], pos[1] + siz[1]))
+        data.append(patch)
+    return data
+
+
+def parse_data_regex(raw_data):
+    """Parse the input"""
+    data = []
+    for line in raw_data:
+        sr = re.search(r".+@ (\d+),(\d+): (\d+)x(\d+)", line)
+        p = tuple(int(g) for g in sr.groups())
+        patch = (p[0], p[1]), (p[0] + p[2] + 1, p[1] + p[3] + 1)
         data.append(patch)
     return data
 
@@ -58,6 +71,18 @@ def solve_part_b(data) -> int:
     return None
 
 
+@aoc_part
+def solve_part_c(data) -> int:
+    blocks = []
+    for a, b in data:
+        blk = Block(a, b)
+        blocks.append(blk)
+
+    for idx, blk_1 in enumerate(blocks):
+        if sum(1 for blk_2 in blocks if blk_1 & blk_2) == 1:
+            return idx + 1
+
+
 EX_RAW_DATA = file_to_list(get_filename(__file__, "ex"))
 EX_DATA = parse_data(EX_RAW_DATA)
 
@@ -69,3 +94,6 @@ solve_part_a(MY_DATA)
 
 solve_part_b(EX_DATA)
 solve_part_b(MY_DATA)
+
+MY_DATA = parse_data_regex(MY_RAW_DATA)
+solve_part_c(MY_DATA)
