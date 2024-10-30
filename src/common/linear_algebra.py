@@ -82,7 +82,7 @@ def mtx_solve(m, v, expect_integer=True):
     if expect_integer:
         if all(x % det == 0 for x in r):
             r = tuple(x // det for x in r)
-            return r
+            return 1, r
         else:
             raise RuntimeError("Expected integer result")
     return det, r
@@ -222,4 +222,4 @@ def test_poly_from_points():
     assert p == (24, (24, -18, 23, -6, 1))
 
 
-test_poly_from_points()
+# test_poly_from_points()

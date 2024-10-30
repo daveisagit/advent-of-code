@@ -5,6 +5,7 @@
 from itertools import pairwise
 from common.aoc import file_to_list, aoc_part, get_filename
 from common.general import window_over
+from common.linear_algebra import poly_from_points, poly_value
 from common.numty import search_for_polynomial_sequence
 
 
@@ -101,12 +102,12 @@ def solve_part_b(data) -> int:
 def solve_part_c(data) -> int:
     """Solve part C"""
     generations = get_generations(data, 200)
-    print(generations[20])
+    print(f"Part A: {generations[20]}")
     m, start = search_for_polynomial_sequence(generations, l_bound=1, u_bound=10)
-    diff = generations[start + m] - generations[start]
-    g = 50000000000
-    ans = generations[start] + (g - start) * diff
-    return ans
+    x_points = tuple(range(start, start + m + 1, m))
+    y_points = tuple(generations[x] for x in x_points)
+    ply = poly_from_points(x_points, y_points)
+    return poly_value(ply, 50000000000)
 
 
 EX_RAW_DATA = file_to_list(get_filename(__file__, "ex"))
