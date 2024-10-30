@@ -655,8 +655,15 @@ def edges_to_graph(edges, directed=True):
     return gph
 
 
-def possible_roots(gph, check_all_nodes_reachable=True):
+def dag_possible_roots(gph):
+    N = all_nodes(gph)
+    E = directed_edges(gph)
+    return N - {v for u, v in E}
+
+
+def possible_roots_DEP(gph, check_all_nodes_reachable=True):
     """Find all possible roots of a directed graph"""
+    # NO WORK!!!
     scc_node_groups = tarjan(gph)
     edges = directed_edges(gph)
     scc_with_no_incoming_edges = set()
@@ -804,7 +811,7 @@ def edmond_mst(gph, root):
 def minimal_spanning_tree_directed(gph, as_edges=False):
     """Return the minimal spanning arborescence using Edmonds algorithm
     as a graph"""
-    roots = possible_roots(gph)
+    roots = dag_possible_roots(gph)
     if not roots:
         raise ValueError("Directed graph has no root that will span all nodes")
     best_mst = None

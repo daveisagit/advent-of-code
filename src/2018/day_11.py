@@ -108,6 +108,6 @@ def solve_part_b(data) -> int:
     return ",".join(ans)
 
 
-run_tests()
+# run_tests()
 solve_part_a(7139)
 solve_part_b(7139)

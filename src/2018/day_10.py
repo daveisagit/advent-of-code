@@ -44,7 +44,7 @@ def dump_grid(grid):
 
 
 def stars_aligned(g):
-    """Return True if so"""
+    """Return True if so: every point has a neighbour"""
     g = set(g)
     for p in g:
         cnt = 0

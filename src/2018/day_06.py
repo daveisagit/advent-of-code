@@ -32,6 +32,8 @@ def solve_part_a(data) -> int:
                 d = manhattan(d)
                 distances[p][i] = d
 
+    # find the nearest chronal point as an index to every grid point
+    # ties ignored
     nearest = defaultdict(int)
     for p, dd in distances.items():
         c = Counter(dd.values())
@@ -42,6 +44,7 @@ def solve_part_a(data) -> int:
         else:
             nearest[p] = points[0]
 
+    # create a set of chronal points (indexes) considered to be infinite
     infinite = set()
     for r in range(min_r, max_r + 1):
         infinite.add(nearest[(r, 0)])

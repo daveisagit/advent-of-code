@@ -74,36 +74,49 @@ def solve_part_b(data, num_workers=2, base_duration=0) -> int:
     end_times = {n: 0 for n in all_nodes}
     worker_ready_at = [0] * num_workers
     while min(end_times.values()) == 0:
+        # Nodes not yet processed
         unfinished = {n for n, t in end_times.items() if t == 0}
+        # Which ones are in a ready state, i.e. prev_prerequisites have finished
+        # ok_to_go is a dict of the ready nodes and the earliest they can start
         ok_to_go = {}
         for u in unfinished:
             ready = True
             start_time = 0
             for v in prev_prerequisites[u]:
+                # prev_prerequisites not finished so defo not
                 if end_times[v] == 0:
                     ready = False
                     break
+                # start time for this node is max of the end_times
+                # for the prev_prerequisites
                 if end_times[v] > start_time:
                     start_time = end_times[v]
             if ready:
                 ok_to_go[u] = start_time
 
+        # get the start time of the first available worker
         worker_ready_at = sorted(worker_ready_at)
         start_time = worker_ready_at[0]
 
+        # which nodes are ready at this time
         ready_nodes = [n for n, st in ok_to_go.items() if st <= start_time]
-        if ready_nodes:
-            # worker waiting, who's ready?
-            ready_nodes = sorted(ready_nodes)
-        else:
-            # workers not yet ready
+
+        # if none then go forward in time to when the next node is ready
+        if not ready_nodes:
             start_time = min(ok_to_go.values())
             ready_nodes = [n for n, st in ok_to_go.items() if st <= start_time]
-            ready_nodes = sorted(ready_nodes)
 
+        # choose the node alphabetically
+        ready_nodes = sorted(ready_nodes)
+
+        # the node either started when it was scheduled for
+        # or later when a worker was ready
         n = ready_nodes[0]
         st = max(ok_to_go[n], worker_ready_at[0])
         et = st + node_duration(n)
+
+        # note when the node will finish
+        # and when the worker will be ready
         end_times[n] = et
         worker_ready_at[0] = et
 

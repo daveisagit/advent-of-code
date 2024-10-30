@@ -7,6 +7,9 @@ import json
 from math import inf
 from typing import Iterable
 
+alpha_lower = list(map(chr, range(ord("a"), ord("z") + 1)))
+alpha_upper = list(map(chr, range(ord("A"), ord("Z") + 1)))
+
 
 def get_column(data, col: int) -> list:
     """Return a column of data"""

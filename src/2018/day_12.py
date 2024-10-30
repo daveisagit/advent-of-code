@@ -5,6 +5,7 @@
 from itertools import pairwise
 from common.aoc import file_to_list, aoc_part, get_filename
 from common.general import window_over
+from common.numty import search_for_polynomial_sequence
 
 
 def parse_data(raw_data):
@@ -43,6 +44,17 @@ def iterate(state, offset, rules):
     return new_state, offset - 2
 
 
+def get_generations(data, n=20):
+    state, rules = data
+    offset = 0
+    generations = []
+    for _ in range(200):
+        ans = sum(i - offset if c == "#" else 0 for i, c in enumerate(state))
+        generations.append(ans)
+        state, offset = iterate(state, offset, rules)
+    return generations
+
+
 @aoc_part
 def solve_part_a(data) -> int:
     """Solve part A"""
@@ -64,6 +76,8 @@ def analysis(data):
         generations.append(ans)
         state, offset = iterate(state, offset, rules)
 
+    x = search_for_polynomial_sequence(generations, l_bound=1, u_bound=150)
+
     diff = [b - a for a, b in pairwise(generations)]
     i = 0
     for i, w in enumerate(window_over(diff, 5)):
@@ -83,6 +97,18 @@ def solve_part_b(data) -> int:
     return ans
 
 
+@aoc_part
+def solve_part_c(data) -> int:
+    """Solve part C"""
+    generations = get_generations(data, 200)
+    print(generations[20])
+    m, start = search_for_polynomial_sequence(generations, l_bound=1, u_bound=10)
+    diff = generations[start + m] - generations[start]
+    g = 50000000000
+    ans = generations[start] + (g - start) * diff
+    return ans
+
+
 EX_RAW_DATA = file_to_list(get_filename(__file__, "ex"))
 EX_DATA = parse_data(EX_RAW_DATA)
 
@@ -93,3 +119,4 @@ solve_part_a(EX_DATA)
 solve_part_a(MY_DATA)
 
 solve_part_b(MY_DATA)
+solve_part_c(MY_DATA)
