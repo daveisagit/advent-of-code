@@ -45,7 +45,7 @@ def parse_data(raw_data):
     return root
 
 
-def make_graph(root):
+def make_graph_old(root):
     """Create the graph"""
 
     gph = defaultdict(dict)
@@ -74,7 +74,7 @@ def make_graph(root):
             d = directions[n.data]
             nxt = tuple(map(add, pos, d))
             gph[pos][nxt] = 1
-            gph[nxt][pos] = 1
+            # gph[nxt][pos] = 1
             ptr = list(ptr)
             ptr[-1] += 1
             state = (seq, nxt, tuple(ptr))
@@ -125,6 +125,26 @@ def draw_rooms(gph, just_walls=False):
             if q in gph[p]:
                 row[ic * 2 + 1] = hdc
         print("".join(row))
+
+
+def make_graph(root):
+    """Create the graph of all locations an edges represent a door"""
+
+    def explore_seq_node(n: Node, pos):
+        for cn in n.children:
+            if cn.data != "or":
+                d = directions[cn.data]
+                nxt = tuple(map(add, pos, d))
+                gph[pos][nxt] = 1
+                gph[nxt][pos] = 1
+                pos = nxt
+                continue
+            for sn in cn.children:
+                explore_seq_node(sn, pos)
+
+    gph = defaultdict(dict)
+    explore_seq_node(root, (0, 0))
+    return gph
 
 
 @aoc_part
