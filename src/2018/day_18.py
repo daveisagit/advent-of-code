@@ -105,10 +105,21 @@ def analysis(data):
 def solve_part_b(data) -> int:
     """Solve part B"""
     when = 1000000000
+    # analysis finds first repeat of state returning
+    # a: idx of 1st occurrence
+    # b: idx of 2nd occurrence
+    # list of the states leading up to b
     a, b, states = analysis(data)
+
+    # m: modulus
     m = b - a
+
+    # cc: congruence class for when
     cc = (when - a) % m
+
+    # cc+a gives the index of the state for when
     state = states[cc + a]
+
     cnt = Counter(state)
     ans = cnt["|"] * cnt["#"]
     return ans

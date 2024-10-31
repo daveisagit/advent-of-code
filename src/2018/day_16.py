@@ -3,7 +3,6 @@
 """
 
 from collections import defaultdict
-from itertools import product
 from common.aoc import file_to_list, aoc_part, get_filename
 from common.general import tok, window_over
 from common.logic import exact_cover, mapping_options, resolve_injective_mappings
