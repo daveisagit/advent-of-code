@@ -3,9 +3,10 @@
 """
 
 from collections import defaultdict
+from itertools import product
 from common.aoc import file_to_list, aoc_part, get_filename
 from common.general import tok, window_over
-from common.logic import resolve_injective_mappings
+from common.logic import exact_cover, mapping_options, resolve_injective_mappings
 
 
 def parse_data(raw_data):
@@ -193,9 +194,74 @@ def solve_part_b(data) -> int:
     return registers[0]
 
 
+@aoc_part
+def solve_part_c(data) -> int:
+    """Solve part B"""
+    data, pgm = data
+    possibilities = {}
+
+    # Build the Constraints (X)
+    # every op and every index accounted for
+    constraints = [("#", n) for n in range(len(ops))] + [("o", op) for op in ops]
+
+    for b, (o, args), a in data:
+        for op in ops:
+            ca = do_op(op, args, b)
+            if ca == a:
+                # each possibility meets name constraint and an index constraint
+                possibilities[(o, op)] = [("#", o), ("o", op)]
+
+    solutions = list(exact_cover(constraints, possibilities))
+    if len(solutions) != 1:
+        print(f"No unique solution, number of solutions found: {len(solutions)}")
+        return None
+
+    solution = solutions[0]
+
+    op_map = {idx: op for idx, op in solution}
+
+    registers = [0] * 4
+    for e in pgm:
+        op = op_map[e[0]]
+        args = e[1:]
+        registers = do_op(op, args, registers)
+
+    return registers[0]
+
+
+@aoc_part
+def solve_part_d(data) -> int:
+    """Solve part B"""
+    data, pgm = data
+    opcodes = defaultdict(set)
+    for b, (o, args), a in data:
+        for op in ops:
+            ca = do_op(op, args, b)
+            if ca == a:
+                opcodes[o].add(op)
+    options = list(mapping_options(opcodes))
+    if len(options) != 1:
+        print("No can do")
+        return None
+
+    op_map = options[0]
+
+    registers = [0] * 4
+    for e in pgm:
+        op = op_map[e[0]]
+        args = e[1:]
+        registers = do_op(op, args, registers)
+
+    return registers[0]
+
+
 MY_RAW_DATA = file_to_list(get_filename(__file__, "my"))
 MY_DATA = parse_data(MY_RAW_DATA)
 
 solve_part_a(MY_DATA)
 
 solve_part_b(MY_DATA)
+
+solve_part_c(MY_DATA)
+
+solve_part_d(MY_DATA)
