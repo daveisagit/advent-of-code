@@ -128,6 +128,46 @@ def dijkstra_paths(gph, source, target=None, weight_attr=None):
     return dist, paths
 
 
+def dijkstra_options_injection(
+    source, target, options_func: callable, options_func_data=None
+):
+    """Uses Dijkstra's algorithm without a graph.
+    instead the options_func generator function gives neighbouring
+    options and their cost"""
+    push = heappush
+    pop = heappop
+    dist = {}  # dictionary of final distances
+    seen = {}
+    # fringe is heapq with 3-tuples (distance,c,node)
+    # use the count c to avoid comparing nodes (may not be able to)
+    c = count()
+    fringe = []
+    seen[source] = 0
+    push(fringe, (0, next(c), source))
+    while fringe:
+        (d, _, v) = pop(fringe)
+        if v in dist:
+            continue  # already searched this node.
+        dist[v] = d
+        if v == target:
+            break
+
+        # magic happens here
+        # for every neighbour(u) of v with a cost/weight(w)
+        for u, w in options_func(v, options_func_data):
+            vu_dist = dist[v] + w
+
+            if u not in seen or vu_dist < seen[u]:
+                seen[u] = vu_dist
+                push(fringe, (vu_dist, next(c), u))
+
+    if target:
+        if target in dist:
+            return dist[target]
+        return None
+    return dist
+
+
 def bellman_ford(graph, source):
     """Like Dijkstra but will handle negative weights"""
     # Step 1: Initialize distances
