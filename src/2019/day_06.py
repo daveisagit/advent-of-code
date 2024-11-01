@@ -5,6 +5,7 @@
 from collections import defaultdict
 from common.aoc import file_to_list, aoc_part, get_filename
 from common.general import tok
+from common.tree import Node, make_tree
 
 
 def parse_data(raw_data):
@@ -64,6 +65,21 @@ def solve_part_b(data) -> int:
     return None
 
 
+@aoc_part
+def solve_part_c(data) -> int:
+    """Solve part A"""
+    tree_nodes = make_tree(data)
+    root = list(tree_nodes.values())[0].root()
+    depth_sum = 0
+    for n in root.traverse():
+        depth_sum += n.depth
+    print(depth_sum)
+
+    n1 = tree_nodes["YOU"]
+    n2 = tree_nodes["SAN"]
+    return len(n1.path_to(n2)) - 1
+
+
 EX_RAW_DATA = file_to_list(get_filename(__file__, "ex"))
 EX_DATA = parse_data(EX_RAW_DATA)
 
@@ -75,3 +91,5 @@ solve_part_a(MY_DATA)
 
 solve_part_b(EX_DATA)
 solve_part_b(MY_DATA)
+
+solve_part_c(MY_DATA)

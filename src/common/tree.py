@@ -1,5 +1,7 @@
 """Tree structures"""
 
+from collections import defaultdict
+
 
 class Node:
     """A generic tree node"""
@@ -74,3 +76,63 @@ class Node:
         for a in self.ancestors():
             root = a
         return root
+
+    def traverse(self):
+        """Traverse from here"""
+        yield self
+        for c in self.children:
+            yield from c.traverse()
+
+    def lowest_common_ancestor(self, n):
+        """Return the lowest common ancestor"""
+        mine = set(self.ancestors())
+        for a in n.ancestors():
+            if a in mine:
+                return a
+        return None
+
+    def path_to(self, n):
+        """Return the path from here to there"""
+        lca = self.lowest_common_ancestor(n)
+        p1 = []
+        for a in self.ancestors():
+            if a == lca:
+                break
+            p1.append(a)
+        p2 = []
+        for a in n.ancestors():
+            if a == lca:
+                break
+            p2.append(a)
+
+        return p1 + [lca] + list(reversed(p2))
+
+
+def make_tree(data):
+    """Given a dict of IDs and iter (i.e. a graph)
+    p_id : { c_id_1, c_id_2, ... }
+    Return a dict of nodes"""
+
+    def get_node(n_id):
+        if n_id not in nodes:
+            n = Node(None, n_id)
+            nodes[n_id] = n
+        return nodes[n_id]
+
+    nodes = {}
+
+    for p, cs in data.items():
+        pn = get_node(p)
+        for c in cs:
+            cn = get_node(c)
+            cn.set_parent(pn)
+
+    return nodes
+
+
+def edges_to_graph(edges):
+    """Return a graph given an iterator of (parent,child) tuple"""
+    gph = defaultdict(dict)
+    for p, c in edges:
+        gph[p][c] = 1
+    return gph
