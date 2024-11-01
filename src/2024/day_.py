@@ -25,7 +25,6 @@ from common.grid_2d import directions, get_grid_limits, grid_lists_to_dict
 def parse_data(raw_data):
     """Parse the input"""
     data = []
-    pairwise
     for line in raw_data:
         sr = re.search(r"(.+) to (.+) = (\d+)", line)
         sr = re.search(r"(.{3}) = \((.{3}), (.{3})\)", line)
@@ -33,7 +32,9 @@ def parse_data(raw_data):
         u = sr.group(1)
         v = sr.group(2)
         d = int(sr.group(3))
-        tuple(int(g) for g in sr.groups())
+        d = tuple(int(g) for g in sr.groups())
+
+        data.append(d)
 
     return data
 
@@ -52,13 +53,13 @@ def solve_part_b(data) -> int:
 
 EX_RAW_DATA = file_to_list(get_filename(__file__, "ex"))
 EX_DATA = parse_data(EX_RAW_DATA)
-# print("Parsed data:")
-# print(json.dumps(EX_DATA, indent=4))
+print("Parsed data:")
+print(json.dumps(EX_DATA, indent=4))
 
 MY_RAW_DATA = file_to_list(get_filename(__file__, "my"))
 MY_DATA = parse_data(MY_RAW_DATA)
-# print("Parsed data:")
-# print(json.dumps(MY_DATA, indent=4))
+print("Parsed data:")
+print(json.dumps(MY_DATA, indent=4))
 
 solve_part_a(EX_DATA)
 solve_part_a(MY_DATA)

@@ -2,6 +2,7 @@
 --- Day 4: Secure Container ---
 """
 
+from itertools import pairwise
 from common.aoc import aoc_part
 from common.general import window_over
 
@@ -61,12 +62,40 @@ def valid_password_b(pwd):
     return pair and inc
 
 
+def valid_password_c(pwd):
+    """Return true if valid"""
+    s = str(pwd)
+    pair = False
+    inc = True
+    for a, b in pairwise(s):
+        if b < a:
+            inc = False
+
+    if not inc:
+        return False
+
+    lc = None
+    pairs = set()
+    for p in s:
+        if p != lc:
+            cnt = 1
+            lc = p
+            continue
+        cnt += 1
+        if cnt == 2:
+            pairs.add(p)
+        else:
+            pairs.discard(p)
+
+    return len(pairs) > 0
+
+
 @aoc_part
 def solve_part_b(data) -> int:
     """Solve part B"""
     cnt = 0
     for pwd in range(*data):
-        if valid_password_b(pwd):
+        if valid_password_c(pwd):
             cnt += 1
 
     return cnt
