@@ -8,6 +8,7 @@ import json
 from operator import add
 from common.aoc import file_to_list, aoc_part, get_filename
 from common.grid_2d import all_directions
+from common.numty import get_congruence_classes_from_simulation, get_state_at_index
 
 
 def parse_data(raw_data):
@@ -31,6 +32,10 @@ def draw(height, width, landscape):
             row += landscape[p]
         print(row)
     print()
+
+
+def iterate_c(landscape):
+    return iterate(50, 50, landscape)
 
 
 def iterate(height, width, landscape):
@@ -125,6 +130,30 @@ def solve_part_b(data) -> int:
     return ans
 
 
+def to_state_c(landscape):
+    s = ""
+    for r in range(50):
+        for c in range(50):
+            p = (r, c)
+            s += landscape[p]
+    # put inside a tuple to signify 1D state
+    return (s,)
+
+
+@aoc_part
+def solve_part_c(data) -> int:
+    """Solve part B"""
+    _, _, landscape = data
+    cc, prv = get_congruence_classes_from_simulation(
+        iterate_c, landscape, state_transform=to_state_c
+    )
+    state = get_state_at_index(cc, prv, 1000000000)
+    landscape = state[0]  # only 1 dimension
+    cnt = Counter(landscape)
+    ans = cnt["|"] * cnt["#"]
+    return ans
+
+
 EX_RAW_DATA = file_to_list(get_filename(__file__, "ex"))
 EX_DATA = parse_data(EX_RAW_DATA)
 
@@ -135,3 +164,5 @@ solve_part_a(EX_DATA)
 solve_part_a(MY_DATA)
 
 solve_part_b(MY_DATA)
+
+solve_part_c(MY_DATA)

@@ -7,6 +7,10 @@ from itertools import combinations
 from math import lcm
 from common.aoc import file_to_list, aoc_part, get_filename
 from common.general import tok
+from common.numty import (
+    get_congruence_classes_from_simulation,
+    solve_multiple_congruences,
+)
 
 
 def parse_data(raw_data):
@@ -90,6 +94,31 @@ def solve_part_b(data) -> int:
     return lcm(*dc)
 
 
+#
+# Using Congruence, maybe coincidence they were all zero?
+#
+
+
+def moons_to_state(moons):
+    states = []
+    for d in range(3):
+        state = tuple((moons[m][0][d], moons[m][1][d]) for m in range(4))
+        states.append(state)
+    return tuple(states)
+
+
+@aoc_part
+def solve_part_c(data) -> int:
+    """Solve part B - Using get_congruence_classes_from_simulation
+    For each dimension in state returns the index and modulus of the repetition
+    """
+    congruence_classes, _ = get_congruence_classes_from_simulation(
+        iterate, data, state_transform=moons_to_state
+    )
+    solution = solve_multiple_congruences(congruence_classes)
+    return sum(solution)
+
+
 EX_RAW_DATA = file_to_list(get_filename(__file__, "ex"))
 EX_DATA = parse_data(EX_RAW_DATA)
 
@@ -101,3 +130,6 @@ solve_part_a(MY_DATA, steps=1000)
 
 solve_part_b(EX_DATA)
 solve_part_b(MY_DATA)
+
+solve_part_c(EX_DATA)
+solve_part_c(MY_DATA)

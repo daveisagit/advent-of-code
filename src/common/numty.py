@@ -1,6 +1,6 @@
 """Number theory stuff"""
 
-from collections import Counter
+from collections import Counter, defaultdict
 from functools import lru_cache, reduce
 from itertools import combinations, islice, pairwise, product
 from math import ceil, comb, floor, lcm, prod, sqrt, gcd
@@ -287,6 +287,60 @@ def solve_congruences(congruences: list) -> int:
     return total_cc % lcm_value
 
 
+def solve_congruence_pair(eq1, eq2):
+    """Solve a simultaneous pair of congruence equations given as (a1,m1) (a2,m2)
+    x ≡ a1 (mod m1) ≡ a2 (mod m2)
+    Returns (x,m) where m=lcm(m1,m2)
+    """
+    (a1, m1) = eq1
+    (a2, m2) = eq2
+
+    s, t = extended_euclid(m1, m2)
+    m_gcd = gcd(m1, m2)
+
+    if m_gcd == 1:
+        solution = m1 * a2 * s + m2 * a1 * t
+        m = m1 * m2
+        return (solution % m, m)
+
+    if (a1 - a2) % m_gcd != 0:
+        raise RuntimeError(f"Congruences {eq1} {eq2} are not solvable")
+
+    m_lcm = (m1 // m_gcd) * m2
+    k = (a1 - a2) // m_gcd
+    solution = a1 - m1 * s * k
+    return (solution % m_lcm, m_lcm)
+
+
+def solve_multiple_congruences(congruences):
+    """Given a list of congruence equations expressed as tuples.
+    X ≡ A1 (mod M1)
+    ...
+    X ≡ Ai (mod Mi)
+    (A1,M1) , ... , (Ai,Mi)
+    Return X ≡ LCM
+
+    Reduce one at a time, this will solve when the moduli are not pairwise coprime
+    """
+    if len(congruences) == 0:
+        return None
+    if len(congruences) == 1:
+        return congruences[0]
+    # 2 or more congruences
+    solution = solve_congruence_pair(congruences[0], congruences[1])
+
+    if solution == None:
+        return None
+
+    for congruence in congruences[2::]:
+        solution = solve_congruence_pair(solution, congruence)
+
+        if solution == None:
+            return None
+
+    return solution
+
+
 def mod_exp(b, e, m):
     """Return base^exp mod m using a binary method"""
     res = 1
@@ -565,3 +619,62 @@ class Lindenmayer:
 # l1 = list(islice(beatty_seq(beatty_conjugate(golden_ratio), limit=145), 145))
 # l2 = [i + 1 for i, ch in enumerate(l.current_value) if ch == "B"]
 # assert l1 == l2
+
+
+def get_congruence_classes_from_simulation(
+    iter_func: callable, initial_model, state_transform=None
+):
+    """Return tuple (Congruence Class, Previous States)
+    Both are lists, entry per dimension
+
+    Congruence classes describe the repetition for each dimension.
+
+    iter_func should return the next iterative state given the current state.
+
+    Previous states list of dicts, each one maps state to index in the iteration.
+    """
+    model = initial_model
+
+    state = model
+    if state_transform:
+        state = state_transform(model)
+    dimensions = len(state)
+
+    cnt = 0
+    congruence_classes = [None] * dimensions
+    prv_states = [defaultdict(int)] * dimensions
+    while any(cc is None for cc in congruence_classes):
+        for d in range(dimensions):
+            dimension_state = state[d]
+            if congruence_classes[d] is not None:
+                continue
+            if state[d] in prv_states[d]:
+                a = prv_states[d][dimension_state]
+                m = cnt - a
+                congruence_classes[d] = (a, m)
+                continue
+            prv_states[d][dimension_state] = cnt
+
+        model = iter_func(model)
+        state = model
+        if state_transform:
+            state = state_transform(model)
+        cnt += 1
+
+    # make return immutable
+    congruence_classes = tuple(cc for cc in congruence_classes)
+    return congruence_classes, prv_states
+
+
+def get_state_at_index(congruence_classes, prev_states, idx):
+    """state can be multi-dimensional, so we return a state value for each dimension
+    For single dimension unpack with [0] on return"""
+    state = []
+    dimensions = len(congruence_classes)
+    for d in range(dimensions):
+        # reverse the mapping so we have index -> state
+        state_list = [s for s, _ in sorted(prev_states[d].items(), key=lambda x: x[1])]
+        a, m = congruence_classes[d]
+        psi = ((idx - a) % m) + a
+        state.append(state_list[psi])
+    return tuple(state)

@@ -79,4 +79,4 @@ def solve_part_b(data) -> int:
 MY_DATA = file_to_string(get_filename(__file__, "my"))
 
 solve_part_a(MY_DATA)
-# solve_part_b(MY_DATA)
+solve_part_b(MY_DATA)
