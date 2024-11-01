@@ -2,9 +2,12 @@
 --- Day 25: Four-Dimensional Adventure ---
 """
 
+from collections import defaultdict
+from itertools import combinations, product
 from operator import sub
 from common.aoc import file_to_list, aoc_part, get_filename
 from common.general import tok
+from common.graph import tarjan
 
 
 def parse_data(raw_data):
@@ -59,6 +62,26 @@ def solve_part_b(data) -> int:
     return len(data)
 
 
+@aoc_part
+def solve_part_c(data) -> int:
+    """Solve part A using Tarjan"""
+
+    # we must ensure all nodes are added not just edges
+    gph = {}
+    for p in data:
+        gph[p] = {}
+
+    # add the edges
+    for p, q in combinations(data, 2):
+        if manhattan(p, q) <= 3:
+            gph[p][q] = 1
+            gph[q][p] = 1
+
+    sccs = tarjan(gph)
+
+    return len(sccs)
+
+
 EX_RAW_DATA = file_to_list(get_filename(__file__, "ex"))
 EX_DATA = parse_data(EX_RAW_DATA)
 
@@ -67,3 +90,5 @@ MY_DATA = parse_data(MY_RAW_DATA)
 
 solve_part_a(EX_DATA)
 solve_part_a(MY_DATA)
+
+solve_part_c(MY_DATA)

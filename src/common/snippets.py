@@ -36,6 +36,7 @@ for line in raw_data:
     sr = re.search(r"(.+) to (.+) = (\d+)", line)
     sr = re.search(r"(.{3}) = \((.{3}), (.{3})\)", line)
     sr = re.search(r"(\d+)-(\d+),(\d+)-(\d+)", line)
+    sr = re.search(r"pos=<(-?\d+),(-?\d+),(-?\d+)>, r=(\d+)", line)
     u = sr.group(1)
     v = sr.group(2)
     d = int(sr.group(3))
