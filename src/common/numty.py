@@ -678,3 +678,52 @@ def get_state_at_index(congruence_classes, prev_states, idx):
         psi = ((idx - a) % m) + a
         state.append(state_list[psi])
     return tuple(state)
+
+
+def get_congruence_classes_from_simulation_1D(
+    iter_func: callable, initial_model, state_transform=None
+):
+    """Return tuple (Congruence Class, Previous States)
+    Both are lists, entry per dimension
+
+    Congruence classes describe the repetition for each dimension.
+
+    iter_func should return the next iterative state given the current state.
+
+    Previous states list of dicts, each one maps state to index in the iteration.
+    """
+    model = initial_model
+
+    state = model
+    if state_transform:
+        state = state_transform(model)
+
+    cnt = 0
+    congruence_class = None
+    prv_states = {}
+    while True:
+
+        if state in prv_states:
+            a = prv_states[state]
+            m = cnt - a
+            congruence_class = (a, m)
+            break
+
+        prv_states[state] = cnt
+
+        model = iter_func(model)
+        state = model
+        if state_transform:
+            state = state_transform(model)
+        cnt += 1
+
+    return congruence_class, prv_states
+
+
+def get_state_at_index_1D(congruence_classes, prev_states, idx):
+    """state as a single dimension, so we return a single state value"""
+    # reverse the mapping so we have index -> state
+    state_list = [s for s, _ in sorted(prev_states.items(), key=lambda x: x[1])]
+    a, m = congruence_classes
+    psi = ((idx - a) % m) + a
+    return state_list[psi]

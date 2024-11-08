@@ -100,6 +100,9 @@ def solve_part_b(data) -> int:
 
 
 def moons_to_state(moons):
+    """Moons [ ( P(xyx),V(xyz) ), ... ] to
+    state [ ( X(p,v),Y(p,v),Z(p,v) ), ... ]
+    """
     states = []
     for d in range(3):
         state = tuple((moons[m][0][d], moons[m][1][d]) for m in range(4))

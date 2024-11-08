@@ -8,7 +8,12 @@ import json
 from operator import add
 from common.aoc import file_to_list, aoc_part, get_filename
 from common.grid_2d import all_directions
-from common.numty import get_congruence_classes_from_simulation, get_state_at_index
+from common.numty import (
+    get_congruence_classes_from_simulation,
+    get_congruence_classes_from_simulation_1D,
+    get_state_at_index,
+    get_state_at_index_1D,
+)
 
 
 def parse_data(raw_data):
@@ -137,19 +142,18 @@ def to_state_c(landscape):
             p = (r, c)
             s += landscape[p]
     # put inside a tuple to signify 1D state
-    return (s,)
+    return s
 
 
 @aoc_part
 def solve_part_c(data) -> int:
     """Solve part B"""
     _, _, landscape = data
-    cc, prv = get_congruence_classes_from_simulation(
+    cc, prv = get_congruence_classes_from_simulation_1D(
         iterate_c, landscape, state_transform=to_state_c
     )
-    state = get_state_at_index(cc, prv, 1000000000)
-    landscape = state[0]  # only 1 dimension
-    cnt = Counter(landscape)
+    state = get_state_at_index_1D(cc, prv, 1000000000)
+    cnt = Counter(state)
     ans = cnt["|"] * cnt["#"]
     return ans
 
