@@ -226,13 +226,24 @@ def same_cyclic_seq(a, b, include_reverse=True):
     return False
 
 
-def binary_search(f: callable, target, start=1, inverse=False, min_x=0, max_x=inf):
-    """Find x given f(x)"""
+def binary_search(
+    f: callable, target, start=1, inverse=False, min_x=0, max_x=inf, bound=None
+):
+    """Find x given f(x), use bound = upper or lower if closest non exact value
+    required"""
     x = start
     inc = 1
+    inc_history = []
     while True:
+        hovering = False
+        if len(inc_history) > 8:
+            hovering = all(i in (-2, -1, 1, 2) for i in inc_history[-8:])
         fx = f(x)
         if fx == target:
+            return x
+        if hovering and bound.lower()[:2] == "up" and inc_history[-1] == 1:
+            return x
+        if hovering and bound.lower()[:3] == "low" and inc_history[-1] == -2:
             return x
 
         if not inverse and fx > target or inverse and fx < target:
@@ -247,6 +258,7 @@ def binary_search(f: callable, target, start=1, inverse=False, min_x=0, max_x=in
             else:
                 inc = 1
 
+        inc_history.append(inc)
         x += inc
 
         if x < min_x or x > max_x:

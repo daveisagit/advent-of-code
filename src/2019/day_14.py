@@ -5,7 +5,7 @@
 from collections import defaultdict
 from math import ceil
 from common.aoc import file_to_list, aoc_part, get_filename
-from common.general import tok
+from common.general import binary_search, tok
 
 
 def parse_data(raw_data):
@@ -91,6 +91,17 @@ def solve_part_b(data) -> int:
         ore_a = ore_b
 
 
+@aoc_part
+def solve_part_c(data) -> int:
+    trillion = 10**12
+
+    def f(x):
+        return ore_required(data, fuel=x)
+
+    ore = binary_search(f, target=trillion, bound="upper")
+    return ore
+
+
 EX_RAW_DATA = file_to_list(get_filename(__file__, "ex"))
 EX_DATA = parse_data(EX_RAW_DATA)
 
@@ -102,3 +113,5 @@ solve_part_a(MY_DATA)
 
 solve_part_b(EX_DATA)
 solve_part_b(MY_DATA)
+
+solve_part_c(MY_DATA)
