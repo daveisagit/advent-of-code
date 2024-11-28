@@ -4,7 +4,7 @@
 
 from common.aoc import file_to_list, aoc_part, get_filename
 from common.general import tok
-from common.numty import solve_congruences
+from common.numty import solve_congruences, solve_multiple_congruences
 
 
 def parse_data(raw_data):
@@ -35,7 +35,7 @@ def solve_part_b(data) -> int:
         idx = bid.index(str(bus))
         cong.append((-idx, bus))
 
-    return solve_congruences(cong)
+    return solve_multiple_congruences(cong)[0]
 
 
 EX_RAW_DATA = file_to_list(get_filename(__file__, "ex"))
