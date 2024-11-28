@@ -241,9 +241,9 @@ def binary_search(
         fx = f(x)
         if fx == target:
             return x
-        if hovering and bound.lower()[:2] == "up" and inc_history[-1] == 1:
+        if hovering and bound.lower()[:2] == "up" and inc_history[-1] == -1:
             return x
-        if hovering and bound.lower()[:3] == "low" and inc_history[-1] == -2:
+        if hovering and bound.lower()[:3] == "low" and inc_history[-1] == 1:
             return x
 
         if not inverse and fx > target or inverse and fx < target:

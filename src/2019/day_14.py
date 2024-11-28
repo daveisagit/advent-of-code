@@ -98,7 +98,9 @@ def solve_part_c(data) -> int:
     def f(x):
         return ore_required(data, fuel=x)
 
-    ore = binary_search(f, target=trillion, bound="upper")
+    # we seek the lower bound as there is maximum of 1 trillion
+    # going over would mean using more than 1 trillion ore
+    ore = binary_search(f, target=trillion, bound="lower")
     return ore
 
 
