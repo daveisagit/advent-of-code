@@ -5,7 +5,7 @@
 from collections import defaultdict
 from common.aoc import file_to_list, aoc_part, get_filename
 from common.general import tok
-from common.logic import resolve_injective_mappings
+from common.logic import mapping_options, resolve_injective_mappings
 
 
 def parse_data(raw_data):
@@ -80,6 +80,19 @@ def solve_part_b(data) -> int:
     return ",".join(ingredients)
 
 
+@aoc_part
+def solve_part_c(data) -> int:
+    """Solve part B"""
+    mappings = get_possibilities(data)
+    mappings = list(mapping_options(mappings))
+    assert len(mappings) == 1
+    mappings = mappings[0]
+    allergens = sorted(mappings)
+    ingredients = [mappings[allergen] for allergen in allergens]
+
+    return ",".join(ingredients)
+
+
 EX_RAW_DATA = file_to_list(get_filename(__file__, "ex"))
 EX_DATA = parse_data(EX_RAW_DATA)
 
@@ -91,3 +104,6 @@ solve_part_a(MY_DATA)
 
 solve_part_b(EX_DATA)
 solve_part_b(MY_DATA)
+
+solve_part_c(EX_DATA)
+solve_part_c(MY_DATA)
