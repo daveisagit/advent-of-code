@@ -2,8 +2,10 @@
 --- Day 16: Ticket Translation ---
 """
 
+from collections import defaultdict
 from common.aoc import file_to_list, aoc_part, get_filename
 from common.general import tok
+from common.logic import exact_cover, mapping_options
 
 
 def parse_data(raw_data):
@@ -139,6 +141,48 @@ def solve_part_b(data) -> int:
     return ans
 
 
+@aoc_part
+def solve_part_c(data) -> int:
+    """Solve part B"""
+    rules, ours, nearby = data
+    valid_tickets = [ticket for ticket in nearby if not invalid_values(ticket, rules)]
+
+    maps = defaultdict(set)
+
+    # Build a dict of sets - mapping options for rule to field
+    # if a field is valid on all tickets then its viable
+    for ri, rule in enumerate(rules):
+        for fi in range(len(rules)):
+            valid_on_all = True
+            for ticket in valid_tickets:
+                fv = ticket[fi]
+                valid_ticket = False
+                for opt in rule:
+                    if opt[0] <= fv <= opt[1]:
+                        valid_ticket = True
+                        break
+                if not valid_ticket:
+                    valid_on_all = False
+                    break
+            if valid_on_all:
+                maps[ri].add(fi)
+
+    rule_to_field = list(mapping_options(maps))
+    assert len(rule_to_field) == 1
+    rule_to_field = rule_to_field[0]
+
+    which_rules = 3
+    if len(rules) == 20:
+        which_rules = 6
+    ans = 1
+    for rule in range(which_rules):
+        fi = rule_to_field[rule]
+        v = ours[fi]
+        ans *= v
+
+    return ans
+
+
 EX_RAW_DATA = file_to_list(get_filename(__file__, "ex"))
 EX_DATA = parse_data(EX_RAW_DATA)
 
@@ -152,3 +196,6 @@ solve_part_a(MY_DATA)
 
 solve_part_b(EX_DATA)
 solve_part_b(MY_DATA)
+
+solve_part_c(EX_DATA)
+solve_part_c(MY_DATA)
