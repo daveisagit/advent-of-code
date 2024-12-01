@@ -5,7 +5,7 @@
 import json
 import re
 
-from collections import deque, defaultdict
+from collections import Counter, deque, defaultdict
 from heapq import heappop, heappush
 from itertools import pairwise, combinations, permutations, product
 from math import inf, gcd, lcm, sqrt, comb, ceil, floor
@@ -26,6 +26,8 @@ def parse_data(raw_data):
     """Parse the input"""
     data = []
     for line in raw_data:
+        sr = re.search(r"(-?\d+)\s+(-?\d+)", line)  # day 1
+
         sr = re.search(r"(.+) to (.+) = (\d+)", line)
         sr = re.search(r"(.{3}) = \((.{3}), (.{3})\)", line)
         sr = re.search(r"(\d+)-(\d+),(\d+)-(\d+)", line)
