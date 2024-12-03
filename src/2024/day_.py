@@ -21,6 +21,9 @@ from common.aoc import (
 from common.general import input_sections, tok, window_over
 from common.grid_2d import directions, get_grid_limits, grid_lists_to_dict
 
+show_parsed = False
+show_parsed = True
+
 
 def parse_data(raw_data):
     """Parse the input"""
@@ -55,13 +58,15 @@ def solve_part_b(data) -> int:
 
 EX_RAW_DATA = file_to_list(get_filename(__file__, "ex"))
 EX_DATA = parse_data(EX_RAW_DATA)
-print("Parsed data:")
-print(json.dumps(EX_DATA, indent=4))
+if show_parsed:
+    print("Parsed data:")
+    print(json.dumps(EX_DATA, indent=4))
 
 MY_RAW_DATA = file_to_list(get_filename(__file__, "my"))
 MY_DATA = parse_data(MY_RAW_DATA)
-print("Parsed data:")
-print(json.dumps(MY_DATA, indent=4))
+if show_parsed:
+    print("Parsed data:")
+    print(json.dumps(MY_DATA, indent=4))
 
 solve_part_a(EX_DATA)
 solve_part_a(MY_DATA)
