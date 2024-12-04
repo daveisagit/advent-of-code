@@ -27,6 +27,18 @@ def window_over(iterable, width: int, step=1):
         yield iterable[idx : idx + width]
 
 
+def occurrences_overlap_permitted(string, sub):
+    """Return the number of occurrences allowing overlaps
+    so xAAAx would find AA twice"""
+    count = start = 0
+    while True:
+        start = string.find(sub, start) + 1
+        if start > 0:
+            count += 1
+        else:
+            return count
+
+
 def sign(n) -> int:
     """Returns -1, 0, or 1"""
     if n == 0:

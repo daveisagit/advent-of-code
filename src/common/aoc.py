@@ -86,11 +86,12 @@ def aoc_part(func):
 
         start_time = time()
         answer = func(*args, **kwargs)
-        print(f"Answer: {answer}")
         end_time = time()
 
         elapsed_time = end_time - start_time
         print(f"Duration: {elapsed_time:.3f} s")
+
+        print(f"Answer: {answer}")
 
         return answer
 

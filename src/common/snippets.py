@@ -94,11 +94,19 @@ while h:
         state = 0, 0, 0, 0
         heappush(h, state)
 
-# ----------------
-# Directions
-# ----------------
-from common.grid_2d import directions
+# ------------------------------
+# Directions, Grids and Graphs
+# ------------------------------
+from common.visuals import visualize_graph
+from common.grid_2d import directions, grid_lists_to_dict, maze_to_graph
+from common.graph import dijkstra
 
 p = (0, 0)
 for d, dv in directions:
     np = tuple(map(add, p, dv))
+
+
+maze = grid_lists_to_dict(data, content_filter=None)
+gph = maze_to_graph(start, maze, directed=False, path_char=".", node_chars="")
+visualize_graph(gph, directed=False)
+dst = dijkstra(gph, source, target, weight_attr=None)

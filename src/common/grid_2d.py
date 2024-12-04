@@ -105,7 +105,7 @@ def flip_h_grid(sg):
     return og
 
 
-def dihedral_arrangements(sg):
+def dihedral_arrangements(sg, just_rotations=False):
     """Generator for the 8 arrangements of a square grid
     returns a triple a,b,grid where a is the number of rotations and b reflections"""
     # Rotate 4 times
@@ -113,6 +113,9 @@ def dihedral_arrangements(sg):
     for a in range(4):
         yield a, 0, sg
         sg = rotate_grid(sg)
+
+    if just_rotations:
+        return
 
     sg = flip_h_grid(sg)
     for a in range(4):
@@ -139,16 +142,16 @@ def grid_lists_to_dict(grid, content_filter=None):
     return new_grid
 
 
-def window_over_grid(grid, window, step=(1, 1)):
+def window_over_grid(grid, window_size, step=(1, 1)):
     """Generator for a window over a 2D grid"""
     rows = len(grid)
     cols = len(grid[0])
-    for row_idx in range(0, rows - window[0] + 1, step[0]):
-        for col_idx in range(0, cols - window[1] + 1, step[1]):
+    for row_idx in range(0, rows - window_size[0] + 1, step[0]):
+        for col_idx in range(0, cols - window_size[1] + 1, step[1]):
             window = []
-            row_slice = grid[row_idx : row_idx + window[0]]
+            row_slice = grid[row_idx : row_idx + window_size[0]]
             for row in row_slice:
-                window.append(row[col_idx : col_idx + window[1]])
+                window.append(row[col_idx : col_idx + window_size[1]])
             yield window
 
 

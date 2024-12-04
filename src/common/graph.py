@@ -56,7 +56,7 @@ def all_nodes(gph):
 
 def dijkstra(gph, source, target, weight_attr=None):
     """Uses Dijkstra's algorithm to find shortest path from source -> target
-    If no specific target given then return them all"""
+    If no specific target given then return them all in a dict keyed on node"""
     push = heappush
     pop = heappop
     dist = {}  # dictionary of final distances
