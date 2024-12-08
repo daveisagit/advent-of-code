@@ -188,7 +188,9 @@ def digit_to_char(digit):
 
 
 def str_base(number, base):
-    """Inverse of int(string,base)"""
+    """Inverse of int(string,base)
+    Takes a decimal and a base returns the representation in lower case
+    """
     if number < 0:
         return "-" + str_base(-number, base)
     else:

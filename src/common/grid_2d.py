@@ -142,6 +142,27 @@ def grid_lists_to_dict(grid, content_filter=None):
     return new_grid
 
 
+def list_2d_to_dict(list_2d, poi_labels=None, replace_poi_with_char=None):
+    """Given list of list, return dict of coord tuple and char
+    Points of Interest: iterable of char
+    Option to replace label with replace_poi_with_char
+    """
+    if poi_labels is None:
+        poi_labels = set()
+    grid = {}
+    poi = {}
+    sz = len(list_2d), len(list_2d[0])
+    for ri, row in enumerate(list_2d):
+        for ci, ch in enumerate(row):
+            p = (ri, ci)
+            if ch in poi_labels:
+                poi[ch] = p
+                if replace_poi_with_char:
+                    ch = replace_poi_with_char
+            grid[p] = ch
+    return sz, grid, poi
+
+
 def window_over_grid(grid, window_size, step=(1, 1)):
     """Generator for a window over a 2D grid"""
     rows = len(grid)
