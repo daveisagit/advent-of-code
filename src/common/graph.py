@@ -190,6 +190,22 @@ def bellman_ford(graph, source):
     return distances
 
 
+def find_all_paths(graph, start, end, path=[]):
+    """Return all paths between 2 nodes"""
+    path = path + [start]
+    if start == end:
+        return [path]
+    if start not in graph:
+        return []
+    paths = []
+    for node in graph[start]:
+        if node not in path:
+            new_paths = find_all_paths(graph, node, end, path)
+            for new_path in new_paths:
+                paths.append(new_path)
+    return paths
+
+
 def get_longest_path(gph, start, finish):
     """Return the longest path length between start and finish that visits nodes
     only once (not all nodes need to be visited)"""
