@@ -3,6 +3,7 @@
 """
 
 from collections import deque, defaultdict
+from functools import lru_cache
 from operator import add
 
 from common.aoc import (
@@ -140,6 +141,41 @@ def solve_part_c(data) -> int:
     print(f"B: {len(trails)}")
 
 
+@aoc_part
+def solve_part_d(data) -> int:
+    """Solve
+    Using recursion and memoize the trails from a given point
+    """
+
+    @lru_cache(maxsize=None)
+    def trails_from(p):
+        trails = []
+        if grid[p] == 9:
+            trails.append((p,))
+            return trails
+
+        for dv in directions.values():
+            np = tuple(map(add, p, dv))
+            if np not in grid:
+                continue
+            if grid[np] != grid[p] + 1:
+                continue
+            for trail in trails_from(np):
+                trails.append((p,) + trail)
+        return tuple(trails)
+
+    grid, zeros, _ = data
+
+    all_trails = []
+    for z in zeros:
+        all_trails.extend(trails_from(z))
+
+    # set of heads and tails
+    hat = {(t[0], t[9]) for t in all_trails}
+    print(f"A: {len(hat)}")
+    print(f"B: {len(all_trails)}")
+
+
 EX_RAW_DATA = file_to_list(get_filename(__file__, "ex"))
 EX_DATA = parse_data(EX_RAW_DATA)
 
@@ -154,3 +190,4 @@ solve_part_b(EX_DATA)
 solve_part_b(MY_DATA)
 
 solve_part_c(MY_DATA)
+solve_part_d(MY_DATA)
