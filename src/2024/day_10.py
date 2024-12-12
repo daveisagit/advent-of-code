@@ -149,11 +149,9 @@ def solve_part_d(data) -> int:
 
     @lru_cache(maxsize=None)
     def trails_from(p):
-        trails = []
         if grid[p] == 9:
-            trails.append((p,))
-            return trails
-
+            return ((p,),)
+        trails = ()
         for dv in directions.values():
             np = tuple(map(add, p, dv))
             if np not in grid:
@@ -161,8 +159,8 @@ def solve_part_d(data) -> int:
             if grid[np] != grid[p] + 1:
                 continue
             for trail in trails_from(np):
-                trails.append((p,) + trail)
-        return tuple(trails)
+                trails += (((p,) + trail),)
+        return trails
 
     grid, zeros, _ = data
 

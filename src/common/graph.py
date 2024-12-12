@@ -712,9 +712,66 @@ def edges_to_graph(edges, directed=True):
 
 
 def dag_possible_roots(gph):
+    """Return a set of all the possible root nodes"""
     N = all_nodes(gph)
     E = directed_edges(gph)
     return N - {v for u, v in E}
+
+
+def dag_dependencies(gph, u) -> set:
+    """Return a set of forward dependencies, including the node itself"""
+    ans = {u}
+    for v in gph[u]:
+        ans |= dag_dependencies(gph, v)
+    return ans
+
+
+def dag_topographical_sort(g, func_node_chooser=None) -> list:
+    """Return an order list of nodes sorted topographically
+    Ties are broken by func_node_chooser(gph,S) S the set of nodes to pick from
+    If not given then simply sort S
+    """
+    # L ← Empty list that will contain the sorted elements
+    # S ← Set of all nodes with no incoming edge
+
+    # while S is not empty do
+    #     remove a node n from S
+    #     add n to L
+    #     for each node m with an edge e from n to m do
+    #         remove edge e from the graph
+    #         if m has no other incoming edges then
+    #             insert m into S
+
+    # if graph has edges then
+    #     return error   (graph has at least one cycle)
+    # else
+    #     return L   (a topologically sorted order)
+
+    S = dag_possible_roots(g)
+    f_gph = deepcopy(g)
+    r_gph = reverse_graph(g)
+    L = []
+    while S:
+        # choose a node from S
+        if func_node_chooser:
+            n = func_node_chooser(g, S)
+        else:
+            S_sorted = sorted(S)
+            n = S_sorted[0]
+            S.remove(n)
+
+        L.append(n)
+        dep_nodes = set(f_gph[n])
+        for d in dep_nodes:
+            del f_gph[n][d]
+            del r_gph[d][n]
+            if len(r_gph[d]) == 0:
+                S.add(d)
+
+    if directed_edges(f_gph):
+        raise RuntimeError("graph has at least one cycle")
+    else:
+        return L
 
 
 def possible_roots_DEP(gph, check_all_nodes_reachable=True):

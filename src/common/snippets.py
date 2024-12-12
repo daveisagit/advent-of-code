@@ -44,6 +44,7 @@ for line in raw_data:
 
 # ----------------
 # BFS
+# Day 10 has recursion too
 # ----------------
 
 bfs = deque()

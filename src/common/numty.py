@@ -684,13 +684,14 @@ def get_congruence_classes_from_simulation_1D(
     iter_func: callable, initial_model, state_transform=None
 ):
     """Return tuple (Congruence Class, Previous States)
-    Both are lists, entry per dimension
+    Congruence Class: (a,m) repeats every m from index a
+    Previous States : dict keyed on state giving the iteration index
 
-    Congruence classes describe the repetition for each dimension.
+    Use get_state_at_index_1D(Congruence Class, Previous States, idx) to
+    get the state at a given iteration index.
 
     iter_func should return the next iterative state given the current state.
-
-    Previous states list of dicts, each one maps state to index in the iteration.
+    You can pass a wrapper if arguments other than previous state are required
     """
     model = initial_model
 
