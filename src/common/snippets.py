@@ -103,7 +103,7 @@ from common.grid_2d import directions, grid_lists_to_dict, maze_to_graph
 from common.graph import dijkstra
 
 p = (0, 0)
-for d, dv in directions:
+for d, dv in directions.items():
     np = tuple(map(add, p, dv))
 
 
