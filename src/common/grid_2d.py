@@ -483,9 +483,9 @@ def print_dict_grid_values(g, cell_width=5, none_char="", limits=None, headings=
         print(row)
 
 
-def print_single_char_dict_grid(g, limits=None):
+def print_single_char_dict_grid(g, limits=None, none_char=" "):
     print_dict_grid_values(
-        g, cell_width=1, none_char=" ", headings=False, limits=limits
+        g, cell_width=1, none_char=none_char, headings=False, limits=limits
     )
 
 

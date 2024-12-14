@@ -22,7 +22,7 @@ def parse_data(raw_data):
     for sec in input_sections(raw_data):
         s = []
         for line in sec:
-            sr = re.search(r".+:\sX(?:\+|=)(\d+),\sY(?:\+|=)(\d+)", line)
+            sr = re.search(r".+:\sX[\+=](\d+),\sY[\+=](\d+)", line)
             d = tuple(int(g) for g in sr.groups())
             s.append(d)
         data.append(s)
@@ -41,13 +41,13 @@ def solve(data, part_b_amount=0) -> int:
     # a.Ax + b.Bx = Px
     # a.Ay + b.By = Py
 
-    # |Ax  Bx| . |a| = |Px|
-    # |Ay  By|   |b|   |Py|
+    # |Ax  Bx| |a| = |Px|
+    # |Ay  By| |b|   |Py|
 
     # Seems finding the minimum presses for A is a deliberate red-herring
     # given there can only be 1 solution or no solution
-
-    # if the only solution is non-integer then ignore
+    # and if the only solution is non-integer then ignore as it is not possible
+    # to place the claw over the prize
 
     total = 0
     for d in data:
@@ -69,9 +69,10 @@ def solve(data, part_b_amount=0) -> int:
             # non integer solutions and no solution raise an exception
             # which we can ignore
             res = mtx_solve(
-                mtx, (Px + part_b_amount, Py + part_b_amount), expect_integer=True
+                mtx,
+                (Px + part_b_amount, Py + part_b_amount),
+                expect_integer=True,
             )
-            assert res[0] == 1
             amt_A = res[1][0]
             amt_B = res[1][1]
             total += amt_A * 3 + amt_B
