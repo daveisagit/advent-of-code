@@ -223,4 +223,4 @@ solve_part_d(MY_DATA)
 
 # part A using set theory, slower due
 # to amount of intersection
-solve_part_e(MY_DATA)
+# solve_part_e(MY_DATA)

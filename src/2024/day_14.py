@@ -23,42 +23,45 @@ from common.grid_2d import (
 def parse_data(raw_data):
     """Parse the input"""
     # p=0,4 v=3,-3
-    data = []
+    ps = []
+    vs = []
     for line in raw_data:
         sr = re.search(r"p=(-?\d+),(-?\d+)\sv=(-?\d+),(-?\d+)", line)
         d = tuple(int(g) for g in sr.groups())
         p = d[:2]
         v = d[2:]
-        data.append((p, v))
+        ps.append(tuple(p))
+        vs.append(tuple(v))
 
-    return data
+    return ps, vs
 
 
-def get_pos(p, v, n, sz):
-    """Return new position after n iterations"""
-    for _ in range(n):
+def iterate(ps, vs, sz):
+    new_ps = []
+    for p, v in zip(ps, vs):
         p = tuple(map(add, p, v))
-        p = tuple(x % sz[i] for i, x in enumerate(p))
-    return p
+        p = tuple(x % s for x, s in zip(p, sz))
+        new_ps.append(p)
+    return new_ps
 
 
 @aoc_part
 def solve_part_a(data, sz=(11, 7)) -> int:
     """Solve part A"""
+    # sz=(cols-x,rows-y)
+    ps, vs = data
     qs = []
-    for p, v in data:
+    for _ in range(100):
+        ps = iterate(ps, vs, sz)
 
-        # new position after 100 iterations
-        np = get_pos(p, v, 100, sz)
-
-        # the quadrant
-        q = tuple(sign(x - sz[i] // 2) for i, x in enumerate(np))
-
+    # create quads (-1,-1) (-1,1) (1,-1) (1,1)
+    for p in ps:
+        q = tuple(sign(x - s // 2) for x, s in zip(p, sz))
         # ignore on the divide
         if q[0] == 0 or q[1] == 0:
             continue
-
         qs.append(q)
+
     qc = Counter(qs)
     return prod(qc.values())
 
@@ -85,28 +88,25 @@ def solve_part_b(data, sz=(101, 103)) -> int:
                 return False
         return True
 
-    # keep separate lists for pos,vel
-    ps = []
-    vs = []
-    for p, v in data:
-        ps.append(p)
-        vs.append(v)
+    ps, vs = data
 
     # define what it means to be aligned
     pct = 70
-    limit = len(data) - (len(data) * pct) // 100
+    limit = len(ps) - (len(ps) * pct) // 100
 
     cnt = 0
     while True:
+
         # iterate
-        ps = [get_pos(p, vs[i], 1, sz) for i, p in enumerate(ps)]
+        ps = iterate(ps, vs, sz)
         cnt += 1
         if cnt % 1000 == 0:
             print(cnt)
 
         # check alignment
         if aligned(ps, limit):
-            grid = Counter(ps)
+            tps = [(y, x) for x, y in ps]
+            grid = Counter(tps)
             print_single_char_dict_grid(grid, none_char=".")
             return cnt
 
