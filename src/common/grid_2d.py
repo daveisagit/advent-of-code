@@ -270,12 +270,13 @@ def maze_to_graph(start, maze, directed=False, path_char=".", node_chars=""):
             if nxt not in maze:
                 continue
             deg += 1
-            if (
-                not directed
-                or maze[nxt] in path_char
-                or maze[nxt] == d
-                or maze[nxt] in node_chars
-            ):
+            inc = False
+            if directed:
+                if maze[nxt] == d:
+                    inc = True
+            if maze[nxt] in path_char or maze[nxt] in node_chars:
+                inc = True
+            if inc:
                 choices.add(nxt)
 
         if deg == 2 and maze[cur] not in node_chars:

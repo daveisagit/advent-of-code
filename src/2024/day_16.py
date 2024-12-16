@@ -2,6 +2,7 @@
 --- Day 16: Reindeer Maze ---
 """
 
+from collections import defaultdict
 from heapq import heappop, heappush
 from operator import add
 
@@ -11,6 +12,7 @@ from common.aoc import (
     aoc_part,
     get_filename,
 )
+from common.graph import dijkstra
 from common.grid_2d import (
     list_2d_to_dict,
     rotations,
@@ -28,6 +30,7 @@ def parse_data(raw_data):
 
 
 def get_best_path_score(data):
+    """Return the best score attainable"""
     grid, sz, start, target = data
     h = []
     # state = (score, pos, direction)
@@ -52,13 +55,12 @@ def get_best_path_score(data):
             state = score + 1, np, d
             heappush(h, state)
 
-        nd = (d + 1) % 4
-        state = score + 1000, pos, nd
-        heappush(h, state)
-
-        nd = (d - 1) % 4
-        state = score + 1000, pos, nd
-        heappush(h, state)
+        for t in (-1, 1):
+            nd = (d + t) % 4
+            np = tuple(map(add, pos, rotations[nd]))
+            if np in grid and grid[np] == ".":
+                state = score + 1000, pos, nd
+                heappush(h, state)
 
 
 @aoc_part
@@ -104,15 +106,62 @@ def solve_part_b(data) -> int:
             state = score + 1, pth + (np,), d
             heappush(h, state)
 
-        nd = (d + 1) % 4
-        state = score + 1000, pth, nd
-        heappush(h, state)
-
-        nd = (d - 1) % 4
-        state = score + 1000, pth, nd
-        heappush(h, state)
+        for t in (-1, 1):
+            nd = (d + t) % 4
+            np = tuple(map(add, pos, rotations[nd]))
+            if np in grid and grid[np] == ".":
+                state = score + 1000, pth, nd
+                heappush(h, state)
 
     return len(seats)
+
+
+def make_graph(data):
+    """Alternative approach by including direction we are facing in the
+    state = node"""
+    gph = defaultdict(dict)
+    grid, sz, start, target = data
+    for r in range(sz[0]):
+        for c in range(sz[1]):
+            p = (r, c)
+            for f, fv in enumerate(rotations):
+                u = (p, f)
+
+                # move
+                np = tuple(map(add, p, fv))
+                if np in grid and grid[np] == ".":
+                    v = (np, f)
+                    gph[u][v] = 1
+
+                # left
+                nf = (f + 1) % 4
+                np = tuple(map(add, p, rotations[nf]))
+                if np in grid and grid[np] == ".":
+                    v = (p, nf)
+                    gph[u][v] = 1000
+
+                # right
+                nf = (f - 1) % 4
+                np = tuple(map(add, p, rotations[nf]))
+                if np in grid and grid[np] == ".":
+                    v = (p, nf)
+                    gph[u][v] = 1000
+
+    for f in range(4):
+        u = (target, f)
+        gph[u][target] = 0
+        gph[target][u] = 0
+
+    return gph
+
+
+@aoc_part
+def solve_part_c(data) -> int:
+    """Solve part A"""
+    grid, sz, start, target = data
+    gph = make_graph(data)
+    dst = dijkstra(gph, (start, 0), target)
+    return dst
 
 
 EX_RAW_DATA = file_to_list(get_filename(__file__, "ex"))
@@ -126,3 +175,5 @@ solve_part_a(MY_DATA)
 
 solve_part_b(EX_DATA)
 solve_part_b(MY_DATA)
+
+# solve_part_c(EX_DATA)
