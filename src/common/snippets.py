@@ -42,6 +42,21 @@ for line in raw_data:
     d = int(sr.group(3))
     tuple(int(g) for g in sr.groups())
 
+    # based on
+    # list_2d_to_dict(list_2d, poi_labels=None, replace_poi_with_char=None)
+
+    grid = {}
+    bot = None
+    sz = len(raw_data), len(raw_data[0])
+    for ri, row in enumerate(raw_data):
+        for ci, ch in enumerate(row):
+            p = (ri, ci)
+            if ch == "@":
+                bot = p
+                ch = "."
+            grid[p] = ch
+    # return sz, grid, bot
+
 # ----------------
 # BFS
 # Day 10 has recursion too
@@ -98,16 +113,31 @@ while h:
 # ------------------------------
 # Directions, Grids and Graphs
 # ------------------------------
+
+ALPHA_LOWER = "abcdefghijklmnopqrstuvwxyz"
+ALPHA_UPPER = ALPHA_LOWER.upper()
+DIGITS = "0123456789"
+labels = set(list(ALPHA_LOWER) + list(ALPHA_UPPER) + list(DIGITS))
+
 from common.visuals import visualize_graph
-from common.grid_2d import directions, grid_lists_to_dict, maze_to_graph
+from common.grid_2d import (
+    directions,
+    list_2d_to_dict,
+    maze_to_graph,
+)
 from common.graph import dijkstra
 
 p = (0, 0)
-for d, dv in directions.items():
+for dc, dv in directions.items():
     np = tuple(map(add, p, dv))
 
+    if all(0 <= x < sz for x in np):
+        pass
 
-maze = grid_lists_to_dict(data, content_filter=None)
-gph = maze_to_graph(start, maze, directed=False, path_char=".", node_chars="")
+
+sz, grid, poi = list_2d_to_dict(raw_data, poi_labels=None, replace_poi_with_char=None)
+start = poi["A"]
+target = poi["Z"]
+gph = maze_to_graph(start, grid, directed=False, path_char=".", node_chars="")
 visualize_graph(gph, directed=False)
-dst = dijkstra(gph, source, target, weight_attr=None)
+dst = dijkstra(gph, start, target, weight_attr=None)
