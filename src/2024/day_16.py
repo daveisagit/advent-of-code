@@ -4,6 +4,7 @@
 
 from collections import defaultdict
 from heapq import heappop, heappush
+from itertools import count
 from operator import add
 
 
@@ -12,7 +13,7 @@ from common.aoc import (
     aoc_part,
     get_filename,
 )
-from common.graph import dijkstra
+from common.graph import dijkstra, dijkstra_all_paths
 from common.grid_2d import (
     list_2d_to_dict,
     rotations,
@@ -157,11 +158,17 @@ def make_graph(data):
 
 @aoc_part
 def solve_part_c(data) -> int:
-    """Solve part A"""
+    """Solve using a graph with facing direction in state/node
+    This provoked the creation of dijkstra_all_paths which is a tweak
+    of dijkstra_paths with a <= instead < and a list of paths instead of just 1.
+    """
     grid, sz, start, target = data
     gph = make_graph(data)
     dst = dijkstra(gph, (start, 0), target)
-    return dst
+    _, all_paths = dijkstra_all_paths(gph, (start, 0), target)
+    ps = {p for pth in all_paths for p, _ in pth}
+    # take off 1 because of the fake target node with no direction
+    return dst, len(ps) - 1
 
 
 EX_RAW_DATA = file_to_list(get_filename(__file__, "ex"))
@@ -176,4 +183,5 @@ solve_part_a(MY_DATA)
 solve_part_b(EX_DATA)
 solve_part_b(MY_DATA)
 
-# solve_part_c(EX_DATA)
+solve_part_c(EX_DATA)
+solve_part_c(MY_DATA)

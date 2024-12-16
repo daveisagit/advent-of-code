@@ -115,7 +115,7 @@ def solve_part_a(data) -> int:
 def solve_part_b(data) -> int:
     """Solve part B"""
     start, finish, locations = data
-    gph = maze_to_graph(start, locations)
+    gph = maze_to_graph(start, locations, path_char="^v<>.")
     return get_longest_path_recursion(start, finish, gph)
 
 

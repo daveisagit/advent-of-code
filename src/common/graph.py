@@ -128,6 +128,47 @@ def dijkstra_paths(gph, source, target=None, weight_attr=None):
     return dist, paths
 
 
+def dijkstra_all_paths(gph, source, target=None, weight_attr=None):
+    """Uses Dijkstra's algorithm to find shortest path from source -> target
+    If no specific target given then return them all
+    the second tuple being the paths which is a list of paths
+    """
+    push = heappush
+    pop = heappop
+    dist = {}  # dictionary of final distances
+    seen = {}
+    paths = defaultdict(list)
+    paths[source] = [[source]]
+    # fringe is heapq with 3-tuples (distance,c,node)
+    # use the count c to avoid comparing nodes (may not be able to)
+    c = count()
+    fringe = []
+    seen[source] = 0
+    push(fringe, (0, next(c), source))
+    while fringe:
+        (d, _, v) = pop(fringe)
+        if v in dist:
+            continue  # already searched this node.
+        dist[v] = d
+        if v == target:
+            break
+        for u, attrs in gph[v].items():
+            cost = attrs
+            if weight_attr:
+                cost = attrs[weight_attr]
+            vu_dist = dist[v] + cost
+
+            if u not in seen or vu_dist <= seen[u]:
+                seen[u] = vu_dist
+                push(fringe, (vu_dist, next(c), u))
+                for pts in paths[v]:
+                    paths[u].append(pts + [u])
+
+    if target:
+        return dist[target], paths[target]
+    return dist, paths
+
+
 def dijkstra_options_injection(
     source, target, options_func: callable, options_func_data=None
 ):
