@@ -141,3 +141,21 @@ target = poi["Z"]
 gph = maze_to_graph(start, grid, directed=False, path_char=".", node_chars="")
 visualize_graph(gph, directed=False)
 dst = dijkstra(gph, start, target, weight_attr=None)
+
+# in case we need it
+from numpy.linalg import matrix_rank
+
+
+def are_parallel(a, b):
+    """Return True if the vectors are parallel"""
+    vectors = [a, b]
+    r = matrix_rank(vectors)
+    return r <= 1
+
+
+# in case we need it
+import networkx as nx
+from common.graph import directed_edges
+
+de = directed_edges(gph)
+G = nx.from_edgelist(de)

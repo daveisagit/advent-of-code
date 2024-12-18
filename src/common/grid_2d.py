@@ -242,6 +242,11 @@ def shoelace_area(outline) -> int:
     return abs(sum(areas) // 2)
 
 
+#
+# Graph n Grid Makers
+#
+
+
 def make_blank_grid(rows, cols, blank_char="."):
     """Return a grid of space"""
     grid = {}
@@ -512,6 +517,62 @@ def print_single_char_dict_grid(g, limits=None, none_char=" "):
     print_dict_grid_values(
         g, cell_width=1, none_char=none_char, headings=False, limits=limits
     )
+
+
+def dict_translate(g, t):
+    ng = {}
+    for p, v in g.items():
+        q = tuple(map(add, p, t))
+        ng[q] = v
+    return ng
+
+
+def dict_reflect_y(g):
+    ng = {}
+    for (r, c), v in g.items():
+        r = -r
+        q = (r, c)
+        ng[q] = v
+    return ng
+
+
+def dict_rotate_90(g):
+    ng = {}
+    for p, v in g.items():
+        q = rotate90(p)
+        ng[q] = v
+    return ng
+
+
+def dict_normalise(g):
+    min_r, min_c, _, _ = get_grid_limits(g)
+    sg = dict_translate(g, (-min_r, -min_c))
+    return sg
+
+
+def dict_dihedral_arrangements(g):
+    """Generator for the 8 arrangements of a square grid
+    returns a triple a,b,grid where a is the number of rotations and b reflections"""
+    # Rotate 4 times
+    # Reflect and rotate 4 times again
+    sg = g
+    # sz -= 1
+    for a in range(4):
+        yield a, 0, sg
+        sg = dict_rotate_90(sg)
+        sg = dict_normalise(sg)
+
+    sg = dict_reflect_y(sg)
+    sg = dict_normalise(sg)
+    for a in range(4):
+        yield a, 1, sg
+        sg = dict_rotate_90(sg)
+        sg = dict_normalise(sg)
+
+
+#
+# Generators
+#
 
 
 def spiral_out(centre=(0, 0), direction=0):
