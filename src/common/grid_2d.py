@@ -242,6 +242,30 @@ def shoelace_area(outline) -> int:
     return abs(sum(areas) // 2)
 
 
+def make_blank_grid(rows, cols, blank_char="."):
+    """Return a grid of space"""
+    grid = {}
+    for r in range(rows):
+        for c in range(cols):
+            p = (r, c)
+            grid[p] = blank_char
+    return grid
+
+
+def make_graph_from_grid(grid, path_char="."):
+    """Return a graph with a node for every step in the path"""
+    gph = defaultdict(dict)
+    for p, ch in grid.items():
+        if ch not in path_char:
+            continue
+        for d in directions.values():
+            np = tuple(map(add, p, d))
+            if np in grid and grid[np] in path_char:
+                gph[p][np] = 1
+                gph[np][p] = 1
+    return gph
+
+
 def maze_to_graph(start, maze, directed=False, path_char=".", node_chars=""):
     """Take a maze expressed as a dict of path points the value
     being either a normal path or a specific direction (<>^v)
@@ -279,7 +303,7 @@ def maze_to_graph(start, maze, directed=False, path_char=".", node_chars=""):
             if inc:
                 choices.add(nxt)
 
-        if deg == 2 and maze[cur] not in node_chars:
+        if deg == 2 and maze[cur] not in node_chars and cur != start:
             # if choices = 2 we are on an edge
             # we don't want to turn around
             choices.discard(prv)

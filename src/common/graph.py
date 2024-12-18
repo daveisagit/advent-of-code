@@ -131,7 +131,8 @@ def dijkstra_paths(gph, source, target=None, weight_attr=None):
 def dijkstra_all_paths(gph, source, target=None, weight_attr=None):
     """Uses Dijkstra's algorithm to find shortest path from source -> target
     If no specific target given then return them all
-    the second tuple being the paths which is a list of paths
+    the second tuple being the dict of paths which is a list of paths
+    If target given then just a list of paths (not a dict)
     """
     push = heappush
     pop = heappop

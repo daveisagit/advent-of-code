@@ -164,8 +164,9 @@ def solve_part_c(data) -> int:
     """
     grid, sz, start, target = data
     gph = make_graph(data)
-    dst = dijkstra(gph, (start, 0), target)
-    _, all_paths = dijkstra_all_paths(gph, (start, 0), target)
+    start_facing_east = (start, 0)
+    dst = dijkstra(gph, start_facing_east, target)
+    _, all_paths = dijkstra_all_paths(gph, start_facing_east, target)
     ps = {p for pth in all_paths for p, _ in pth}
     # take off 1 because of the fake target node with no direction
     return dst, len(ps) - 1
