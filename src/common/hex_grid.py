@@ -55,6 +55,12 @@ def flip_points(ps):
     return [flip_point(p) for p in ps]
 
 
+def dict_flip_points(ps):
+    """Reflect a point over vertical centre line through origin
+    If NS then over the NE/SW line"""
+    return {flip_point(p): v for p, v in ps.items()}
+
+
 def rotate_point(p):
     """Rotate ACW 60 - shift coordinates right and multiply -1"""
     return tuple(-p[(i - 1) % 3] for i in range(3))
@@ -63,6 +69,11 @@ def rotate_point(p):
 def rotate_points(ps):
     """Rotate ACW 60 - shift coordinates right and multiply -1"""
     return [rotate_point(p) for p in ps]
+
+
+def dict_rotate_points(ps):
+    """Rotate ACW 60 - shift coordinates right and multiply -1"""
+    return {rotate_point(p): v for p, v in ps.items()}
 
 
 def generate_dihedral_symmetries(points):
@@ -79,6 +90,21 @@ def generate_dihedral_symmetries(points):
     yield from generate_rotations(points)
 
 
+def dict_generate_dihedral_symmetries(points):
+    """Generator for the dihedral symmetries
+    Yields the new set of points and the change to a reference point"""
+
+    def generate_rotations(points):
+        for _ in range(6):
+            points = dict_normalise_position(points)
+            yield points
+            points = dict_rotate_points(points)
+
+    yield from generate_rotations(points)
+    points = dict_flip_points(points)
+    yield from generate_rotations(points)
+
+
 def scalar_multiply(v, s):
     return tuple(x * s for x in v)
 
@@ -89,12 +115,22 @@ def translate_points(points, vector):
     return tuple(tuple(map(add, p, vector)) for p in points)
 
 
+def dict_translate_points(points, vector):
+    """Translate all point by the given vector"""
+    # tuple(map(add, p, vector))
+    return {tuple(map(add, p, vector)): v for p, v in points.items()}
+
+
 def point_to_doubled(p):
     return p[1], p[0] - p[2]
 
 
 def pattern_to_doubled(pt):
     return [point_to_doubled(p) for p in pt]
+
+
+def dict_pattern_to_doubled(pt):
+    return {point_to_doubled(p): v for p, v in pt.items()}
 
 
 def point_from_doubled(d):
@@ -146,6 +182,19 @@ def normalise_position(points):
     return points
 
 
+def dict_normalise_position(points):
+    """Translate the pattern to the top left in a consistent fashion
+    This will allow us to identify a unique pattern by its coordinate set"""
+    min_r = min(p[1] for p in points)
+    v1 = scalar_multiply(hectors[1], min_r)
+    points = dict_translate_points(points, v1)
+
+    min_c = min(p[0] for p in points)
+    v2 = scalar_multiply(hectors[3], min_c)
+    points = dict_translate_points(points, v2)
+    return points
+
+
 def get_graph(points) -> dict:
     """Return a graph dict of the points"""
     gph = defaultdict(dict)
@@ -188,5 +237,8 @@ def test():
 
     print(compass)
 
-
-test()
+    dict_test_pattern = {p: str(i) for i, p in enumerate(test_pattern)}
+    for tp in dict_generate_dihedral_symmetries(dict_test_pattern):
+        ps = dict_pattern_to_doubled(tp)
+        print_single_char_dict_grid(ps)
+    print()
