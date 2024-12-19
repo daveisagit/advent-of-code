@@ -327,3 +327,35 @@ def string_differs_at(a, b):
         if c != b[i]:
             differences.append(i)
     return differences
+
+
+def gravity(state: list, objects="O", space="."):
+    """Move objects to the left thorough space
+    Anything not an object blocks
+
+    i.e. if 1-9 are the objects
+    ..#.1.2..34..#.5....678..9#O
+    ..#1234......#56789.......#O
+    """
+    for idx in range(1, len(state)):
+        ch = state[idx]
+        if ch not in objects:
+            continue
+        new_pos = idx
+        for j in range(idx - 1, -1, -1):
+            chk = state[j]
+            if chk != space:
+                break
+            new_pos = j
+        if new_pos != idx:
+            state[idx] = space
+            state[new_pos] = ch
+
+
+def test_gravity():
+    s1 = "..#.1.2..34..#.5....678..9#O"
+    sl = list(s1)
+    gravity(sl, objects="123456789")
+    s2 = "".join(sl)
+    print(s1)
+    print(s2)

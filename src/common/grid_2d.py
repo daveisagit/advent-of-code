@@ -570,6 +570,42 @@ def dict_dihedral_arrangements(g):
         sg = dict_normalise(sg)
 
 
+def dict_get_row_as_list(g, r, beg=None, end=None, dft=" "):
+    min_r, min_c, max_r, max_c = get_grid_limits(g)
+    lst = []
+    if beg is None:
+        beg = min_c
+    if end is None:
+        end = max_c + 1
+    for idx in range(beg, end):
+        lst.append(g.get((r, idx), dft))
+    return lst
+
+
+def dict_get_col_as_list(g, c, beg=None, end=None, dft=" "):
+    min_r, min_c, max_r, max_c = get_grid_limits(g)
+    lst = []
+    if beg is None:
+        beg = min_r
+    if end is None:
+        end = max_r + 1
+    for idx in range(beg, end):
+        lst.append(g.get((idx, c), dft))
+    return lst
+
+
+def dict_set_row(g, r, lst):
+    for i, v in enumerate(lst):
+        p = (r, i)
+        g[p] = v
+
+
+def dict_set_col(g, c, lst):
+    for i, v in enumerate(lst):
+        p = (i, c)
+        g[p] = v
+
+
 #
 # Generators
 #
@@ -698,3 +734,17 @@ def cantor_value(row, col, col_first=True):
     else:
         idx = base + row
     return idx
+
+
+# g = {}
+# for i, v in enumerate(islice(cantor_zigzag(), 25)):
+#     g[v] = chr(65 + i)
+
+# print_single_char_dict_grid(g)
+# print(dict_get_col_as_list(g, 1))
+# print(dict_get_row_as_list(g, 2))
+
+# l = dict_get_col_as_list(g, 0)
+# l = l[::-1]
+# dict_set_col(g, 0, l)
+# print_single_char_dict_grid(g)

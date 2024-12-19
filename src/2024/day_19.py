@@ -1,75 +1,117 @@
 """Advent of code 2024
---- Day n: ---
+--- Day 19: Linen Layout ---
 """
 
-import json
-import re
+from functools import lru_cache
 
-from collections import Counter, deque, defaultdict
-from heapq import heappop, heappush
-from itertools import pairwise, combinations, permutations, product
-from math import inf, gcd, lcm, sqrt, comb, ceil, floor
-from operator import add, sub
-
-from common.aoc import (
-    file_to_list,
-    aoc_part,
-    get_filename,
-    file_to_string,
-    file_to_list_no_strip,
-)
-from common.general import input_sections, tok, window_over
-from common.grid_2d import directions, get_grid_limits, grid_lists_to_dict
-
-show_parsed = False
-show_parsed = True
+from common.aoc import file_to_list, aoc_part, get_filename
+from common.general import tok
 
 
 def parse_data(raw_data):
     """Parse the input"""
-    data = []
-    for line in raw_data:
-        sr = re.search(r"(-?\d+)\s+(-?\d+)", line)  # day 1
+    patterns = tok(raw_data[0], ",")
+    designs = raw_data[2:]
+    return patterns, designs
 
-        sr = re.search(r"(.+) to (.+) = (\d+)", line)
-        sr = re.search(r"(.{3}) = \((.{3}), (.{3})\)", line)
-        sr = re.search(r"(\d+)-(\d+),(\d+)-(\d+)", line)
-        u = sr.group(1)
-        v = sr.group(2)
-        d = int(sr.group(3))
-        d = tuple(int(g) for g in sr.groups())
 
-        data.append(d)
+def string_composition_exists(components, full_string: str):
+    """Returns True if possible to make the full string from components
+    Uses memoize for efficiency
+    """
 
-    return data
+    @lru_cache(maxsize=None)
+    def recurrence(s):
+        if s == "":
+            return True
+        for cmp in components:
+            l = len(cmp)
+            if s[:l] == cmp:
+                if recurrence(s[l:]):
+                    return True
+        return False
+
+    return recurrence(full_string)
+
+
+def string_composition_count(components, full_string: str, just_existence=False):
+    """Returns the ways to make the full string using the components
+    Uses memoize for efficiency
+    """
+
+    @lru_cache(maxsize=None)
+    def recurrence(s):
+        if s == "":
+            return 1
+        cnt = 0
+        for cmp in components:
+            l = len(cmp)
+            if s[:l] == cmp:
+                cnt += recurrence(s[l:])
+        return cnt
+
+    return recurrence(full_string)
+
+
+def generate_string_composition_combinations(components, full_string: str):
+    """Generator for the actual ways to make the full string using the components"""
+
+    def recurrence(s):
+        for cmp in components:
+            l = len(cmp)
+            if s[:l] == cmp:
+                if s[l:] != "":
+                    for way in recurrence(s[l:]):
+                        yield (cmp,) + way
+                else:
+                    yield (cmp,)
+
+    yield from recurrence(full_string)
 
 
 @aoc_part
 def solve_part_a(data) -> int:
     """Solve part A"""
-    return len(data)
+    patterns, designs = data
+    cnt = 0
+    for d in designs:
+        if string_composition_exists(patterns, d):
+            cnt += 1
+
+    return cnt
 
 
 @aoc_part
 def solve_part_b(data) -> int:
     """Solve part B"""
-    return len(data)
+    patterns, designs = data
+    cnt = 0
+    for d in designs:
+        cnt += string_composition_count(patterns, d)
+    return cnt
+
+
+@aoc_part
+def solve_part_c(data) -> int:
+    """Solve part C"""
+    patterns, designs = data
+    for d in designs:
+        print()
+        print(f"{d}")
+        for composition in generate_string_composition_combinations(patterns, d):
+            print(composition)
 
 
 EX_RAW_DATA = file_to_list(get_filename(__file__, "ex"))
 EX_DATA = parse_data(EX_RAW_DATA)
-if show_parsed:
-    print("Parsed data:")
-    print(json.dumps(EX_DATA, indent=4))
 
 MY_RAW_DATA = file_to_list(get_filename(__file__, "my"))
 MY_DATA = parse_data(MY_RAW_DATA)
-if show_parsed:
-    print("Parsed data:")
-    print(json.dumps(MY_DATA, indent=4))
 
 solve_part_a(EX_DATA)
 solve_part_a(MY_DATA)
 
 solve_part_b(EX_DATA)
 solve_part_b(MY_DATA)
+
+# solve_part_c(EX_DATA)
