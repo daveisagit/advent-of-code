@@ -5,7 +5,7 @@
 from collections import Counter, defaultdict, deque
 import re
 from common.aoc import file_to_list, aoc_part, get_filename
-from common.blocks import BlockResolver
+from common.blocks import BlockResolver, BlockResolverUsingBlock
 from blocksets import Block
 
 
@@ -120,9 +120,9 @@ def solve_part_c(data) -> int:
 
         return state
 
-    br = BlockResolver(2, cross_section_resolver)
+    br = BlockResolverUsingBlock(2, cross_section_resolver)
     for op, a, b in data:
-        block = (a, b)
+        block = Block(a, b)
         stack_data = (op,)
         entry = (block, stack_data)
         br._operation_stack.append(entry)
@@ -130,9 +130,7 @@ def solve_part_c(data) -> int:
 
     total = 0
     for block, stack_data in br._operation_stack:
-        x_amt = block[1][0] - block[0][0]
-        y_amt = block[1][1] - block[0][1]
-        total += x_amt * y_amt
+        total += block.measure
 
     return total
 
@@ -154,9 +152,9 @@ def solve_part_d(data) -> int:
                 state += 2
         return state
 
-    br = BlockResolver(2, cross_section_resolver)
+    br = BlockResolverUsingBlock(2, cross_section_resolver)
     for op, a, b in data:
-        block = (a, b)
+        block = Block(a, b)
         stack_data = (op,)
         entry = (block, stack_data)
         br._operation_stack.append(entry)
@@ -164,9 +162,7 @@ def solve_part_d(data) -> int:
 
     total = 0
     for block, stack_data in br._operation_stack:
-        x_amt = block[1][0] - block[0][0]
-        y_amt = block[1][1] - block[0][1]
-        total += x_amt * y_amt * stack_data[0]
+        total += block.measure * stack_data[0]
 
     return total
 
@@ -212,12 +208,11 @@ EX_DATA = parse_data(EX_RAW_DATA)
 MY_RAW_DATA = file_to_list(get_filename(__file__, "my"))
 MY_DATA = parse_data(MY_RAW_DATA)
 
-solve_part_a(EX_DATA)
+# solve_part_a(EX_DATA)
 solve_part_a(MY_DATA)
-
 solve_part_b(MY_DATA)
 
-# using BlockResolver
+# # using BlockResolver
 solve_part_c(MY_DATA)
 solve_part_d(MY_DATA)
 

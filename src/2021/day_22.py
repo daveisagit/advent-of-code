@@ -347,7 +347,7 @@ def solve_part_e(data) -> int:
 
 @aoc_part
 def solve_part_f(data) -> int:
-    """Solve part A"""
+    """Solve using set theory alt +/- intersection counting method"""
     new_data = []
     for op, ranges in data:
         (ax, bx), (ay, by), (az, bz) = ranges

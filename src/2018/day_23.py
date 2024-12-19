@@ -8,8 +8,9 @@ from math import inf
 from operator import sub
 import re
 from common.aoc import file_to_list, aoc_part, get_filename
-from common.blocks import BlockResolver
+from common.blocks import BlockResolver, BlockResolverUsingBlock
 from common.grid_3d import octahedron_manhattan_planes, octaplanes_to_point_set
+from blocksets import Block
 
 
 def parse_data(raw_data):
@@ -213,10 +214,10 @@ def solve_part_c(data) -> int:
 
     # convert 4 pairs of planes to a 4D block
     pp = [tuple(zip(*x)) for x in pp]
-    br = BlockResolver(4, None)
+    br = BlockResolverUsingBlock(4, None)
 
     for a, b in pp:
-        blk = a, b
+        blk = Block(a, b)
         br._operation_stack.append((blk, 1))
 
     br._refresh_marker_ordinates()
