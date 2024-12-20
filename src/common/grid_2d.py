@@ -609,6 +609,13 @@ def dict_set_col(g, c, lst):
 #
 # Generators
 #
+def points_within_manhattan_distance(p, md):
+    """yield all points within a manhattan distance (md) of p"""
+    for r in range(p[0] - md, p[0] + md + 1):
+        for c in range(p[1] - md, p[1] + md + 1):
+            np = r, c
+            if manhattan(p, np) <= md:
+                yield np
 
 
 def spiral_out(centre=(0, 0), direction=0):
