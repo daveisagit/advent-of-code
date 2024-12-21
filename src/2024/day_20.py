@@ -45,7 +45,7 @@ def get_savings(data, cheat_duration=2) -> list:
     cheats = []
     for a, da in dst_start.items():
         for b in points_within_manhattan_distance(a, cheat_duration):
-            if b not in grid:
+            if a == b:
                 continue
             if b not in dst_end:
                 continue
@@ -76,7 +76,7 @@ def solve_part_a(data, save_limit=0, print_detail=True) -> int:
 
 @aoc_part
 def solve_part_b(data, save_limit=50, print_detail=True) -> int:
-    """Solve part A"""
+    """Solve part B"""
     saves = get_savings(data, cheat_duration=20)
     saves = [s for s in saves if s >= save_limit]
 
