@@ -37,8 +37,8 @@ def parse_data(raw_data):
 
 
 def get_best_sequences(p, req_ch, grid):
-    """Return a list of the best sequences (seq,p)
-    where p is the position on the grid"""
+    """Return a list of the best sequences (seq,p) from
+    (p) the position on the grid to the required character (req_ch)"""
     h = []
     # state = len, pos
     state = 0, (), p
@@ -153,31 +153,31 @@ def get_length(p, seq, depth, use_dir_grid=False):
     # to req_ch
     req_ch = seq[0]
     seqs = get_best_sequences(p, req_ch, grid)
-    # seqs is a list of tuples (seq,p)
-    # where seq is one of the best to get to np
+    # seqs is a list of tuples (seq,np)
+    # where seq is one of the best to get to np.
     # np is the new point we will be at on the pad
     np = seqs[0][1]
 
     if depth == 0:
-        # we are the last robot so the best length
+        # this is last robot so the best length
         # is any of the best sequences to reach the
         # required character
         best = seqs[0][0]
-        # we now serially add movement for the contents of seq
+        # we now laterally add movement recursively for the contents of seq
         return len(best) + get_length(np, seq[1:], depth, use_dir_grid=use_dir_grid)
 
     # consider all the best sequences
     # and for each how long it would take recursively
     # the lower level bots always start at A = (0,2)
     # since that is where they would of finished in order
-    # to enter for the level above
+    # to enter the directions for the level above
     options = []
     for seq1, _ in seqs:
         best = get_length((0, 2), seq1, depth - 1, use_dir_grid=True)
         options.append(best)
-
-    # similarly as at level 0 we serially
     min_len = min(options)
+
+    # similarly as at level 0 we laterally add movement recursively for the contents of seq
     return min_len + get_length(np, seq[1:], depth, use_dir_grid=use_dir_grid)
 
 
