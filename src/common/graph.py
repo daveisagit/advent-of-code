@@ -39,6 +39,10 @@ from common.heap import BinaryHeap
 # Flow
 #   Edmonds-Karp: TODO: https://en.wikipedia.org/wiki/Edmonds%E2%80%93Karp_algorithm
 
+# Clique
+#   bron_kerbosch: Yields maximal cliques
+#
+
 
 def all_nodes(gph):
     """Return all the nodes of a graph as a set"""
@@ -816,38 +820,6 @@ def dag_topographical_sort(g, func_node_chooser=None) -> list:
         return L
 
 
-def possible_roots_DEP(gph, check_all_nodes_reachable=True):
-    """Find all possible roots of a directed graph"""
-    # NO WORK!!!
-    scc_node_groups = tarjan(gph)
-    edges = directed_edges(gph)
-    scc_with_no_incoming_edges = set()
-    for scc_nodes in scc_node_groups:
-        incoming_edges = {
-            v for (u, v), _ in edges.items() if u not in scc_nodes and v in scc_nodes
-        }
-        if incoming_edges:
-            continue
-        scc_with_no_incoming_edges.add(frozenset(scc_nodes))
-
-    if len(scc_with_no_incoming_edges) != 1:
-        return None
-
-    # this is the only scc with no incoming from other groups
-    # so it must be the root (all members can be roots by definition of scc)
-    scc = scc_with_no_incoming_edges.pop()
-
-    if check_all_nodes_reachable:
-        reachable_nodes = reachable(gph, list(scc)[0])
-        for scc_nodes in scc_node_groups:
-            if scc_nodes == scc:
-                continue
-            if scc_nodes[0] in reachable_nodes:
-                continue
-            raise ValueError(f"Unreachable nodes {scc_nodes}")
-    return scc
-
-
 def find_a_circle(gph):
     """Return the first circle found as a set of edges, nodes"""
     sg_nodes = tarjan(gph)
@@ -875,6 +847,30 @@ def find_a_circle(gph):
     circle.add((cur, src))
 
     return circle, nodes
+
+
+def bron_kerbosch(gph, P, R=None, X=None):
+    """Generator yielding maximal cliques with pivoting as defined in wikipedia
+    https://en.wikipedia.org/wiki/Bron%E2%80%93Kerbosch_algorithm
+    """
+    P = set(P)
+    R = set() if R is None else R
+    X = set() if X is None else X
+    if not P and not X:
+        yield R
+
+    PX = P | X
+    S = set()
+    if PX:
+        u = PX.pop()
+        S = P.difference(gph[u])
+
+    for v in S:
+        yield from bron_kerbosch(
+            gph, P=P.intersection(gph[v]), R=R.union([v]), X=X.intersection(gph[v])
+        )
+        P.remove(v)
+        X.add(v)
 
 
 def edmond_mst(gph, root):
