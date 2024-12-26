@@ -995,43 +995,6 @@ test_data = [
     ("D", "C", 12),
 ]
 
-# import networkx as nx
-
-# dg = nx.DiGraph()
-# gph = defaultdict(dict)
-# for u, v, w in test_data:
-#     gph[u][v] = w
-#     # dg.add_edge(u, v, w=w)
-
-# print("min")
-# a = nx.minimum_spanning_arborescence(dg, "w")
-# for u, v, w in a.edges(data=True):
-#     print(u, v, w)
-
-# print("max")
-# a = nx.maximum_spanning_arborescence(dg, "w")
-# for u, v, w in a.edges(data=True):
-#     print(u, v, w)
-
-# a = edmond_mst(gph, root="A")
-# print(a)
-
-# a = minimal_spanning_tree_directed(gph, as_edges=True)
-# print(a)
-
-# pr = possible_roots(gph)
-# print(pr)
-
-# dt = [(0, 1, 10), (0, 2, 6), (0, 3, 5), (1, 3, 15), (2, 3, 4)]
-
-# gph = defaultdict(dict)
-# for u, v, w in dt:
-#     add_edge(gph, u, v, w)
-#     add_edge(gph, v, u, w)
-
-# m = minimal_spanning_tree(gph)
-# print(m)
-
 #########################################################################
 # Tests using
 # https://algorithms.discrete.ma.tum.de/
