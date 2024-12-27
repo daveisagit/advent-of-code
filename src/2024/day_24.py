@@ -3,6 +3,7 @@
 """
 
 from collections import deque
+from functools import lru_cache
 import re
 from random import randrange
 from math import inf
@@ -151,12 +152,46 @@ def get_wrong_bit(exp_d, d):
     return None
 
 
-def test_circuit(test_bed, gates, outputs, expect, swaps=()):
+def test_circuit_old_version(test_bed, gates, outputs, expect, swaps=()):
     """Run over all the tests and return the lowest bit
     number that we have a consistent result for"""
     lowest = inf
     for init, rd in test_bed:
         d = run_circuit(init, gates, outputs, swaps=swaps)
+        wb = get_wrong_bit(rd, d)
+        if wb is not None:
+            lowest = min(lowest, wb)
+        if lowest <= expect:
+            return lowest
+
+    if lowest == inf:
+        lowest = None
+    return lowest
+
+
+def test_circuit(test_bed, gates, outputs, expect, swaps=()):
+    """Run over all the tests and return the lowest bit
+    number that we have a consistent result for"""
+
+    @lru_cache(maxsize=None)
+    def get_wire_value(x, y, w, swaps):
+        if w[0] == "x":
+            p = int(w[1:])
+            return (x >> p) & 1
+        if w[0] == "y":
+            p = int(w[1:])
+            return (y >> p) & 1
+        g = get_gate_outputting_to_wire(gates, w, swaps=swaps)
+        if g.typ == "AND":
+            return get_wire_value(x, y, g.a, swaps) & get_wire_value(x, y, g.b, swaps)
+        if g.typ == "OR":
+            return get_wire_value(x, y, g.a, swaps) | get_wire_value(x, y, g.b, swaps)
+        if g.typ == "XOR":
+            return get_wire_value(x, y, g.a, swaps) ^ get_wire_value(x, y, g.b, swaps)
+
+    lowest = inf
+    for x, y, rd in test_bed:
+        d = {int(w[1:]): get_wire_value(x, y, w, swaps) for w in outputs}
         wb = get_wrong_bit(rd, d)
         if wb is not None:
             lowest = min(lowest, wb)
@@ -185,17 +220,13 @@ def solve_part_b(data) -> int:
     test_bed = []
     for _ in range(20):
         x = randrange(2**44)
-        xd = value_to_dict(x)
-        xd = {f"x{i:02}": v for i, v in xd.items()}
         y = randrange(2**44)
-        yd = value_to_dict(y)
-        yd = {f"y{i:02}": v for i, v in yd.items()}
-        init = {**xd, **yd}
         r = x + y
         rd = value_to_dict(r)
-        test_bed.append((init, rd))
+        test_bed.append((x, y, rd))
 
     # start at this bit
+    # first_bit_in_error = test_circuit(test_bed, gates, outputs, 0, swaps=())
     first_bit_in_error = test_circuit(test_bed, gates, outputs, 0, swaps=())
 
     # in case our test bed does not rule out all bad wirings we
