@@ -213,12 +213,12 @@ def solve_part_b(data) -> int:
     outputs = [x for x in wires if x[0] == "z"]
 
     # create some tests since the 1 initial state is not enough testing
-    # tweak the size of 20 as required, going lower can be worse in that more
+    # tweak the size as required, going lower can be worse in that more
     # bad circuits are let through for checking in the later stages
-    # up to 50 will run in a couple of mins.
+    # up to 20-50 will run in 10s.
     # several runs of 20 produced a fairly optimal result
     test_bed = []
-    for _ in range(20):
+    for _ in range(30):
         x = randrange(2**44)
         y = randrange(2**44)
         r = x + y
@@ -226,7 +226,6 @@ def solve_part_b(data) -> int:
         test_bed.append((x, y, rd))
 
     # start at this bit
-    # first_bit_in_error = test_circuit(test_bed, gates, outputs, 0, swaps=())
     first_bit_in_error = test_circuit(test_bed, gates, outputs, 0, swaps=())
 
     # in case our test bed does not rule out all bad wirings we
